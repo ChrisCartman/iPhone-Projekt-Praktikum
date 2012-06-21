@@ -14,6 +14,8 @@
 
 @implementation GameViewController
 
+@synthesize cardDeckImage;
+
 @synthesize player1CardOne;
 @synthesize player1CardTwo;
 @synthesize player1NameLabel;
@@ -70,6 +72,7 @@
 
 @synthesize showCardsButton;
 @synthesize throwCardsAwayButton;
+
 
 //User-Interaction:
 - (IBAction) changeBetSliderValue:(id)sender
@@ -144,6 +147,7 @@
         player5CardOne.image = nil;
         player5CardTwo.image = nil;
     }
+    [self showAnimationWhenPlayerFolds:aPlayer];
 }
 
 - (IBAction)throwCardsAwayButtonClicked:(id)sender
@@ -316,11 +320,15 @@
         else {
             if (aPlayer.isYou) {
                 player1CardOne.image = [[aPlayer.hand.cardsOnHand objectAtIndex:0] playingCardImage];
-                player1CardTwo.image = [[aPlayer.hand.cardsOnHand objectAtIndex:1] playingCardImage];
+                if ([aPlayer.hand.cardsOnHand count] > 1) {
+                    player1CardTwo.image = [[aPlayer.hand.cardsOnHand objectAtIndex:1] playingCardImage];
+                }
             }
             else {
                 player1CardOne.image = [UIImage imageNamed:@"Nathan.PNG"];
-                player1CardTwo.image = [UIImage imageNamed:@"Nathan.PNG"];
+                if ([aPlayer.hand.cardsOnHand count] > 1) {
+                    player1CardTwo.image = [UIImage imageNamed:@"Nathan.PNG"];
+                }
             }
         }
     }
@@ -332,11 +340,15 @@
         else {
             if (aPlayer.isYou) {
                 player2CardOne.image = [[aPlayer.hand.cardsOnHand objectAtIndex:0] playingCardImage];
-                player2CardTwo.image = [[aPlayer.hand.cardsOnHand objectAtIndex:1] playingCardImage];
+                if ([aPlayer.hand.cardsOnHand count] > 1) {
+                    player2CardTwo.image = [[aPlayer.hand.cardsOnHand objectAtIndex:1] playingCardImage];
+                }
             }
             else {
                 player2CardOne.image = [UIImage imageNamed:@"Nathan.PNG"];
-                player2CardTwo.image = [UIImage imageNamed:@"Nathan.PNG"];
+                if ([aPlayer.hand.cardsOnHand count] > 1) {
+                    player2CardTwo.image = [UIImage imageNamed:@"Nathan.PNG"];
+                }
             }
         }
     }
@@ -348,11 +360,15 @@
         else {
             if (aPlayer.isYou) {
                 player3CardOne.image = [[aPlayer.hand.cardsOnHand objectAtIndex:0] playingCardImage];
-                player3CardTwo.image = [[aPlayer.hand.cardsOnHand objectAtIndex:1] playingCardImage];
+                if ([aPlayer.hand.cardsOnHand count] > 1) {
+                    player3CardTwo.image = [[aPlayer.hand.cardsOnHand objectAtIndex:1] playingCardImage];
+                }
             }
             else {
                 player3CardOne.image = [UIImage imageNamed:@"Nathan.PNG"];
-                player3CardTwo.image = [UIImage imageNamed:@"Nathan.PNG"];
+                if ([aPlayer.hand.cardsOnHand count] > 1) {
+                    player3CardTwo.image = [UIImage imageNamed:@"Nathan.PNG"];
+                }
             }
         }
     }
@@ -365,11 +381,15 @@
         else {
             if (aPlayer.isYou) {
                 player4CardOne.image = [[aPlayer.hand.cardsOnHand objectAtIndex:0] playingCardImage];
-                player4CardTwo.image = [[aPlayer.hand.cardsOnHand objectAtIndex:1] playingCardImage];
+                if ([aPlayer.hand.cardsOnHand count] > 1) {
+                    player4CardTwo.image = [[aPlayer.hand.cardsOnHand objectAtIndex:1] playingCardImage];
+                }
             }
             else {
                 player4CardOne.image = [UIImage imageNamed:@"Nathan.PNG"];
-                player4CardTwo.image = [UIImage imageNamed:@"Nathan.PNG"];
+                if ([aPlayer.hand.cardsOnHand count] > 1) {
+                    player4CardTwo.image = [UIImage imageNamed:@"Nathan.PNG"];
+                }
             }
         }
     }
@@ -381,11 +401,15 @@
         else {
             if (aPlayer.isYou) {
                 player5CardOne.image = [[aPlayer.hand.cardsOnHand objectAtIndex:0] playingCardImage];
-                player5CardTwo.image = [[aPlayer.hand.cardsOnHand objectAtIndex:1] playingCardImage];
+                if ([aPlayer.hand.cardsOnHand count] > 1) {
+                    player5CardTwo.image = [[aPlayer.hand.cardsOnHand objectAtIndex:1] playingCardImage];
+                }
             }
             else {
                 player5CardOne.image = [UIImage imageNamed:@"Nathan.PNG"];
-                player5CardTwo.image = [UIImage imageNamed:@"Nathan.PNG"];
+                if ([aPlayer.hand.cardsOnHand count] > 1) {
+                    player5CardTwo.image = [UIImage imageNamed:@"Nathan.PNG"];
+                }
             }
         }
     }
@@ -468,9 +492,13 @@
 
 - (void) changeGameOutlets_cards
 {
-    if (pokerGame.gameState == FLOP) {
+    if (pokerGame.gameState == FLOP1) {
         flopCardOneImage.image = [[pokerGame.cardsOnTable.flop objectAtIndex:0] playingCardImage];
+    }
+    else if (pokerGame.gameState == FLOP2) {
         flopCardTwoImage.image = [[pokerGame.cardsOnTable.flop objectAtIndex:1] playingCardImage];
+    }
+    else if (pokerGame.gameState == FLOP) {
         flopCardThreeImage.image = [[pokerGame.cardsOnTable.flop objectAtIndex:2] playingCardImage];
     }
     else if (pokerGame.gameState == TURN) {
@@ -599,6 +627,58 @@
     [self fadeOutLabel:effectLabel duration:2.0 option:nil];    
 }
 
+- (void) showAnimationWhenCardPopsFromDeck
+{
+    CGRect destinationFrame;
+    CGRect startFrame = cardDeckImage.frame;
+    if ([pokerGame.cardDeck.popsFor isEqualToString:@"player1_1"]) {
+        destinationFrame = player1CardOne.frame;
+    }
+    else if ([pokerGame.cardDeck.popsFor isEqualToString:@"player1_2"]) {
+        destinationFrame = player1CardTwo.frame;
+    }
+    else if ([pokerGame.cardDeck.popsFor isEqualToString:@"player2_1"]) {
+        destinationFrame = player2CardOne.frame;
+    }
+    else if ([pokerGame.cardDeck.popsFor isEqualToString:@"player2_2"]) {
+        destinationFrame = player2CardTwo.frame;
+    }
+    else if ([pokerGame.cardDeck.popsFor isEqualToString:@"player3_1"]) {
+        destinationFrame = player3CardOne.frame;
+    }
+    else if ([pokerGame.cardDeck.popsFor isEqualToString:@"player3_2"]) {
+        destinationFrame = player3CardTwo.frame;
+    }    
+    else if ([pokerGame.cardDeck.popsFor isEqualToString:@"player4_1"]) {
+        destinationFrame = player4CardOne.frame;
+    }
+    else if ([pokerGame.cardDeck.popsFor isEqualToString:@"player4_2"]) {
+        destinationFrame = player4CardTwo.frame;
+    }
+    else if ([pokerGame.cardDeck.popsFor isEqualToString:@"player5_1"]) {
+        destinationFrame = player5CardOne.frame;
+    }
+    else if ([pokerGame.cardDeck.popsFor isEqualToString:@"player5_2"]) {
+        destinationFrame = player5CardTwo.frame;
+    }
+    else if ([pokerGame.cardDeck.popsFor isEqualToString:@"flop1"]) {
+        destinationFrame = flopCardOneImage.frame;
+    }
+    else if ([pokerGame.cardDeck.popsFor isEqualToString:@"flop2"]) {
+        destinationFrame = flopCardTwoImage.frame;
+    }
+    else if ([pokerGame.cardDeck.popsFor isEqualToString:@"flop3"]) {
+        destinationFrame = flopCardThreeImage.frame;
+    }
+    else if ([pokerGame.cardDeck.popsFor isEqualToString:@"turn"]) {
+        destinationFrame = turnCardImage.frame;
+    }
+    else if ([pokerGame.cardDeck.popsFor isEqualToString:@"river"]) {
+        destinationFrame = riverCardImage.frame;
+    }
+    [self movePlayingCardFromFrame:startFrame toDestinationFrame:destinationFrame duration:0.2 option:nil];
+}
+
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
     if ([object isKindOfClass:[Player class]]) {
@@ -613,6 +693,9 @@
         if ([keyPath isEqualToString:@"playerState"]) {
             Player* aPlayer = (Player* ) object;
             [self changePlayerOutlets_cards:aPlayer];
+            if (aPlayer.playerState == FOLDED) {
+                [self showAnimationWhenPlayerFolds:aPlayer];
+            }
             if (aPlayer.playerState == CHECKED || aPlayer.playerState == CALLED || aPlayer.playerState == FOLDED || aPlayer.playerState == RAISED || aPlayer.playerState == BET || aPlayer.playerState == ALL_IN) {
                 [self showAnimationAtTheEndOfMoveOfPlayer:aPlayer];
             }
@@ -660,10 +743,7 @@
             [self changeGameOutlets_pot];
         }
         if ([keyPath isEqualToString:@"gameState"]) {
-            if (pokerGame.gameState == SETUP) {
-                [self resetObservationForSidePots];
-            }
-            else if (pokerGame.gameState == TWO_PLAYERS_ALL_IN_SHOW_DOWN) {
+            if (pokerGame.gameState == TWO_PLAYERS_ALL_IN_SHOW_DOWN) {
                 Player* player1 = [pokerGame.remainingPlayersInRound objectAtIndex:0];
                 Player* player2 = [pokerGame.remainingPlayersInRound objectAtIndex:1];
                 [self showCardsOfPlayer:player1 withAnimation:NO];
@@ -672,6 +752,12 @@
             else if (pokerGame.gameState != SHOW_DOWN) {
                 [self changeGameOutlets_cards];
             }
+            if (pokerGame.gameState == SETUP) {
+                [self resetObservationForSidePots];
+            }
+        }
+        if ([keyPath isEqualToString:@"cardDeck.popsFor"]) {
+            [self showAnimationWhenCardPopsFromDeck];
         }
     }
 }
@@ -687,6 +773,7 @@
 
 - (void) setUpGame
 {
+    [pokerGame addObserver:self forKeyPath:@"cardDeck.popsFor" options:0 context:nil];
     [pokerGame addObserver:self forKeyPath:@"mainPot.chipsInPot" options:0 context:nil];
     [pokerGame addObserver:self forKeyPath:@"gameState" options:0 context:nil];
     [pokerGame prepareGame];
@@ -698,6 +785,10 @@
 	// Do any additional setup after loading the view.
     
     //immer benötigte Outlets:
+    cardDeckImage = [[UIImageView alloc] initWithFrame:CGRectMake(5,22,32,44)];
+    cardDeckImage.image = [UIImage imageNamed:@"Nathan.PNG"];
+    [self.view addSubview:cardDeckImage];
+    
     potLabel = [[UILabel alloc]initWithFrame:CGRectMake(5, 2, 50, 20)];
     //player1ChipsLabel.text = @"Text";
     [self.view addSubview:potLabel];
@@ -717,7 +808,7 @@
 	foldButton.segmentedControlStyle = UISegmentedControlStyleBar;
 	foldButton.momentary = YES;
 	foldButton.tintColor = [UIColor darkGrayColor];
-    [foldButton addTarget:self action:@selector(foldButtonPressed::) 
+    [foldButton addTarget:self action:@selector(foldButtonPressed:) 
          forControlEvents: UIControlEventValueChanged];
     foldButton.frame = CGRectMake(10, 253, 80, 30);
     [self.view addSubview:foldButton];
@@ -765,11 +856,9 @@
     
     player1CardOne = [[UIImageView alloc]initWithFrame:CGRectMake(270, 205, 32, 44)];
     [self.view addSubview:player1CardOne];
-    [player1CardOne setImage:[UIImage imageNamed: @"2-herz.png"]];
     
     player1CardTwo = [[UIImageView alloc]initWithFrame:CGRectMake(310, 205, 32, 44)];
     [self.view addSubview:player1CardTwo];
-    [player1CardTwo setImage:[UIImage imageNamed: @"2-herz.png"]];
     
     player1ChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(222, 245, 50, 20)];
     player1ChipsLabel.text = @"Chips";
@@ -808,11 +897,9 @@
     
     player2CardOne = [[UIImageView alloc]initWithFrame:CGRectMake(12, 107, 32, 44)];
     [self.view addSubview:player2CardOne];
-    [player2CardOne setImage:[UIImage imageNamed: @"2-herz.png"]];
     
     player2CardTwo = [[UIImageView alloc]initWithFrame:CGRectMake(38, 107, 32, 44)];
     [self.view addSubview:player2CardTwo];
-    [player2CardTwo setImage:[UIImage imageNamed: @"2-herz.png"]];
 
     player2AlreadyBetChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(65, 107, 40, 20)];
     player2AlreadyBetChipsLabel.text = @"Text";
@@ -847,11 +934,9 @@
         
         player3CardOne = [[UIImageView alloc]initWithFrame:CGRectMake(116, 28, 32, 44)];
         [self.view addSubview:player3CardOne];
-        [player3CardOne setImage:[UIImage imageNamed: @"2-herz.png"]];
         
         player3CardTwo = [[UIImageView alloc]initWithFrame:CGRectMake(142, 28, 32, 44)];
         [self.view addSubview:player3CardTwo];
-        [player3CardTwo setImage:[UIImage imageNamed: @"2-herz.png"]];
         
         player3ChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(121, 65, 50, 20)];
         player3ChipsLabel.text = @"Chips";
@@ -892,11 +977,9 @@
             
             player4CardOne = [[UIImageView alloc]initWithFrame:CGRectMake(308, 28, 32, 44)];
             [self.view addSubview:player4CardOne];
-            [player4CardOne setImage:[UIImage imageNamed: @"2-herz.png"]];
             
             player4CardTwo = [[UIImageView alloc]initWithFrame:CGRectMake(334, 28, 32, 44)];
             [self.view addSubview:player4CardTwo];
-            [player4CardTwo setImage:[UIImage imageNamed: @"2-herz.png"]];
             
             player4ChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(313, 65, 50, 20)];
             player4ChipsLabel.text = @"Chips";
@@ -937,11 +1020,9 @@
                 
                 player5CardOne = [[UIImageView alloc]initWithFrame:CGRectMake(422, 107, 32, 44)];
                 [self.view addSubview:player5CardOne];
-                [player5CardOne setImage:[UIImage imageNamed: @"2-herz.png"]];
                 
                 player5CardTwo = [[UIImageView alloc]initWithFrame:CGRectMake(448, 107, 32, 44)];
                 [self.view addSubview:player5CardTwo];
-                [player5CardTwo setImage:[UIImage imageNamed: @"2-herz.png"]];
                 
                 player5ChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(427, 149, 50, 20)];
                 player5ChipsLabel.text = @"Chips";
@@ -970,14 +1051,18 @@
     // Spieler erstellen und KVO aktivieren.
 
     // Spieler erstellen und KVO aktivieren.
+
+}
+
+- (void) viewDidAppear:(BOOL)animated
+{
     [self setUpPlayers];
     //Spiel vorbereiten (prepareGame ordnet Spieler und allokiert wichtige Objekte) und KVO aktivieren
     [self setUpGame];
-
+    
     //Karten ausgeben usw.
     [pokerGame prepareNewRound];
-    [pokerGame startBetRound];
-
+    [pokerGame performSelector:@selector(startBetRound) withObject:nil afterDelay:3.0];
 }
 
 - (void)viewDidUnload
@@ -998,5 +1083,53 @@
     }
     completion:nil];
 }
+
+- (void) movePlayingCardFromFrame: (CGRect) startFrame toDestinationFrame:(CGRect)destinationFrame duration:(float)secs option:(UIViewAnimationOptions)option
+{
+    UIImageView* temporaryImageView = [[UIImageView alloc] initWithFrame:startFrame];
+    temporaryImageView.image = [UIImage imageNamed:@"Nathan.PNG"];
+    [self.view addSubview:temporaryImageView];
+    [UIView animateWithDuration:secs animations:^{
+        temporaryImageView.frame = destinationFrame;
+    }
+    completion:nil];
+    [self performSelector:@selector(removeTemporaryOutlet:) withObject:temporaryImageView afterDelay:secs];
+}
+
+- (void) removeTemporaryOutlet:(UIImageView* )outlet
+{
+    [outlet removeFromSuperview];
+}
+
+- (void) showAnimationWhenPlayerFolds:(Player *)aPlayer
+{
+    CGRect destinationFrame = cardDeckImage.frame;
+    CGRect startFrame1;
+    CGRect startFrame2;
+    if ([aPlayer.identification isEqualToString:@"player1"]) {
+        startFrame1 = player1CardOne.frame;
+        startFrame2 = player1CardTwo.frame;
+    }
+    else if ([aPlayer.identification isEqualToString:@"player2"]) {
+        startFrame1 = player2CardOne.frame;
+        startFrame2 = player2CardTwo.frame;
+    }
+    else if ([aPlayer.identification isEqualToString:@"player3"]) {
+        startFrame1 = player3CardOne.frame;
+        startFrame2 = player3CardTwo.frame;
+    }    
+    else if ([aPlayer.identification isEqualToString:@"player4"]) {
+        startFrame1 = player4CardOne.frame;
+        startFrame2 = player4CardTwo.frame;
+    }    
+    else if ([aPlayer.identification isEqualToString:@"player5"]) {
+        startFrame1 = player5CardOne.frame;
+        startFrame2 = player5CardTwo.frame;
+    }
+    [self movePlayingCardFromFrame:startFrame1 toDestinationFrame:destinationFrame duration:0.2 option:nil];
+    [self movePlayingCardFromFrame:startFrame2 toDestinationFrame:destinationFrame duration:0.2 option:nil];
+}
+
+
 
 @end

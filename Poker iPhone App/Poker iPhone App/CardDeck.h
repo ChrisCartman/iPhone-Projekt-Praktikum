@@ -17,10 +17,11 @@
 }
 
 - (void) shuffle;
-- (PlayingCard* ) pop;
+- (PlayingCard* ) popFor: (NSString* ) playerOrTableCard;
 
 @property (nonatomic, retain) NSMutableArray* cardsInCardDeck;
 @property (nonatomic, retain) NSMutableArray* cardsDrawnFromCardDeck;
+@property (nonatomic, retain) NSString* popsFor; //wird benötigt, um die Verknüpfung zwischen Karte und Outlets herzustellen, wenn eine Karte vom Stapel ausgeteilt wird (Animation)
 
 - (void) resetCardDeckForNewRound;
 

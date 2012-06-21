@@ -12,6 +12,8 @@
 
 @interface GameViewController : UIViewController
 
+@property (nonatomic, retain) UIImageView* cardDeckImage;
+
 @property(nonatomic, retain) IBOutlet UILabel* player1NameLabel;
 @property(nonatomic, retain) IBOutlet UILabel* player2NameLabel;
 @property(nonatomic, retain) IBOutlet UILabel* player3NameLabel;
@@ -85,10 +87,17 @@
 
 - (void) showAnimationAtTheEndOfMoveOfPlayer: (Player* ) aPlayer;
 - (void) showAnimationWhenPlayerShowsCards: (Player* ) aPlayer;
+- (void) showAnimationWhenCardPopsFromDeck;
+- (void) showAnimationWhenPlayerFolds: (Player* ) aPlayer;
+
+- (void) removeTemporaryOutlet:(UIImageView* ) outlet;
+
 - (void) resetObservationForSidePots;
 - (void) fadeOutLabel: (UILabel* ) effectLabel duration: (float) secs option: (UIViewAnimationOptions) option;
+- (void) movePlayingCardFromFrame: (CGRect) startFrame toDestinationFrame: (CGRect) destinationFrame duration: (float) secs option: (UIViewAnimationOptions) option;
 - (void) showCardsOfPlayer: (Player* ) aPlayer withAnimation: (BOOL) animated;
 - (void) playerThrowsCardsAway: (Player* ) aPlayer;
+
 
 - (IBAction)showCardsButtonClicked:(id)sender;
 - (IBAction)throwCardsAwayButtonClicked:(id)sender;

@@ -52,6 +52,8 @@
 @property (nonatomic, retain) NSMutableArray* playersWhoHaveShownCards;
 @property (nonatomic, retain) NSTimer* showDownTimer;
 @property (nonatomic, assign) int counterForTimer;
+@property (nonatomic, retain) NSTimer* dealOutTimer;
+@property (nonatomic, retain) NSTimer* tableCardsTimer;
 
 
 
@@ -98,5 +100,9 @@
 - (void) startMoreThanTwoPlayersAllInShowDown;
 - (void) twoPlayersAllInShowDownTimerFired: (NSTimer* ) aTimer;
 - (void) moreThanTwoPlayersAllInShowDownTimerFired: (NSTimer* ) aTimer;
+- (void) dealOutTimerFired: (NSTimer* ) aTimer;
+- (void) flopTimerFired: (NSTimer* ) aTimer;
+- (void) turnTimerFired: (NSTimer* ) aTimer;
+- (void) riverTimerFired: (NSTimer* ) aTimer;
 
 @end

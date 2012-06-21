@@ -28,15 +28,69 @@
 @synthesize playersWhoHaveShownCards;
 @synthesize showDownTimer;
 @synthesize counterForTimer;
+@synthesize dealOutTimer;
+@synthesize tableCardsTimer;
 
 - (void) dealOut
 {
-    for (int i=1; i<=2; i++) {
-        for (int j=1; j<=maxPlayers; j++) {
-            Player* currentPlayer = (Player* ) [self.allPlayers objectAtIndex:(j-1)];
-            PlayingCard* currentPlayingCard = [cardDeck pop];
-            [currentPlayer.hand addCardToHand:currentPlayingCard];
+    Player* currentPlayer = dealer;
+    int yourNumber;     //benötigt zur Identifizierung der Spieler mit ihren Outlets
+    int numberOfPlayer;
+    //finde heraus, der wievielte Spieler in der Reihe man selbst ist (der sitzt vorne)
+    int counter = 1;
+    int shift;
+    
+    while (counter <= maxPlayers) {
+        currentPlayer = currentPlayer.playerOnLeftSide;
+        if (currentPlayer.isYou) {
+            yourNumber = counter;
         }
+        counter++;
+    }
+    shift = yourNumber - 1;
+    numberOfPlayer = maxPlayers;
+    counter = 0;
+    while (counter < 2*maxPlayers) {
+        counter++; //Wiederverwendung von counter, hier soll er regeln, dass die Animationen unterschiedlich lange dauern
+        currentPlayer = currentPlayer.playerOnLeftSide;
+        int correctNumber;
+        if (numberOfPlayer == maxPlayers) {
+            numberOfPlayer = 1;
+        }
+        else {
+            numberOfPlayer += 1;
+        }
+        if (numberOfPlayer - shift >= 1) {
+            correctNumber = numberOfPlayer - shift;
+        }
+        else {
+            correctNumber = maxPlayers + (numberOfPlayer - shift);
+        }
+        int cardNumber;
+        if (counter - maxPlayers > 0) {
+            cardNumber = 2;
+        }
+        else {
+            cardNumber = 1;
+        }
+        NSString* popsFor = [NSString stringWithFormat:@"player%i_%i",correctNumber,cardNumber];
+            
+        NSArray* userInfo = [[NSArray alloc] initWithObjects:currentPlayer,popsFor, nil];
+        dealOutTimer = [NSTimer scheduledTimerWithTimeInterval:0.2*counter target:self selector:@selector(dealOutTimerFired:) userInfo:userInfo repeats:NO];
+    }
+}
+
+- (void) dealOutTimerFired:(NSTimer *)aTimer
+{
+    Player* currentPlayer = [aTimer.userInfo objectAtIndex:0];
+    NSString* popsFor = [aTimer.userInfo objectAtIndex:1];
+    PlayingCard* currentPlayingCard = [cardDeck popFor:popsFor];
+    [currentPlayer.hand addCardToHand:currentPlayingCard];
+    if ([currentPlayer.hand.cardsOnHand count] == 1) {
+        currentPlayer.playerState = DEAL_OUT;
+    }
+    else {
+        currentPlayer.playerState = INACTIVE;
     }
 }
 
@@ -57,24 +111,57 @@
 - (void) showFlop
 {
     for (int i=1; i<=3; i++) {
-        PlayingCard* newPlayingCard = [cardDeck pop];
-        [cardsOnTable.flop addObject:newPlayingCard];
-        [cardsOnTable.allCards addObject:newPlayingCard];
+        NSString* popsFor = [NSString stringWithFormat:@"flop%i",i];
+        NSNumber* numberI = [NSNumber numberWithInt:i];
+        NSArray* userInfo = [NSArray arrayWithObjects:popsFor, numberI, nil];
+        tableCardsTimer = [NSTimer scheduledTimerWithTimeInterval:0.2*i target:self selector:@selector(flopTimerFired:) userInfo:userInfo repeats:NO];
+    }
+}
+
+- (void) flopTimerFired:(NSTimer *)aTimer
+{
+    NSString* popsFor = [aTimer.userInfo objectAtIndex:0];
+    NSNumber* numberI = [aTimer.userInfo objectAtIndex:1];
+    PlayingCard* newPlayingCard = [cardDeck popFor:popsFor];
+    [cardsOnTable.flop addObject:newPlayingCard];
+    [cardsOnTable.allCards addObject:newPlayingCard];
+    if ([numberI intValue] == 1) {
+        [self performSelector:@selector(changeGameState) withObject:nil afterDelay:0.2];
+    }
+    else if ([numberI intValue] == 2) {
+        [self performSelector:@selector(changeGameState) withObject:nil afterDelay:0.2];
+    }
+    else {
+        [self performSelector:@selector(changeGameState) withObject:nil afterDelay:0.2];
     }
 }
 
 - (void) showTurn
 {
-    PlayingCard* newPlayingCard = [cardDeck pop];
+    NSString* popsFor = @"turn";
+    tableCardsTimer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(turnTimerFired:) userInfo:popsFor repeats:NO];
+}
+
+- (void) turnTimerFired:(NSTimer *)aTimer
+{
+    PlayingCard* newPlayingCard = [cardDeck popFor:aTimer.userInfo];
     cardsOnTable.turn = newPlayingCard;
     [cardsOnTable.allCards addObject:newPlayingCard];
+    [self performSelector:@selector(changeGameState) withObject:nil afterDelay:0.2];
 }
 
 - (void) showRiver
 {
-    PlayingCard* newPlayingCard = [cardDeck pop];
+    NSString* popsFor = @"river";
+    tableCardsTimer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(riverTimerFired:) userInfo:popsFor repeats:NO];
+}
+
+- (void) riverTimerFired:(NSTimer *)aTimer
+{
+    PlayingCard* newPlayingCard = [cardDeck popFor:aTimer.userInfo];
     cardsOnTable.river = newPlayingCard;
     [cardsOnTable.allCards addObject:newPlayingCard];
+    [self performSelector:@selector(changeGameState) withObject:nil afterDelay:0.2];
 }
 
 - (id) init
@@ -186,10 +273,6 @@
     // Karten ausgeben
     [self dealOut];
     //player inaktiv setzen:
-    
-    for (Player* aPlayer in allPlayers) {
-        aPlayer.playerState = INACTIVE;
-    }
     
     dealer = dealer.playerOnLeftSide;
     if (maxPlayers==2) {
@@ -432,10 +515,12 @@
 
 - (void) changeGameState
 {
-    if (gameState == SETUP) self.gameState = PRE_FLOP;
-    else if (gameState == PRE_FLOP) self.gameState = FLOP;
+    if (gameState == PRE_FLOP) self.gameState =  FLOP1;
+    else if (gameState == FLOP1) self.gameState = FLOP2;
+    else if (gameState == FLOP2) self.gameState = FLOP;
     else if (gameState == FLOP) self.gameState = TURN;
     else if (gameState == TURN) self.gameState = RIVER;
+    else if (gameState == SETUP) self.gameState = PRE_FLOP;
 }
 
 - (NSMutableArray* ) sharePotAmongWinners:(NSMutableArray *)winners
@@ -529,7 +614,7 @@
             }
         }
         else {
-            [self startBetRound];
+            [self performSelector:@selector(startBetRound) withObject:nil afterDelay:3.0];
         }
     }
 }
@@ -597,7 +682,9 @@
     else if (gameState == TURN) {
         [self showRiver];
     }
-    [self changeGameState];
+    if (gameState != PRE_FLOP && gameState != FLOP1 && gameState != FLOP2 && gameState != FLOP && gameState != TURN) {
+        [self changeGameState];
+    }
     if (gameState == PRE_FLOP) {
         activePlayer = firstInRound.playerOnLeftSide.playerOnLeftSide;
     }
@@ -620,7 +707,7 @@
     }
     //alles für neue Runde resetten:
     [self prepareNewRound];
-    [self startBetRound];
+    [self performSelector:@selector(startBetRound) withObject:nil afterDelay:3.0];
 }
 
 - (void) startShowDown

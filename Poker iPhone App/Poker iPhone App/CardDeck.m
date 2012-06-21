@@ -13,6 +13,7 @@
 
 @synthesize cardsInCardDeck;
 @synthesize cardsDrawnFromCardDeck;
+@synthesize popsFor;
 
 
 //Die Funktion initialize erstellt alle Spielkarten und speichert sie im Array allPlayingCards
@@ -45,6 +46,7 @@
     cardsInCardDeck = [[NSMutableArray alloc] initWithCapacity:52];
     [cardsInCardDeck addObjectsFromArray:allPlayingCards];
     cardsDrawnFromCardDeck = [[NSMutableArray alloc] init];
+    popsFor = @"";
     return self;
 }
 
@@ -73,7 +75,7 @@
 }
 
 //Oberste Karte vom Kartenstapel abheben:
-- (PlayingCard* ) pop
+- (PlayingCard* ) popFor: (NSString* ) playerOrTableCard
 {
     PlayingCard* temporaryPlayingCard = [cardsInCardDeck objectAtIndex:([cardsInCardDeck count] - 1)];
     [cardsInCardDeck removeObjectAtIndex:([cardsInCardDeck count] - 1)];
@@ -82,6 +84,7 @@
         cardsDrawnFromCardDeck = [[NSMutableArray alloc] init];
     }
     [cardsDrawnFromCardDeck addObject:temporaryPlayingCard];
+    self.popsFor = playerOrTableCard;
     return temporaryPlayingCard;
 }
 
