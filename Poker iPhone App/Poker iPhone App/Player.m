@@ -34,6 +34,9 @@
 @synthesize showsCards;
 @synthesize mayShowCards;
 @synthesize doesNotWinAnything;
+@synthesize currentlyRunningTimersWithCreationTimes;
+@synthesize paused;
+@synthesize createdTimerDuringPause;
 
 
 - (id)init
@@ -44,6 +47,7 @@
         chips = 0;
         alreadyBetChips = 0;
         identification = [[NSString alloc] init];
+        currentlyRunningTimersWithCreationTimes = [[NSMutableArray alloc] init];
         self.isYou = NO;
         self.isAllIn = NO;
         self.hasSidePot = NO;
@@ -108,7 +112,9 @@
 
 - (void) bet: (float) amount asBlind:(BOOL)isBlind
 {
-    [self stopCountdown:countdownTimer];
+    if (!isBlind) {
+        [self stopCountdown:countdownTimer];
+    }
     [pokerGame takeBetAmount:amount fromPlayer:self asBlind:isBlind];
     /*
     self.chips -= (amount - alreadyBetChips);
@@ -145,6 +151,11 @@
                                                              selector:@selector(advanceTimer:)
                                                              userInfo:nil
                                                               repeats:YES];
+    NSArray* temporaryArray = [NSArray arrayWithObjects:countdownTimer, [NSDate date], nil];
+    [self.currentlyRunningTimersWithCreationTimes addObjectsFromArray:temporaryArray];
+    if (paused) {
+        self.createdTimerDuringPause = YES;
+    }
 }
 
 - (void) prepareMove
@@ -175,6 +186,10 @@
 - (void) stopCountdown:(NSTimer *)timer
 {
     [timer invalidate];
+    int index = [currentlyRunningTimersWithCreationTimes indexOfObject:timer];
+    for (int i=1;i<=2;i++) {
+        [self.currentlyRunningTimersWithCreationTimes removeObjectAtIndex:index];
+     }
     timer = nil;
 }
 
@@ -262,6 +277,13 @@
 {
     [pokerGame.playersWhoHaveShownCards addObject:self];
     self.showsCards = YES;
+}
+
+- (void) changePlayerState:(NSNumber *)playerStateAsObject
+{
+    //da diese Funktion mit Delay aufgerufen werden soll, muss ein Objekt übergeben werden... deswegen wird zunächst NSNumber wieder in ein PlayerState umgewandelt:
+    PlayerState newPlayerState = [playerStateAsObject intValue];
+    self.playerState = newPlayerState;
 }
 
 

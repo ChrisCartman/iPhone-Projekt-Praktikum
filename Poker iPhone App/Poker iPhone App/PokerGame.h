@@ -54,6 +54,11 @@
 @property (nonatomic, assign) int counterForTimer;
 @property (nonatomic, retain) NSTimer* dealOutTimer;
 @property (nonatomic, retain) NSTimer* tableCardsTimer;
+@property (nonatomic, assign) BOOL paused;
+@property (nonatomic, assign) BOOL createdTimerDuringPause;
+
+//Idee: um das Spiel pausieren zu können, soll es einen Pointer geben, der immer auf den aktuellen Timer zeigt. Sobald Pause gedrückt wird, wie das TimeInterval des Timers auf eine beliebig große Zal gesetzt
+@property (nonatomic, retain) NSMutableArray* currentlyRunningTimersWithCreationTimes;
 
 
 

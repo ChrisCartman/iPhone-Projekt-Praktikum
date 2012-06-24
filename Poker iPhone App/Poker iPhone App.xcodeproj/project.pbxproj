@@ -23,6 +23,13 @@
 		CEEBF58515601A9F007313F1 /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CEEBF58315601A9F007313F1 /* MainStoryboard.storyboard */; };
 		CEEBF58815601A9F007313F1 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CEEBF58715601A9F007313F1 /* ViewController.m */; };
 		CEF0D96D157BB9AA005B7BBE /* GameSettings.m in Sources */ = {isa = PBXBuildFile; fileRef = CEF0D96C157BB9AA005B7BBE /* GameSettings.m */; };
+		D0121E08159389D6005D54B3 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0121E07159389D6005D54B3 /* AVFoundation.framework */; };
+		D0121E1115938AAE005D54B3 /* cards1.wav in Resources */ = {isa = PBXBuildFile; fileRef = D0121E0B15938AAE005D54B3 /* cards1.wav */; };
+		D0121E1215938AAE005D54B3 /* cards2.wav in Resources */ = {isa = PBXBuildFile; fileRef = D0121E0C15938AAE005D54B3 /* cards2.wav */; };
+		D0121E1315938AAE005D54B3 /* cards3.wav in Resources */ = {isa = PBXBuildFile; fileRef = D0121E0D15938AAE005D54B3 /* cards3.wav */; };
+		D0121E1415938AAE005D54B3 /* fold.wav in Resources */ = {isa = PBXBuildFile; fileRef = D0121E0E15938AAE005D54B3 /* fold.wav */; };
+		D0121E1515938AAE005D54B3 /* money.wav in Resources */ = {isa = PBXBuildFile; fileRef = D0121E0F15938AAE005D54B3 /* money.wav */; };
+		D0121E1615938AAE005D54B3 /* time.wav in Resources */ = {isa = PBXBuildFile; fileRef = D0121E1015938AAE005D54B3 /* time.wav */; };
 		D066EC5B1562E97C00B62D50 /* PlayingCard.m in Sources */ = {isa = PBXBuildFile; fileRef = D066EC5A1562E97C00B62D50 /* PlayingCard.m */; };
 		D066EC5E1562EDB100B62D50 /* Hand.m in Sources */ = {isa = PBXBuildFile; fileRef = D066EC5D1562EDB100B62D50 /* Hand.m */; };
 		D066EC621562F16600B62D50 /* CardsOnTable.m in Sources */ = {isa = PBXBuildFile; fileRef = D066EC611562F16600B62D50 /* CardsOnTable.m */; };
@@ -119,6 +126,13 @@
 		CEF0D96B157BB9AA005B7BBE /* GameSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameSettings.h; sourceTree = "<group>"; };
 		CEF0D96C157BB9AA005B7BBE /* GameSettings.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GameSettings.m; sourceTree = "<group>"; };
 		D005DA71156D161700585130 /* Enum_PlayerState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Enum_PlayerState.h; sourceTree = "<group>"; };
+		D0121E07159389D6005D54B3 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		D0121E0B15938AAE005D54B3 /* cards1.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = cards1.wav; sourceTree = "<group>"; };
+		D0121E0C15938AAE005D54B3 /* cards2.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = cards2.wav; sourceTree = "<group>"; };
+		D0121E0D15938AAE005D54B3 /* cards3.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = cards3.wav; sourceTree = "<group>"; };
+		D0121E0E15938AAE005D54B3 /* fold.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = fold.wav; sourceTree = "<group>"; };
+		D0121E0F15938AAE005D54B3 /* money.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = money.wav; sourceTree = "<group>"; };
+		D0121E1015938AAE005D54B3 /* time.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = time.wav; sourceTree = "<group>"; };
 		D066EC571562E86A00B62D50 /* Enum_SuitType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Enum_SuitType.h; sourceTree = "<group>"; };
 		D066EC591562E97C00B62D50 /* PlayingCard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlayingCard.h; sourceTree = "<group>"; };
 		D066EC5A1562E97C00B62D50 /* PlayingCard.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlayingCard.m; sourceTree = "<group>"; };
@@ -207,6 +221,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D0121E08159389D6005D54B3 /* AVFoundation.framework in Frameworks */,
 				CEEBF57215601A9F007313F1 /* UIKit.framework in Frameworks */,
 				CEEBF57415601A9F007313F1 /* Foundation.framework in Frameworks */,
 				CEEBF57615601A9F007313F1 /* CoreGraphics.framework in Frameworks */,
@@ -236,6 +251,7 @@
 		CEEBF57015601A9F007313F1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D0121E07159389D6005D54B3 /* AVFoundation.framework */,
 				CEEBF57115601A9F007313F1 /* UIKit.framework */,
 				CEEBF57315601A9F007313F1 /* Foundation.framework */,
 				CEEBF57515601A9F007313F1 /* CoreGraphics.framework */,
@@ -246,6 +262,7 @@
 		CEEBF57715601A9F007313F1 /* Poker iPhone App */ = {
 			isa = PBXGroup;
 			children = (
+				D0121E0A15938AAE005D54B3 /* Sounds */,
 				CEEBF58315601A9F007313F1 /* MainStoryboard.storyboard */,
 				D09326631580D78F004252B2 /* Karten */,
 				D0FDDF7D1592182C00325BB2 /* Sonstige Bilder */,
@@ -269,6 +286,19 @@
 				CEEBF57F15601A9F007313F1 /* Poker iPhone App-Prefix.pch */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		D0121E0A15938AAE005D54B3 /* Sounds */ = {
+			isa = PBXGroup;
+			children = (
+				D0121E0B15938AAE005D54B3 /* cards1.wav */,
+				D0121E0C15938AAE005D54B3 /* cards2.wav */,
+				D0121E0D15938AAE005D54B3 /* cards3.wav */,
+				D0121E0E15938AAE005D54B3 /* fold.wav */,
+				D0121E0F15938AAE005D54B3 /* money.wav */,
+				D0121E1015938AAE005D54B3 /* time.wav */,
+			);
+			path = Sounds;
 			sourceTree = "<group>";
 		};
 		D09326631580D78F004252B2 /* Karten */ = {
@@ -518,6 +548,12 @@
 				D069C23D158532CD0026170E /* 14_2.png in Resources */,
 				D069C23E158532CD0026170E /* 14_3.png in Resources */,
 				D069C23F158532CD0026170E /* 14_4.png in Resources */,
+				D0121E1115938AAE005D54B3 /* cards1.wav in Resources */,
+				D0121E1215938AAE005D54B3 /* cards2.wav in Resources */,
+				D0121E1315938AAE005D54B3 /* cards3.wav in Resources */,
+				D0121E1415938AAE005D54B3 /* fold.wav in Resources */,
+				D0121E1515938AAE005D54B3 /* money.wav in Resources */,
+				D0121E1615938AAE005D54B3 /* time.wav in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -580,7 +616,8 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CLANG_ENABLE_OBJC_ARC = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Christian Klumpp (RH9NX77L5P)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Christian Klumpp (RH9NX77L5P)";
 				COPY_PHASE_STRIP = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -595,6 +632,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
+				PROVISIONING_PROFILE = "AE6F2CA5-3649-48B8-8C3A-22A6834265D0";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "AE6F2CA5-3649-48B8-8C3A-22A6834265D0";
 				SDKROOT = iphoneos;
 			};
 			name = Debug;
@@ -605,7 +644,8 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
 				CLANG_ENABLE_OBJC_ARC = YES;
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				CODE_SIGN_IDENTITY = "iPhone Developer: Christian Klumpp (RH9NX77L5P)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Christian Klumpp (RH9NX77L5P)";
 				COPY_PHASE_STRIP = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
@@ -614,6 +654,8 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				PROVISIONING_PROFILE = "AE6F2CA5-3649-48B8-8C3A-22A6834265D0";
+				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "AE6F2CA5-3649-48B8-8C3A-22A6834265D0";
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
 			};

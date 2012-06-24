@@ -15,7 +15,7 @@
 
 
 
-- (NSMutableString* ) makeStringOutOfValue:(CardValues)cardValues
+/*- (NSMutableString* ) makeStringOutOfValue:(CardValues)cardValues
 {
     if (cardValues == HIGH_CARD) return @"High Card";
     else if (cardValues == ONE_PAIR) return @"one Pair";
@@ -62,11 +62,10 @@
         string = [string stringByAppendingString:@"Hearts"];
     }
     return string;
-}
+}*/
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    
           
     
   

@@ -35,6 +35,7 @@
     
     // nicht ideal, aber für Tests geeignet:
     BOOL isYou;
+    NSMutableArray* currentlyRunningTimersWithCreationTimes;
 }
 
 @property (nonatomic, retain) Hand* hand;
@@ -60,6 +61,11 @@
 @property (nonatomic, assign) BOOL showsCards;
 @property (nonatomic, assign) BOOL mayShowCards;
 @property (nonatomic, assign) BOOL doesNotWinAnything;
+@property (nonatomic, assign) BOOL paused;
+@property (nonatomic, assign) BOOL createdTimerDuringPause;
+
+//Idee: um das Spiel pausieren zu können, soll es einen Pointer geben, der immer auf den aktuellen Timer zeigt. Sobald Pause gedrückt wird, wie das TimeInterval des Timers auf eine beliebig große Zal gesetzt
+@property (nonatomic, retain) NSMutableArray* currentlyRunningTimersWithCreationTimes;
 
 - (void) bet: (float) amount asBlind: (BOOL) isBlind;
 - (void) call;
@@ -76,5 +82,6 @@
 - (void) showCards;
 - (void) mayShowCardsNow;
 - (void) resetPlayerForNewRound;
+- (void) changePlayerState: (NSNumber* ) playerStateAsObject;
 
 @end

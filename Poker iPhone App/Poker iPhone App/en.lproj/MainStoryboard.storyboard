@@ -581,7 +581,7 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" image="Table.png" id="biH-zQ-z9X">
-                                <rect key="frame" x="0.0" y="1" width="480" height="300"/>
+                                <rect key="frame" x="0.0" y="0.0" width="480" height="300"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 <color key="backgroundColor" cocoaTouchSystemColor="lightTextColor"/>
                             </imageView>
@@ -613,7 +613,7 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </imageView>
                         </subviews>
-                        <color key="backgroundColor" red="0.56878397045498807" green="0.83017722590611376" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                        <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                         <simulatedOrientationMetrics key="simulatedOrientationMetrics" orientation="landscapeRight"/>
                     </view>
                     <simulatedOrientationMetrics key="simulatedOrientationMetrics" orientation="landscapeRight"/>
@@ -623,7 +623,9 @@
                         <outlet property="flopCardThreeImage" destination="wzH-lp-Ip2" id="FJh-ky-NOc"/>
                         <outlet property="flopCardTwoImage" destination="7nH-LE-qO0" id="y0N-g8-HUf"/>
                         <outlet property="riverCardImage" destination="Tas-Xv-aAA" id="cv9-av-JhG"/>
+                        <outlet property="table" destination="biH-zQ-z9X" id="Bjn-pj-wU9"/>
                         <outlet property="turnCardImage" destination="90b-XM-ySa" id="ozj-Nx-1ua"/>
+                        <segue destination="6w4-on-5Gc" kind="modal" identifier="leaveGame" id="zH1-cT-FhP"/>
                     </connections>
                 </viewController>
             </objects>
@@ -742,7 +744,7 @@
                     </connections>
                 </navigationController>
             </objects>
-            <point key="canvasLocation" x="976" y="-869"/>
+            <point key="canvasLocation" x="940" y="-849"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="fIZ-ig-3H7">
@@ -820,6 +822,7 @@
                 <relationship kind="outlet" name="flopCardOneImage" candidateClass="UIImageView"/>
                 <relationship kind="outlet" name="flopCardThreeImage" candidateClass="UIImageView"/>
                 <relationship kind="outlet" name="flopCardTwoImage" candidateClass="UIImageView"/>
+                <relationship kind="outlet" name="pauseButton" candidateClass="UISegmentedControl"/>
                 <relationship kind="outlet" name="player1AlreadyBetChipsLabel" candidateClass="UILabel"/>
                 <relationship kind="outlet" name="player1CardOne" candidateClass="UIImageView"/>
                 <relationship kind="outlet" name="player1CardTwo" candidateClass="UIImageView"/>
@@ -858,6 +861,7 @@
                 <relationship kind="outlet" name="sidePotLabel3" candidateClass="UILabel"/>
                 <relationship kind="outlet" name="sidePotLabel4" candidateClass="UILabel"/>
                 <relationship kind="outlet" name="sidePotLabel5" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="table" candidateClass="UIImageView"/>
                 <relationship kind="outlet" name="throwCardsAwayButton" candidateClass="UISegmentedControl"/>
                 <relationship kind="outlet" name="turnCardImage" candidateClass="UIImageView"/>
             </relationships>
@@ -892,6 +896,7 @@
         <simulatedScreenMetrics key="destination"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
+        <segue reference="RzH-et-unB"/>
         <segue reference="NF7-NC-Caq"/>
     </inferredMetricsTieBreakers>
 </document>

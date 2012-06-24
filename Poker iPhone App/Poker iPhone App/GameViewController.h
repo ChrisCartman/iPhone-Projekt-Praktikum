@@ -7,10 +7,15 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <AVFoundation/AVFoundation.h>
+#import <CoreFoundation/CoreFoundation.h>
 #import "PokerGame.h"
 #include "Functions.h"
 
-@interface GameViewController : UIViewController
+@interface GameViewController : UIViewController <UITableViewDelegate, UITableViewDataSource, AVAudioPlayerDelegate>
+{
+    BOOL paused;
+}
 
 @property (nonatomic, retain) UIImageView* cardDeckImage;
 
@@ -71,6 +76,13 @@
 @property(nonatomic, retain) IBOutlet UISegmentedControl* showCardsButton;
 @property(nonatomic, retain) IBOutlet UISegmentedControl* throwCardsAwayButton;
 
+@property(nonatomic, retain) IBOutlet UISegmentedControl* pauseButton;
+
+@property(nonatomic, retain) NSMutableArray* currentlyRunningTimersWithCreationsTimes;
+@property(nonatomic, retain) NSMutableArray* timesToGoForCurrentlyRunningTimers;
+@property(nonatomic, retain) UITableView* pauseTableView;
+@property(nonatomic, retain) IBOutlet UIImageView* table;
+
 - (void) setUpGraphics;
 
 - (void) changePlayerOutlets_chips: (Player* ) aPlayer;
@@ -89,6 +101,7 @@
 - (void) showAnimationWhenPlayerShowsCards: (Player* ) aPlayer;
 - (void) showAnimationWhenCardPopsFromDeck;
 - (void) showAnimationWhenPlayerFolds: (Player* ) aPlayer;
+- (void) showAnimationWhenGameIsPaused;
 
 - (void) removeTemporaryOutlet:(UIImageView* ) outlet;
 
@@ -97,6 +110,11 @@
 - (void) movePlayingCardFromFrame: (CGRect) startFrame toDestinationFrame: (CGRect) destinationFrame duration: (float) secs option: (UIViewAnimationOptions) option;
 - (void) showCardsOfPlayer: (Player* ) aPlayer withAnimation: (BOOL) animated;
 - (void) playerThrowsCardsAway: (Player* ) aPlayer;
+
+- (void) pauseOfUnpause;
+
+- (void) pauseRunningTimer: (NSTimer* ) timer creationTime: (NSDate* ) creationTime;
+- (void) unpauseRunningTimer: (NSTimer* ) timer timeToGo: (NSTimeInterval) timeToGo;
 
 
 - (IBAction)showCardsButtonClicked:(id)sender;

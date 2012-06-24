@@ -30,6 +30,9 @@
 @synthesize counterForTimer;
 @synthesize dealOutTimer;
 @synthesize tableCardsTimer;
+@synthesize currentlyRunningTimersWithCreationTimes;
+@synthesize paused;
+@synthesize createdTimerDuringPause;
 
 - (void) dealOut
 {
@@ -77,6 +80,11 @@
             
         NSArray* userInfo = [[NSArray alloc] initWithObjects:currentPlayer,popsFor, nil];
         dealOutTimer = [NSTimer scheduledTimerWithTimeInterval:0.2*counter target:self selector:@selector(dealOutTimerFired:) userInfo:userInfo repeats:NO];
+        NSArray* temporaryArray = [NSArray arrayWithObjects:dealOutTimer, [NSDate date], nil];
+        [self.currentlyRunningTimersWithCreationTimes addObjectsFromArray:temporaryArray];
+        if (paused) {
+            self.createdTimerDuringPause = YES;
+        }
     }
 }
 
@@ -91,6 +99,10 @@
     }
     else {
         currentPlayer.playerState = INACTIVE;
+    }
+    int index = [self.currentlyRunningTimersWithCreationTimes indexOfObject:aTimer];
+    for (int i=1;i<=2;i++) {
+        [currentlyRunningTimersWithCreationTimes removeObjectAtIndex:index]; //alle Timer und zugehörtige Startzeiten wieder rauswerfen.
     }
 }
 
@@ -115,6 +127,11 @@
         NSNumber* numberI = [NSNumber numberWithInt:i];
         NSArray* userInfo = [NSArray arrayWithObjects:popsFor, numberI, nil];
         tableCardsTimer = [NSTimer scheduledTimerWithTimeInterval:0.2*i target:self selector:@selector(flopTimerFired:) userInfo:userInfo repeats:NO];
+        NSArray* temporaryArray = [NSArray arrayWithObjects:tableCardsTimer, [NSDate date], nil];
+        [self.currentlyRunningTimersWithCreationTimes addObjectsFromArray:temporaryArray];
+        if (paused) {
+            self.createdTimerDuringPause = YES;
+        }
     }
 }
 
@@ -134,12 +151,22 @@
     else {
         [self performSelector:@selector(changeGameState) withObject:nil afterDelay:0.2];
     }
+    
+    int index = [self.currentlyRunningTimersWithCreationTimes indexOfObject:aTimer];
+    for (int i=1;i<=2;i++) {
+        [currentlyRunningTimersWithCreationTimes removeObjectAtIndex:index]; //alle Timer und zugehörtige Startzeiten wieder rauswerfen.
+    }
 }
 
 - (void) showTurn
 {
     NSString* popsFor = @"turn";
     tableCardsTimer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(turnTimerFired:) userInfo:popsFor repeats:NO];
+    NSArray* temporaryArray = [NSArray arrayWithObjects:tableCardsTimer, [NSDate date], nil];
+    [self.currentlyRunningTimersWithCreationTimes addObjectsFromArray:temporaryArray];
+    if (paused) {
+        self.createdTimerDuringPause = YES;
+    }
 }
 
 - (void) turnTimerFired:(NSTimer *)aTimer
@@ -148,12 +175,22 @@
     cardsOnTable.turn = newPlayingCard;
     [cardsOnTable.allCards addObject:newPlayingCard];
     [self performSelector:@selector(changeGameState) withObject:nil afterDelay:0.2];
+
+    int index = [self.currentlyRunningTimersWithCreationTimes indexOfObject:aTimer];
+    for (int i=1;i<=2;i++) {
+        [currentlyRunningTimersWithCreationTimes removeObjectAtIndex:index]; //alle Timer und zugehörtige Startzeiten wieder rauswerfen.
+    }
 }
 
 - (void) showRiver
 {
     NSString* popsFor = @"river";
     tableCardsTimer = [NSTimer scheduledTimerWithTimeInterval:0.2 target:self selector:@selector(riverTimerFired:) userInfo:popsFor repeats:NO];
+    NSArray* temporaryArray = [NSArray arrayWithObjects:tableCardsTimer, [NSDate date], nil];
+    [self.currentlyRunningTimersWithCreationTimes addObjectsFromArray:temporaryArray];
+    if (paused) {
+        self.createdTimerDuringPause = YES;
+    }
 }
 
 - (void) riverTimerFired:(NSTimer *)aTimer
@@ -162,6 +199,11 @@
     cardsOnTable.river = newPlayingCard;
     [cardsOnTable.allCards addObject:newPlayingCard];
     [self performSelector:@selector(changeGameState) withObject:nil afterDelay:0.2];
+    
+    int index = [self.currentlyRunningTimersWithCreationTimes indexOfObject:aTimer];
+    for (int i=1;i<=2;i++) {
+        [currentlyRunningTimersWithCreationTimes removeObjectAtIndex:index]; //alle Timer und zugehörtige Startzeiten wieder rauswerfen.
+    }
 }
 
 - (id) init
@@ -169,6 +211,7 @@
     self = [super init];
     allPlayers = [[NSMutableArray alloc] init];
     remainingPlayersInRound = [[NSMutableArray alloc] init];
+    currentlyRunningTimersWithCreationTimes = [[NSMutableArray alloc] init];
     cardDeck = [[CardDeck alloc] init];
     cardsOnTable = [[CardsOnTable alloc] init];
     playersWhoAreAllIn = [[NSMutableArray alloc] init];
@@ -308,21 +351,23 @@
 
 - (void) takeBetAmount:(float)amount fromPlayer:(Player *)aPlayer asBlind:(BOOL)isBlind
 {
-    aPlayer.chips -= (amount - aPlayer.alreadyBetChips);
-    highestBet = amount;
-    aPlayer.alreadyBetChips = highestBet;
     playerWhoBetMost = aPlayer;
-    
     if (!isBlind) {
         PlayerState newPlayerState;
+        NSNumber* playerStateAsObject;
         if (highestBet > 0 && amount > highestBet) {
             newPlayerState = RAISED;
+            playerStateAsObject = [NSNumber numberWithInt:newPlayerState];
         }
         else {
             newPlayerState = BET;
+            playerStateAsObject = [NSNumber numberWithInt:newPlayerState];
         }
-        aPlayer.playerState = newPlayerState;
+        [aPlayer performSelector:@selector(changePlayerState:) withObject:playerStateAsObject afterDelay:0.5];
     }
+    aPlayer.chips -= (amount - aPlayer.alreadyBetChips);
+    highestBet = amount;
+    aPlayer.alreadyBetChips = highestBet;
 }
 
 - (void) takeCallFromPlayer:(Player *)aPlayer
@@ -330,7 +375,9 @@
     aPlayer.chips -= (highestBet - aPlayer.alreadyBetChips);
     //self.mainPot.chipsInPot += (highestBet - aPlayer.alreadyBetChips);
     aPlayer.alreadyBetChips = highestBet;
-    aPlayer.playerState = CALLED;
+    PlayerState newPlayerState = CALLED;
+    NSNumber* playerStateAsObject = [NSNumber numberWithInt:newPlayerState];
+    [aPlayer performSelector:@selector(changePlayerState:) withObject:playerStateAsObject afterDelay:0.5];
 }
 
 - (void) takeAllInFromPlayer:(Player* ) aPlayer asBlind:(BOOL)isBlind
@@ -366,13 +413,17 @@
     [self.playersWhoAreAllIn addObject:aPlayer];
     [self sortPlayersWhoAreAllIn];
     if (!isBlind) {
-        aPlayer.playerState = ALL_IN;
+        PlayerState newPlayerState = ALL_IN;
+        NSNumber* playerStateAsObject = [NSNumber numberWithInt:newPlayerState];
+        [aPlayer performSelector:@selector(changePlayerState:) withObject:playerStateAsObject afterDelay:0.5];
     }
 }
 
 - (void) takeCheckFromPlayer:(Player *)aPlayer
 {
-    aPlayer.playerState = CHECKED;
+    PlayerState newPlayerState = CHECKED;
+    NSNumber* playerStateAsObject = [NSNumber numberWithInt:newPlayerState];
+    [aPlayer performSelector:@selector(changePlayerState:) withObject:playerStateAsObject afterDelay:0.5];
 }
 
 - (void) takeFoldFromPlayer:(Player *)aPlayer
@@ -390,7 +441,9 @@
     aPlayer.nextPlayerInRound.previousPlayerInRound = aPlayer.previousPlayerInRound;
     [remainingPlayersInRound removeObject:aPlayer];
     [aPlayer.hand.cardsOnHand removeAllObjects];
-    aPlayer.playerState = FOLDED;
+    PlayerState newPlayerState = FOLDED;
+    NSNumber* playerStateAsObject = [NSNumber numberWithInt:newPlayerState];
+    [aPlayer performSelector:@selector(changePlayerState:) withObject:playerStateAsObject afterDelay:0.5];
 }
 
 // in dieser funktion wird die Variable PlayerState der Spieler überwacht.
@@ -462,7 +515,6 @@
 
 - (void) endMoveOfPlayer:(Player *)aPlayer
 {
-    if (activePlayer == aPlayer) NSLog(@"True");
     if (aPlayer.playerState != FOLDED) {
         aPlayer.playerState = INACTIVE;
     }
@@ -745,6 +797,11 @@
         activePlayer = activePlayer.nextPlayerInRound;
         [self showDownForPlayer:activePlayer];
     }
+
+    int index = [self.currentlyRunningTimersWithCreationTimes indexOfObject:aTimer];
+    for (int i=1;i<=2;i++) {
+        [currentlyRunningTimersWithCreationTimes removeObjectAtIndex:index]; //alle Timer und zugehörtige Startzeiten wieder rauswerfen.
+    }
 }
 
 - (void) showDownForPlayer:(Player *)aPlayer
@@ -823,7 +880,12 @@
         [aPlayer mayShowCardsNow];
     }
     
-    showDownTimer = [NSTimer scheduledTimerWithTimeInterval:1.5 target:self selector:@selector(showDownTimerFires:) userInfo:userInfo repeats:NO];
+    showDownTimer = [NSTimer scheduledTimerWithTimeInterval:3.0 target:self selector:@selector(showDownTimerFires:) userInfo:userInfo repeats:NO];
+    NSArray* temporaryArray = [NSArray arrayWithObjects:showDownTimer, [NSDate date], nil];
+    [self.currentlyRunningTimersWithCreationTimes addObjectsFromArray:temporaryArray];
+    if (paused) {
+        self.createdTimerDuringPause = YES;
+    }
 }
 
 - (void) startTwoPlayersAllInShowDown
@@ -843,6 +905,11 @@
     }
     self.gameState = TWO_PLAYERS_ALL_IN_SHOW_DOWN;
     showDownTimer = [NSTimer scheduledTimerWithTimeInterval:1.5 target:self selector:@selector(twoPlayersAllInShowDownTimerFired:) userInfo:nil repeats:YES];
+    NSArray* temporaryArray = [NSArray arrayWithObjects:showDownTimer, [NSDate date], nil];
+    [self.currentlyRunningTimersWithCreationTimes addObjectsFromArray:temporaryArray];
+    if (paused) {
+        self.createdTimerDuringPause = YES;
+    }
 }
 
 - (void) twoPlayersAllInShowDownTimerFired: (NSTimer* ) aTimer
@@ -866,6 +933,10 @@
     }
     else if (counterForTimer == 0) {
         [aTimer invalidate];
+        int index = [self.currentlyRunningTimersWithCreationTimes indexOfObject:aTimer];
+        for (int i=1;i<=2;i++) {
+            [currentlyRunningTimersWithCreationTimes removeObjectAtIndex:index]; //alle Timer und zugehörtige Startzeiten wieder rauswerfen.
+        }
         [self endRound];
     }
 }
@@ -886,6 +957,11 @@
         counterForTimer = 1;
     }
     showDownTimer = [NSTimer scheduledTimerWithTimeInterval:1.5 target:self selector:@selector(moreThanTwoPlayersAllInShowDownTimerFired:) userInfo:nil repeats:YES];
+    NSArray* temporaryArray = [NSArray arrayWithObjects:showDownTimer, [NSDate date], nil];
+    [self.currentlyRunningTimersWithCreationTimes addObjectsFromArray:temporaryArray];
+    if (paused) {
+        self.createdTimerDuringPause = YES;
+    }
 }
 
 - (void) moreThanTwoPlayersAllInShowDownTimerFired:(NSTimer *)aTimer
@@ -903,10 +979,13 @@
         [self showRiver];
         self.gameState = RIVER;
     }
-    else if (counterForTimer == 0) {
+    else if (counterForTimer == 0) {        
         [aTimer invalidate];
+        int index = [self.currentlyRunningTimersWithCreationTimes indexOfObject:aTimer];
+        for (int i=1;i<=2;i++) {
+            [currentlyRunningTimersWithCreationTimes removeObjectAtIndex:index]; //alle Timer und zugehörtige Startzeiten wieder rauswerfen.
+        }
         [self endBetRound];
     }
 }
-
 @end

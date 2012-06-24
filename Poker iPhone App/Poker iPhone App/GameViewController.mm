@@ -73,6 +73,14 @@
 @synthesize showCardsButton;
 @synthesize throwCardsAwayButton;
 
+@synthesize pauseButton;
+@synthesize pauseTableView;
+
+@synthesize currentlyRunningTimersWithCreationsTimes;
+@synthesize timesToGoForCurrentlyRunningTimers;
+
+@synthesize table;
+
 
 //User-Interaction:
 - (IBAction) changeBetSliderValue:(id)sender
@@ -178,6 +186,7 @@
     [player1 addObserver:self forKeyPath:@"hasSidePot" options:0 context:nil];
     [player1 addObserver:self forKeyPath:@"showsCards" options:0 context:nil];
     [player1 addObserver:self forKeyPath:@"mayShowCards" options:0 context:nil];
+    [player1 addObserver:self forKeyPath:@"createdTimerDuringPause" options:0 context:nil];
     // jeder Spieler wird mit seinen Outlets verknüpft
     Player* player2 = [[Player alloc] init];
     [pokerGame addPlayer:player2];
@@ -187,6 +196,7 @@
     [player2 addObserver:self forKeyPath:@"hasSidePot" options:0 context:nil];
     [player2 addObserver:self forKeyPath:@"showsCards" options:0 context:nil];
     [player2 addObserver:self forKeyPath:@"mayShowCards" options:0 context:nil];
+    [player2 addObserver:self forKeyPath:@"createdTimerDuringPause" options:0 context:nil];;
     if (pokerGame.gameSettings.anzahlKI > 1) {
         Player* player3 = [[Player alloc] init];
         [pokerGame addPlayer:player3];
@@ -196,6 +206,7 @@
         [player3 addObserver:self forKeyPath:@"hasSidePot2" options:0 context:nil];
         [player3 addObserver:self forKeyPath:@"showsCards" options:0 context:nil];
         [player3 addObserver:self forKeyPath:@"mayShowCards" options:0 context:nil];
+        [player3 addObserver:self forKeyPath:@"createdTimerDuringPause" options:0 context:nil];
     }
     if (pokerGame.gameSettings.anzahlKI > 2) {
         Player* player4 = [[Player alloc] init];
@@ -206,6 +217,7 @@
         [player4 addObserver:self forKeyPath:@"hasSidePot" options:0 context:nil];
         [player4 addObserver:self forKeyPath:@"showsCards" options:0 context:nil];
         [player4 addObserver:self forKeyPath:@"mayShowCards" options:0 context:nil];
+        [player4 addObserver:self forKeyPath:@"createdTimerDuringPause" options:0 context:nil];
     }
     if (pokerGame.gameSettings.anzahlKI > 3) {
         Player* player5 = [[Player alloc] init];
@@ -216,6 +228,7 @@
         [player5 addObserver:self forKeyPath:@"hasSidePot" options:0 context:nil];
         [player5 addObserver:self forKeyPath:@"showsCards" options:0 context:nil];
         [player5 addObserver:self forKeyPath:@"mayShowCards" options:0 context:nil];
+        [player5 addObserver:self forKeyPath:@"createdTimerDuringPause" options:0 context:nil];
     }
 }
 
@@ -627,6 +640,51 @@
     [self fadeOutLabel:effectLabel duration:2.0 option:nil];    
 }
 
+- (void) showAnimationWhenGameIsPaused
+{
+    NSMutableArray* allOutlets = [NSMutableArray arrayWithArray:[self.view subviews]];
+    [allOutlets removeObject:pauseTableView];
+    if (paused) {
+        pauseTableView.alpha = 0.0;
+        pauseTableView.hidden = NO;
+        [self.view bringSubviewToFront:pauseTableView];
+        [UIView animateWithDuration:1.0 animations:^{
+            for (id outlet in allOutlets) {
+                if ([outlet alpha] > 0) {
+                    [outlet setAlpha:0.2];
+                }
+            }
+            pauseTableView.alpha = 1.0;
+            //self.view.backgroundColor = [UIColor lightGrayColor];
+        }
+        completion:nil];
+    }
+    else {
+        [UIView animateWithDuration:1.0 animations:^{
+            for (id outlet in allOutlets) {
+                if ([outlet alpha] >= 0.2) {
+                    [outlet setAlpha:1.0];
+                }
+            }
+            pauseTableView.alpha = 0.0;
+        }
+    completion:^(BOOL finished) {
+        if (finished) {
+            self.pauseTableView.hidden = YES;
+            
+            //Outlets enablen:
+            betSlider.userInteractionEnabled = YES;
+            betButton.userInteractionEnabled = YES;
+            foldButton.userInteractionEnabled = YES;
+            showCardsButton.userInteractionEnabled = YES;
+            throwCardsAwayButton.userInteractionEnabled = YES;
+            pauseButton.userInteractionEnabled = YES;
+        }
+    } ];
+    }
+    
+}
+
 - (void) showAnimationWhenCardPopsFromDeck
 {
     CGRect destinationFrame;
@@ -686,11 +744,11 @@
             Player* aPlayer = (Player* ) object;
             [self changePlayerOutlets_alreadyBetChips:aPlayer];
         }
-        if ([keyPath isEqualToString:@"chips"]) {
+        else if ([keyPath isEqualToString:@"chips"]) {
             Player* aPlayer = (Player* ) object;
             [self changePlayerOutlets_chips:aPlayer];
         }
-        if ([keyPath isEqualToString:@"playerState"]) {
+        else if ([keyPath isEqualToString:@"playerState"]) {
             Player* aPlayer = (Player* ) object;
             [self changePlayerOutlets_cards:aPlayer];
             if (aPlayer.playerState == FOLDED) {
@@ -703,7 +761,7 @@
                 [self changePlayerOutlets_activePlayer:aPlayer];
             }
         }
-        if ([keyPath isEqualToString:@"hasSidePot"]) {
+        else if ([keyPath isEqualToString:@"hasSidePot"]) {
             Player* aPlayer = (Player* ) object;
             if (aPlayer.hasSidePot == YES) {
                 [aPlayer addObserver:self forKeyPath:@"sidePot.chipsInPot" options:0 context:nil];
@@ -712,17 +770,17 @@
                 [self changePlayerOutlets_sidePot:aPlayer];
             }
         }
-        if ([keyPath isEqualToString:@"sidePot.chipsInPot"]) {
+        else if ([keyPath isEqualToString:@"sidePot.chipsInPot"]) {
             Player* aPlayer = (Player* ) object;
             [self changePlayerOutlets_sidePot:aPlayer];
         }
-        if ([keyPath isEqualToString:@"showsCards"]) {
+        else if ([keyPath isEqualToString:@"showsCards"]) {
             Player* aPlayer = (Player* ) object;
             if (aPlayer.showsCards) {
                 [self showCardsOfPlayer:aPlayer withAnimation:YES];
             }
         }
-        if ([keyPath isEqualToString:@"mayShowCards"] && pokerGame.gameState == SHOW_DOWN) {
+        else if ([keyPath isEqualToString:@"mayShowCards"] && pokerGame.gameState == SHOW_DOWN) {
             Player* aPlayer = (Player* ) object;
             if (aPlayer.isYou) {
                 [self changePlayerOutlets_mayShowCards:aPlayer];
@@ -737,12 +795,20 @@
                 }
             }
         }
+        else if ([keyPath isEqualToString:@"createdTimerDuringPause"]) {
+            Player* aPlayer = (Player* ) object;
+            if (aPlayer.createdTimerDuringPause) {
+                NSTimer* timer = [aPlayer.currentlyRunningTimersWithCreationTimes objectAtIndex:([aPlayer.currentlyRunningTimersWithCreationTimes count]-2)];
+                NSDate* creationTime = [aPlayer.currentlyRunningTimersWithCreationTimes lastObject];
+                [self pauseRunningTimer:timer creationTime:creationTime];
+            }
+        }
     }
-    else {
+    else if ([object isKindOfClass:[PokerGame class]]) {
         if ([keyPath isEqualToString:@"mainPot.chipsInPot"]) {
             [self changeGameOutlets_pot];
         }
-        if ([keyPath isEqualToString:@"gameState"]) {
+        else if ([keyPath isEqualToString:@"gameState"]) {
             if (pokerGame.gameState == TWO_PLAYERS_ALL_IN_SHOW_DOWN) {
                 Player* player1 = [pokerGame.remainingPlayersInRound objectAtIndex:0];
                 Player* player2 = [pokerGame.remainingPlayersInRound objectAtIndex:1];
@@ -756,8 +822,15 @@
                 [self resetObservationForSidePots];
             }
         }
-        if ([keyPath isEqualToString:@"cardDeck.popsFor"]) {
+        else if ([keyPath isEqualToString:@"cardDeck.popsFor"]) {
             [self showAnimationWhenCardPopsFromDeck];
+        }
+        else if ([keyPath isEqualToString:@"createdTimerDuringPause"]) {
+            if (pokerGame.createdTimerDuringPause) {
+                NSTimer* timer = [pokerGame.currentlyRunningTimersWithCreationTimes objectAtIndex:([pokerGame.currentlyRunningTimersWithCreationTimes count]-2)];
+                NSDate* creationTime = [pokerGame.currentlyRunningTimersWithCreationTimes lastObject];
+                [self pauseRunningTimer:timer creationTime:creationTime];
+            }
         }
     }
 }
@@ -776,6 +849,8 @@
     [pokerGame addObserver:self forKeyPath:@"cardDeck.popsFor" options:0 context:nil];
     [pokerGame addObserver:self forKeyPath:@"mainPot.chipsInPot" options:0 context:nil];
     [pokerGame addObserver:self forKeyPath:@"gameState" options:0 context:nil];
+    //der aktuell laufende Timer soll immer beobachtet werden: fuer Pausierungen:
+    [pokerGame addObserver:self forKeyPath:@"createdTimerDuringPause" options:0 context:nil];
     [pokerGame prepareGame];
 }
 
@@ -784,10 +859,28 @@
     [super viewDidLoad];
 	// Do any additional setup after loading the view.
     
+    //view-Hintergrund:
+    /*float red = 27/255.0;
+    float green = 160/255.0;
+    float blue = 184/255.0;
+    self.view.backgroundColor = [UIColor colorWithRed:red green:green blue:blue alpha:0.7];*/
+
     //immer benötigte Outlets:
     cardDeckImage = [[UIImageView alloc] initWithFrame:CGRectMake(5,22,32,44)];
     cardDeckImage.image = [UIImage imageNamed:@"Nathan.PNG"];
     [self.view addSubview:cardDeckImage];
+    
+    
+    
+    pauseTableView = [[UITableView alloc] initWithFrame:CGRectMake(120, 75, 240, 150) style:UITableViewStyleGrouped];
+    [self.view addSubview:pauseTableView];
+    pauseTableView.delegate = self;
+    pauseTableView.dataSource = self;
+    [pauseTableView reloadData];
+    pauseTableView.backgroundColor = [UIColor clearColor];
+    pauseTableView.hidden = YES;
+    pauseTableView.alpha = 0.0;
+    
     
     potLabel = [[UILabel alloc]initWithFrame:CGRectMake(5, 2, 50, 20)];
     //player1ChipsLabel.text = @"Text";
@@ -830,6 +923,14 @@
     showCardsButton.frame = CGRectMake(300, 253, 80, 30);
     showCardsButton.hidden = YES;
     [self.view addSubview:showCardsButton];
+    
+    pauseButton = [[UISegmentedControl alloc] initWithItems:[NSArray arrayWithObject:@"II"]];
+    pauseButton.segmentedControlStyle = UISegmentedControlStyleBar;
+    pauseButton.momentary = YES;
+    pauseButton.tintColor = [UIColor darkGrayColor];
+    [pauseButton addTarget:self action:@selector(pauseButtonPressed:) forControlEvents:UIControlEventValueChanged];
+    pauseButton.frame = CGRectMake(450,8,25,25);
+    [self.view addSubview:pauseButton];
     
     betLabel = [[UILabel alloc]initWithFrame:CGRectMake(222, 273, 70, 20)];
     betLabel.text = [[[NSNumber numberWithFloat:roundNumberOnTwoFigures(betSlider.value)] stringValue] stringByAppendingString:@"$"];
@@ -1054,6 +1155,53 @@
 
 }
 
+- (NSInteger) numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 1;
+}
+
+- (NSInteger) tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
+{
+    return 2;
+}
+
+- (NSString* ) tableView: (UITableView* ) tableView titleForHeaderInSection:(NSInteger)section
+{
+    return @"Game Paused";
+}
+
+- (UITableViewCell* ) tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    static NSString* MyIdentifier = @"MyIdentifier";
+    UITableViewCell* cell = [pauseTableView dequeueReusableCellWithIdentifier:MyIdentifier];
+    if (cell == nil) {
+        cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MyIdentifier];
+    }
+    if (indexPath.row == 0) {
+        cell.textLabel.text = @"Resume";
+    }
+    else {
+        cell.textLabel.text = @"Leave Game";
+    }
+    cell.backgroundColor = [UIColor clearColor];
+    cell.textLabel.font = [UIFont fontWithName:@"System" size:13.0];
+    cell.selectionStyle = UITableViewCellSelectionStyleNone;
+    cell.textLabel.textAlignment = UITextAlignmentCenter;
+    return cell;
+}
+
+- (void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    if (indexPath.row == 0) {
+        paused = NO;
+        [self pauseOrUnpause];
+        [self showAnimationWhenGameIsPaused];
+    }
+    else if (indexPath.row == 1) {
+        [self performSegueWithIdentifier:@"leaveGame" sender:self];
+    }
+}
+
 - (void) viewDidAppear:(BOOL)animated
 {
     [self setUpPlayers];
@@ -1086,14 +1234,24 @@
 
 - (void) movePlayingCardFromFrame: (CGRect) startFrame toDestinationFrame:(CGRect)destinationFrame duration:(float)secs option:(UIViewAnimationOptions)option
 {
+   /* AVAudioPlayer* cardSoundPlayer;
+    NSString* soundFilePath = [[NSBundle mainBundle] pathForResource:@"cards1" ofType:@"wav"];
+    cardSoundPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:soundFilePath] error:nil];
+    cardSoundPlayer.delegate = self;
+    cardSoundPlayer.volume = 0.5;
+    [cardSoundPlayer play];
+    */
+    
+    
     UIImageView* temporaryImageView = [[UIImageView alloc] initWithFrame:startFrame];
     temporaryImageView.image = [UIImage imageNamed:@"Nathan.PNG"];
     [self.view addSubview:temporaryImageView];
     [UIView animateWithDuration:secs animations:^{
         temporaryImageView.frame = destinationFrame;
     }
-    completion:nil];
-    [self performSelector:@selector(removeTemporaryOutlet:) withObject:temporaryImageView afterDelay:secs];
+    completion:^(BOOL finished) {
+        [self removeTemporaryOutlet:temporaryImageView];
+    }];
 }
 
 - (void) removeTemporaryOutlet:(UIImageView* )outlet
@@ -1129,6 +1287,88 @@
     [self movePlayingCardFromFrame:startFrame1 toDestinationFrame:destinationFrame duration:0.2 option:nil];
     [self movePlayingCardFromFrame:startFrame2 toDestinationFrame:destinationFrame duration:0.2 option:nil];
 }
+
+- (void) pauseButtonPressed:(id)sender
+{
+    paused = YES;
+    [self showAnimationWhenGameIsPaused];
+    [self pauseOrUnpause];
+}
+
+- (void) pauseRunningTimer: (NSTimer* ) timer creationTime: (NSDate* ) creationTime
+{
+    NSDate* fireDate = [NSDate dateWithTimeInterval:timer.timeInterval sinceDate:creationTime];
+    NSTimeInterval timeToGo = [fireDate timeIntervalSinceNow];
+    NSNumber* timeToGoNumber = [NSNumber numberWithFloat:timeToGo];
+    [self.timesToGoForCurrentlyRunningTimers addObject:timeToGoNumber];
+    timer.fireDate = [NSDate dateWithTimeIntervalSinceNow:999999999999999];    
+}
+
+- (void) unpauseRunningTimer:(NSTimer *)timer timeToGo: (NSTimeInterval) timeToGo
+{
+    timer.fireDate = [NSDate dateWithTimeIntervalSinceNow:timeToGo];
+}
+
+- (void) pauseOrUnpause
+{
+    if (paused) {
+        pokerGame.paused = YES;
+        for (Player* anyPlayer in pokerGame.allPlayers) {
+            anyPlayer.paused = YES;
+        }
+        if (pokerGame.currentlyRunningTimersWithCreationTimes != nil) {
+            for (int i=0; i<[pokerGame.currentlyRunningTimersWithCreationTimes count]; i+=2) {
+                NSTimer* timer = [pokerGame.currentlyRunningTimersWithCreationTimes objectAtIndex:i];
+                NSDate* creationTime = [pokerGame.currentlyRunningTimersWithCreationTimes objectAtIndex:i+1];
+                [self pauseRunningTimer:timer creationTime:creationTime];
+            }
+        }
+        for (Player* anyPlayer in pokerGame.allPlayers) {
+            if (anyPlayer.currentlyRunningTimersWithCreationTimes != nil) {
+                for (int i=0; i<[anyPlayer.currentlyRunningTimersWithCreationTimes count]; i+=2) {
+                    NSTimer* timer = [anyPlayer.currentlyRunningTimersWithCreationTimes objectAtIndex:i];
+                    NSDate* creationTime = [anyPlayer.currentlyRunningTimersWithCreationTimes objectAtIndex:i+1];
+                    [self pauseRunningTimer:timer creationTime:creationTime];
+                }
+            }
+        }
+        
+        //Outlets disablen:
+        betSlider.userInteractionEnabled = NO;
+        betButton.userInteractionEnabled = NO;
+        foldButton.userInteractionEnabled = NO;
+        showCardsButton.userInteractionEnabled = NO;
+        throwCardsAwayButton.userInteractionEnabled = NO;
+        pauseButton.userInteractionEnabled = NO;
+    }
+    else {
+        pokerGame.paused = NO;
+        pokerGame.createdTimerDuringPause = NO;
+        for (Player* anyPlayer in pokerGame.allPlayers) {
+            anyPlayer.paused = NO;
+            anyPlayer.createdTimerDuringPause = NO;
+        }
+        if (pokerGame.currentlyRunningTimersWithCreationTimes != nil) {
+            for (int i=0; i<[pokerGame.currentlyRunningTimersWithCreationTimes count]; i+=2) {
+                NSTimer* timer = [pokerGame.currentlyRunningTimersWithCreationTimes objectAtIndex:i];
+                NSTimeInterval timeToGo = [(NSNumber* ) [self.timesToGoForCurrentlyRunningTimers objectAtIndex:i/2] floatValue];
+                [self unpauseRunningTimer:timer timeToGo:timeToGo];
+            }
+        }
+        for (Player* anyPlayer in pokerGame.allPlayers) {
+            if (anyPlayer.currentlyRunningTimersWithCreationTimes != nil) {
+                for (int i=0; i<[anyPlayer.currentlyRunningTimersWithCreationTimes count]; i+=2) {
+                    NSTimer* timer = [anyPlayer.currentlyRunningTimersWithCreationTimes objectAtIndex:i];
+                    NSTimeInterval timeToGo = [(NSNumber* ) [self.timesToGoForCurrentlyRunningTimers objectAtIndex:i/2] floatValue];
+                    [self unpauseRunningTimer:timer timeToGo:timeToGo];
+                }
+            }
+        }
+    }
+}
+
+
+
 
 
 
