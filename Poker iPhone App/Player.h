@@ -79,7 +79,7 @@
 - (void) makeRandomBet; //Testmethode (später löschen!)
 - (BOOL) hasBetterCardsThan: (Player* ) aPlayer;
 - (BOOL) hasEqualCardsAs: (Player* ) aPlayer;
-- (void) showCards;
+- (void) showCards: (BOOL) required;
 - (void) mayShowCardsNow;
 - (void) resetPlayerForNewRound;
 - (void) changePlayerState: (NSNumber* ) playerStateAsObject;

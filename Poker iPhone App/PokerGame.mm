@@ -33,6 +33,9 @@
 @synthesize currentlyRunningTimersWithCreationTimes;
 @synthesize paused;
 @synthesize createdTimerDuringPause;
+@synthesize roundsPlayed;
+@synthesize blindsTimer;
+@synthesize blindsCountdown;
 
 - (void) dealOut
 {
@@ -217,6 +220,7 @@
     playersWhoAreAllIn = [[NSMutableArray alloc] init];
     playersWhoHaveShownCards = [[NSMutableArray alloc] init];
     mainPot = [[MainPot alloc] init];
+    self.roundsPlayed = 0;
     return self;
 }
 
@@ -266,14 +270,19 @@
         temporaryPlayer.bigBlind = NO;
     }
     
-    //Vorbereitungen für die reste Runde:
+    //Vorbereitungen für die erste Runde:
     for (Player* aPlayer in allPlayers) {
         aPlayer.nextPlayerInRound = aPlayer.playerOnLeftSide;
         aPlayer.previousPlayerInRound = aPlayer.playerOnRightSide;
     }
     self.remainingPlayersInRound = [[NSMutableArray alloc] initWithArray:allPlayers];
-
-
+    
+    //Blinds-Erhöhung nach Zeit?
+    if ([self.gameSettings.blinds isEqualToString:@"nach Minuten"]) {
+        blindsTimer = [NSTimer scheduledTimerWithTimeInterval:1.0 target:self selector:@selector(blindsTimerFired:) userInfo:nil repeats:YES];
+        self.blindsCountdown = 60*self.gameSettings.increaseBlindsAfter;
+    }
+    
     
     //ersten Dealer festlegen:
     n = (arc4random() % maxPlayers);
@@ -363,7 +372,8 @@
             newPlayerState = BET;
             playerStateAsObject = [NSNumber numberWithInt:newPlayerState];
         }
-        [aPlayer performSelector:@selector(changePlayerState:) withObject:playerStateAsObject afterDelay:0.5];
+        [aPlayer performSelector:@selector(changePlayerState:) withObject:playerStateAsObject afterDelay:0.2];
+        //[aPlayer changePlayerState:playerStateAsObject];
     }
     aPlayer.chips -= (amount - aPlayer.alreadyBetChips);
     highestBet = amount;
@@ -377,7 +387,8 @@
     aPlayer.alreadyBetChips = highestBet;
     PlayerState newPlayerState = CALLED;
     NSNumber* playerStateAsObject = [NSNumber numberWithInt:newPlayerState];
-    [aPlayer performSelector:@selector(changePlayerState:) withObject:playerStateAsObject afterDelay:0.5];
+    [aPlayer performSelector:@selector(changePlayerState:) withObject:playerStateAsObject afterDelay:0.2];
+    //[aPlayer changePlayerState:playerStateAsObject];
 }
 
 - (void) takeAllInFromPlayer:(Player* ) aPlayer asBlind:(BOOL)isBlind
@@ -415,7 +426,8 @@
     if (!isBlind) {
         PlayerState newPlayerState = ALL_IN;
         NSNumber* playerStateAsObject = [NSNumber numberWithInt:newPlayerState];
-        [aPlayer performSelector:@selector(changePlayerState:) withObject:playerStateAsObject afterDelay:0.5];
+        [aPlayer performSelector:@selector(changePlayerState:) withObject:playerStateAsObject afterDelay:0.2];
+        //[aPlayer changePlayerState:playerStateAsObject];
     }
 }
 
@@ -423,7 +435,8 @@
 {
     PlayerState newPlayerState = CHECKED;
     NSNumber* playerStateAsObject = [NSNumber numberWithInt:newPlayerState];
-    [aPlayer performSelector:@selector(changePlayerState:) withObject:playerStateAsObject afterDelay:0.5];
+    [aPlayer performSelector:@selector(changePlayerState:) withObject:playerStateAsObject afterDelay:0.2];
+    //[aPlayer changePlayerState:playerStateAsObject];
 }
 
 - (void) takeFoldFromPlayer:(Player *)aPlayer
@@ -443,7 +456,8 @@
     [aPlayer.hand.cardsOnHand removeAllObjects];
     PlayerState newPlayerState = FOLDED;
     NSNumber* playerStateAsObject = [NSNumber numberWithInt:newPlayerState];
-    [aPlayer performSelector:@selector(changePlayerState:) withObject:playerStateAsObject afterDelay:0.5];
+    [aPlayer performSelector:@selector(changePlayerState:) withObject:playerStateAsObject afterDelay:0.2];
+    //[aPlayer changePlayerState:playerStateAsObject];
 }
 
 // in dieser funktion wird die Variable PlayerState der Spieler überwacht.
@@ -519,49 +533,54 @@
         aPlayer.playerState = INACTIVE;
     }
     //Sonderfall preflop: playerWhoBetMost ist BigBlind => der darf nochmal ziehen
-    if (gameState == PRE_FLOP && highestBet == 2*smallBlind) {
-        while (activePlayer.nextPlayerInRound.isAllIn && activePlayer != playerWhoBetMost) {
-            activePlayer = activePlayer.nextPlayerInRound;
-        }
-        if (activePlayer == aPlayer) { // obige Schleife null mal durchlaufen: 
-            if (aPlayer != playerWhoBetMost) {
-                activePlayer = aPlayer.nextPlayerInRound;
-                activePlayer.playerState = ACTIVE;
+    if ([remainingPlayersInRound count] > 1) {
+        if (gameState == PRE_FLOP && highestBet == 2*smallBlind) {
+            while (activePlayer.nextPlayerInRound.isAllIn && activePlayer != playerWhoBetMost) {
+                activePlayer = activePlayer.nextPlayerInRound;
+            }
+            if (activePlayer == aPlayer) { // obige Schleife null mal durchlaufen: 
+                if (aPlayer != playerWhoBetMost) {
+                    activePlayer = aPlayer.nextPlayerInRound;
+                    activePlayer.playerState = ACTIVE;
+                }
+                else {
+                    [self endBetRound];
+                }
             }
             else {
-                [self endBetRound];
+                if (activePlayer != playerWhoBetMost) {
+                    activePlayer.playerState = ACTIVE;
+                }
+                else {
+                    [self endBetRound];
+                }
             }
         }
         else {
-            if (activePlayer != playerWhoBetMost) {
-                activePlayer.playerState = ACTIVE;
+            while (activePlayer.nextPlayerInRound.isAllIn && activePlayer.nextPlayerInRound != playerWhoBetMost) {
+                activePlayer = activePlayer.nextPlayerInRound;
+            }
+            if (activePlayer == aPlayer) { //obige Schleife null mal durchlaufen
+                if (activePlayer.nextPlayerInRound != playerWhoBetMost) {
+                    activePlayer = activePlayer.nextPlayerInRound;
+                    activePlayer.playerState = ACTIVE;
+                }
+                else {
+                    [self endBetRound];
+                }
             }
             else {
-                [self endBetRound];
+                if (activePlayer != playerWhoBetMost) {
+                    activePlayer.playerState = ACTIVE;
+                }
+                else {
+                    [self endBetRound];
+                }
             }
         }
     }
     else {
-        while (activePlayer.nextPlayerInRound.isAllIn && activePlayer.nextPlayerInRound != playerWhoBetMost) {
-            activePlayer = activePlayer.nextPlayerInRound;
-        }
-        if (activePlayer == aPlayer) { //obige Schleife null mal durchlaufen
-            if (activePlayer.nextPlayerInRound != playerWhoBetMost) {
-                activePlayer = activePlayer.nextPlayerInRound;
-                activePlayer.playerState = ACTIVE;
-            }
-            else {
-                [self endBetRound];
-            }
-        }
-        else {
-            if (activePlayer != playerWhoBetMost) {
-                activePlayer.playerState = ACTIVE;
-            }
-            else {
-                [self endBetRound];
-            }
-        }
+        [self endBetRound];
     }
 }
 
@@ -725,24 +744,22 @@
 
 - (void) startBetRound
 {
-    if (gameState == PRE_FLOP) {
-        [self showFlop];
-    }
-    else if (gameState == FLOP) {
-        [self showTurn];
-    }
-    else if (gameState == TURN) {
-        [self showRiver];
-    }
-    if (gameState != PRE_FLOP && gameState != FLOP1 && gameState != FLOP2 && gameState != FLOP && gameState != TURN) {
-        [self changeGameState];
-    }
-    if (gameState == PRE_FLOP) {
+    if (gameState == SETUP) {
+        [self changeGameState]; //wechselt zu preflop
         activePlayer = firstInRound.playerOnLeftSide.playerOnLeftSide;
     }
     else {
         activePlayer = firstInRound;
         playerWhoBetMost = activePlayer;
+        if (gameState == PRE_FLOP) {
+            [self showFlop];
+        }
+        else if (gameState == FLOP) {
+            [self showTurn];
+        }
+        else if (gameState == TURN) {
+            [self showRiver];
+        }
     }
     activePlayer.playerState = ACTIVE;
 }
@@ -758,6 +775,10 @@
         }
     }
     //alles für neue Runde resetten:
+    self.roundsPlayed += 1;
+    if ([self.gameSettings.blinds isEqualToString:@"nach Runden"] && roundsPlayed % self.gameSettings.increaseBlindsAfter == 0) {
+        [self increaseBlinds];
+    }
     [self prepareNewRound];
     [self performSelector:@selector(startBetRound) withObject:nil afterDelay:3.0];
 }
@@ -768,19 +789,20 @@
     for (Player* remainingPlayer in remainingPlayersInRound) {
         [remainingPlayer.hand defineValueOfCardsWithTableCards:self.cardsOnTable];
     }
-    activePlayer = firstInRound;
+    activePlayer = playerWhoBetMost;
     [self showDownForPlayer:activePlayer];
 }
 
 - (void) showDownTimerFires:(NSTimer *)aTimer
 {
-    if (activePlayer == firstInRound && [playersWhoHaveShownCards containsObject:activePlayer]) {
+    //Alle Spieler haben gezeigt oder gefoldet
+    if (activePlayer == playerWhoBetMost && [playersWhoHaveShownCards containsObject:activePlayer]) {
         [self endRound];
     }
     else {
         if (!activePlayer.isYou) {
             if ([aTimer.userInfo isEqualToString:@"showCards"]) {
-                [activePlayer showCards];
+                [activePlayer showCards:YES]; //Die YES-Übergabe bedeutet, dass er die Karten zeigen muss!
             }
             else if ([aTimer.userInfo isEqualToString:@"mayShowCards"]) {
                 [activePlayer mayShowCardsNow];
@@ -791,23 +813,34 @@
                 activePlayer.mayShowCards = NO;
             }
             else {
-                [activePlayer showCards];
+                [activePlayer showCards:YES];
             }
         }
-        activePlayer = activePlayer.nextPlayerInRound;
-        [self showDownForPlayer:activePlayer];
+        //Nur ein Spieler, der durfte zeigen
+        if ([remainingPlayersInRound count] == 1) {
+            [self endRound];
+        }
+        else {
+            activePlayer = activePlayer.nextPlayerInRound;
+            [self showDownForPlayer:activePlayer];
+        }
+
     }
 
     int index = [self.currentlyRunningTimersWithCreationTimes indexOfObject:aTimer];
     for (int i=1;i<=2;i++) {
         [currentlyRunningTimersWithCreationTimes removeObjectAtIndex:index]; //alle Timer und zugehörtige Startzeiten wieder rauswerfen.
     }
+
 }
 
 - (void) showDownForPlayer:(Player *)aPlayer
 {
     NSString* userInfo = [[NSString alloc] init];
-    if (aPlayer == firstInRound) userInfo = @"showCards";
+    if (aPlayer == playerWhoBetMost && [remainingPlayersInRound count] > 1) userInfo = @"showCards";
+    else if (aPlayer == playerWhoBetMost) {
+        userInfo = @"mayShowCards";
+    }
     if (!aPlayer.hasSidePot) {
         for (int i=[playersWhoHaveShownCards count]-1; i>=0; i--) {
             Player* playerWhoHasShownCards = (Player* ) [playersWhoHaveShownCards objectAtIndex:i];
@@ -825,7 +858,7 @@
                 }
                 else {
                     //gewinnt sicher nichts mehr, kann als aus den remaining Players entfernt werden:
-                    [remainingPlayersInRound removeObject:aPlayer];
+                    //[remainingPlayersInRound removeObject:aPlayer];
                     aPlayer.previousPlayerInRound.nextPlayerInRound = aPlayer.nextPlayerInRound;
                     aPlayer.nextPlayerInRound.previousPlayerInRound = aPlayer.previousPlayerInRound;
                     userInfo = @"mayShowCards";
@@ -848,7 +881,7 @@
             if (!playerWhoHasShownCards.hasSidePot) {
                 if ([playerWhoHasShownCards hasBetterCardsThan:aPlayer]) {
                     //gewinnt sicher nichts mehr, kann als aus den remaining Players entfernt werden:
-                    [remainingPlayersInRound removeObject:aPlayer];
+                    //[remainingPlayersInRound removeObject:aPlayer];
                     aPlayer.previousPlayerInRound.nextPlayerInRound = aPlayer.nextPlayerInRound;
                     aPlayer.nextPlayerInRound.previousPlayerInRound = aPlayer.previousPlayerInRound;
                     userInfo = @"mayShowCards";
@@ -859,7 +892,7 @@
                 if ([playersWhoAreAllIn indexOfObject:aPlayer] < [playersWhoAreAllIn indexOfObject:playerWhoHasShownCards]) {
                     if ([playerWhoHasShownCards hasBetterCardsThan:aPlayer]) {
                         //gewinnt sicher nichts mehr, kann als aus den remaining Players entfernt werden:
-                        [remainingPlayersInRound removeObject:aPlayer];
+                        //[remainingPlayersInRound removeObject:aPlayer];
                         aPlayer.previousPlayerInRound.nextPlayerInRound = aPlayer.nextPlayerInRound;
                         aPlayer.nextPlayerInRound.previousPlayerInRound = aPlayer.previousPlayerInRound;
                         userInfo = @"mayShowCards";
@@ -880,7 +913,7 @@
         [aPlayer mayShowCardsNow];
     }
     
-    showDownTimer = [NSTimer scheduledTimerWithTimeInterval:3.0 target:self selector:@selector(showDownTimerFires:) userInfo:userInfo repeats:NO];
+    showDownTimer = [NSTimer scheduledTimerWithTimeInterval:4.0 target:self selector:@selector(showDownTimerFires:) userInfo:userInfo repeats:NO];
     NSArray* temporaryArray = [NSArray arrayWithObjects:showDownTimer, [NSDate date], nil];
     [self.currentlyRunningTimersWithCreationTimes addObjectsFromArray:temporaryArray];
     if (paused) {
@@ -917,19 +950,19 @@
     counterForTimer -= 1;
     if (counterForTimer == 3) {
         [self showFlop];
-        self.gameState = FLOP;
+        //self.gameState = FLOP;
     }
     else if (counterForTimer == 2) {
         [self showTurn];
-        self.gameState = TURN;
+        //self.gameState = TURN;
     }
     else if (counterForTimer == 1) {
         [self showRiver];
-        self.gameState = RIVER;
+        //self.gameState = RIVER;
         Player* player1 = [remainingPlayersInRound objectAtIndex:0];
         Player* player2 = [remainingPlayersInRound objectAtIndex:1];
-        [player1 showCards]; //Karten wurden zwar schon gezeigt, so kommt aber noch die Animation hinzu
-        [player2 showCards]; 
+        [player1 showCards:YES]; //Karten wurden zwar schon gezeigt, so kommt aber noch die Animation hinzu
+        [player2 showCards:YES]; 
     }
     else if (counterForTimer == 0) {
         [aTimer invalidate];
@@ -969,15 +1002,15 @@
     counterForTimer -= 1;
     if (counterForTimer == 3) {
         [self showFlop];
-        self.gameState = FLOP;
+        //self.gameState = FLOP;
     }
     else if (counterForTimer == 2) {
         [self showTurn];
-        self.gameState = TURN;
+        //self.gameState = TURN;
     }
     else if (counterForTimer == 1) {
         [self showRiver];
-        self.gameState = RIVER;
+        //self.gameState = RIVER;
     }
     else if (counterForTimer == 0) {        
         [aTimer invalidate];
@@ -988,4 +1021,21 @@
         [self endBetRound];
     }
 }
+
+- (void) increaseBlinds
+{
+    self.smallBlind *= 2;
+}
+
+- (void) blindsTimerFired:(NSTimer *)aTimer
+{
+    if (self.blindsCountdown >= 0) {
+        self.blindsCountdown -= 1;
+    }
+    else {
+        [self increaseBlinds];
+        self.blindsCountdown = self.gameSettings.increaseBlindsAfter*60;
+    }
+}
+
 @end

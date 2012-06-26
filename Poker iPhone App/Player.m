@@ -144,7 +144,7 @@
 
 - (void) startCountdown
 {
-    counter = 20;
+    self.counter = 20;
     self.countdownTimer = [[NSTimer alloc] init];
     countdownTimer = [NSTimer scheduledTimerWithTimeInterval:1.0
                                                                target:self
@@ -172,12 +172,12 @@
 {
     [self setCounter:(counter -1)];
     if (isYou == NO) {
-        if (counter == 19) {
+        if (self.counter == 19) {
             [self makeRandomBet];
         }
     }
     
-    if (counter == 0) { 
+    if (self.counter < 0) { 
         if (pokerGame.highestBet - alreadyBetChips == 0) [self check];
         else [self fold];
     }
@@ -269,13 +269,17 @@
 
 - (void) mayShowCardsNow
 {
-    self.doesNotWinAnything = YES;
+    if ([pokerGame.remainingPlayersInRound count] > 1) {
+        self.doesNotWinAnything = YES;
+    }
     self.mayShowCards = YES;
 }
 
-- (void) showCards
+- (void) showCards: (BOOL) required
 {
-    [pokerGame.playersWhoHaveShownCards addObject:self];
+    if (required) {
+        [pokerGame.playersWhoHaveShownCards addObject:self];
+    }
     self.showsCards = YES;
 }
 

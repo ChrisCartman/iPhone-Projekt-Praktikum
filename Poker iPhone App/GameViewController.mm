@@ -70,17 +70,30 @@
 @synthesize effectLabel4;
 @synthesize effectLabel5;
 
+@synthesize roundsPlayedLabel;
+@synthesize blindsCountdownLabel;
+@synthesize blindsIncreasedLabel;
+
 @synthesize showCardsButton;
 @synthesize throwCardsAwayButton;
 
 @synthesize pauseButton;
 @synthesize pauseTableView;
+@synthesize pauseLabel;
 
 @synthesize currentlyRunningTimersWithCreationsTimes;
 @synthesize timesToGoForCurrentlyRunningTimers;
 
 @synthesize table;
 
+@synthesize temporaryOutletsAndBadCards;
+
+@synthesize cardSoundPlayer;
+@synthesize foldSoundPlayer;
+@synthesize moneySoundPlayer;
+
+@synthesize playerCountdownLabel;
+@synthesize countdownSoundPlayer;
 
 //User-Interaction:
 - (IBAction) changeBetSliderValue:(id)sender
@@ -129,8 +142,9 @@
 - (IBAction)showCardsButtonClicked:(id)sender
 {
     Player* aPlayer = pokerGame.activePlayer;
-    [aPlayer showCards];
+    [aPlayer showCards:NO];
     aPlayer.mayShowCards = NO;
+    [pokerGame.showDownTimer fire];
 }
 
 - (void) playerThrowsCardsAway:(Player *)aPlayer
@@ -160,10 +174,10 @@
 
 - (IBAction)throwCardsAwayButtonClicked:(id)sender
 {
-    [pokerGame.showDownTimer invalidate];
     Player* aPlayer = pokerGame.activePlayer;
     aPlayer.mayShowCards = NO;
     [self playerThrowsCardsAway:aPlayer];
+    [pokerGame.showDownTimer fire];
 }
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
@@ -187,6 +201,7 @@
     [player1 addObserver:self forKeyPath:@"showsCards" options:0 context:nil];
     [player1 addObserver:self forKeyPath:@"mayShowCards" options:0 context:nil];
     [player1 addObserver:self forKeyPath:@"createdTimerDuringPause" options:0 context:nil];
+    [player1 addObserver:self forKeyPath:@"counter" options:0 context:nil];
     // jeder Spieler wird mit seinen Outlets verknüpft
     Player* player2 = [[Player alloc] init];
     [pokerGame addPlayer:player2];
@@ -197,6 +212,7 @@
     [player2 addObserver:self forKeyPath:@"showsCards" options:0 context:nil];
     [player2 addObserver:self forKeyPath:@"mayShowCards" options:0 context:nil];
     [player2 addObserver:self forKeyPath:@"createdTimerDuringPause" options:0 context:nil];;
+    [player2 addObserver:self forKeyPath:@"counter" options:0 context:nil];
     if (pokerGame.gameSettings.anzahlKI > 1) {
         Player* player3 = [[Player alloc] init];
         [pokerGame addPlayer:player3];
@@ -207,6 +223,7 @@
         [player3 addObserver:self forKeyPath:@"showsCards" options:0 context:nil];
         [player3 addObserver:self forKeyPath:@"mayShowCards" options:0 context:nil];
         [player3 addObserver:self forKeyPath:@"createdTimerDuringPause" options:0 context:nil];
+        [player3 addObserver:self forKeyPath:@"counter" options:0 context:nil];
     }
     if (pokerGame.gameSettings.anzahlKI > 2) {
         Player* player4 = [[Player alloc] init];
@@ -218,6 +235,7 @@
         [player4 addObserver:self forKeyPath:@"showsCards" options:0 context:nil];
         [player4 addObserver:self forKeyPath:@"mayShowCards" options:0 context:nil];
         [player4 addObserver:self forKeyPath:@"createdTimerDuringPause" options:0 context:nil];
+        [player4 addObserver:self forKeyPath:@"counter" options:0 context:nil];
     }
     if (pokerGame.gameSettings.anzahlKI > 3) {
         Player* player5 = [[Player alloc] init];
@@ -229,6 +247,7 @@
         [player5 addObserver:self forKeyPath:@"showsCards" options:0 context:nil];
         [player5 addObserver:self forKeyPath:@"mayShowCards" options:0 context:nil];
         [player5 addObserver:self forKeyPath:@"createdTimerDuringPause" options:0 context:nil];
+        [player5 addObserver:self forKeyPath:@"counter" options:0 context:nil];
     }
 }
 
@@ -254,28 +273,33 @@
 
 - (void) showCardsOfPlayer:(Player *)aPlayer withAnimation:(BOOL)animated
 {
+    UIImageView* card1;
+    UIImageView* card2;
     if ([aPlayer.identification isEqualToString:@"player1"]) {
-        player1CardOne.image = [[aPlayer.hand.cardsOnHand objectAtIndex:0] playingCardImage];
-        player1CardTwo.image = [[aPlayer.hand.cardsOnHand objectAtIndex:1] playingCardImage];
+        card1 = player1CardOne;
+        card2 = player1CardTwo;
     }
     else if ([aPlayer.identification isEqualToString:@"player2"]) {
-        player2CardOne.image = [[aPlayer.hand.cardsOnHand objectAtIndex:0] playingCardImage];
-        player2CardTwo.image = [[aPlayer.hand.cardsOnHand objectAtIndex:1] playingCardImage];
+        card1 = player2CardOne;
+        card2 = player2CardTwo;
     }
     else if ([aPlayer.identification isEqualToString:@"player3"]) {
-        player3CardOne.image = [[aPlayer.hand.cardsOnHand objectAtIndex:0] playingCardImage];
-        player3CardTwo.image = [[aPlayer.hand.cardsOnHand objectAtIndex:1] playingCardImage];
+        card1 = player3CardOne;
+        card2 = player3CardTwo;
     }
     else if ([aPlayer.identification isEqualToString:@"player4"]) {
-        player4CardOne.image = [[aPlayer.hand.cardsOnHand objectAtIndex:0] playingCardImage];
-        player4CardTwo.image = [[aPlayer.hand.cardsOnHand objectAtIndex:1] playingCardImage];
+        card1 = player4CardOne;
+        card2 = player4CardTwo;
     }
     else if ([aPlayer.identification isEqualToString:@"player5"]) {
-        player5CardOne.image = [[aPlayer.hand.cardsOnHand objectAtIndex:0] playingCardImage];
-        player5CardTwo.image = [[aPlayer.hand.cardsOnHand objectAtIndex:1] playingCardImage];
+        card1 = player5CardOne;
+        card2 = player5CardTwo;
+    }
+    if (!([pokerGame.remainingPlayersInRound count] == 2 && (pokerGame.firstInRound.isAllIn || pokerGame.firstInRound.nextPlayerInRound.isAllIn))) {
+        [self showAnimationWhenPlayer:aPlayer showsCard:card1 andCard:card2];
     }
     if (animated) {
-        [self showAnimationWhenPlayerShowsCards:aPlayer];
+        [self showAnimationWhenPlayerShowsCards:aPlayer]; //Diese Animation lässt die Kartenstärke aufblinken
     }
 }
 
@@ -565,6 +589,7 @@
 
 - (void) showAnimationAtTheEndOfMoveOfPlayer:(Player *)aPlayer
 {
+    NSString* soundFilePath;
     UILabel* effectLabel;
     if ([aPlayer.identification isEqualToString:@"player1"]) {
         effectLabel = effectLabel1;
@@ -584,27 +609,42 @@
     if (aPlayer.playerState == CHECKED) {
         effectLabel.text = @"Check!";
         effectLabel.textColor = [UIColor greenColor];
+        soundFilePath = [[NSBundle mainBundle] pathForResource:@"check" ofType:@"wav"];
+
     }
     else if (aPlayer.playerState == CALLED) {
         effectLabel.text = @"Call!";
         effectLabel.textColor = [UIColor greenColor];
+        soundFilePath = [[NSBundle mainBundle] pathForResource:@"money" ofType:@"wav"];
     }
     else if (aPlayer.playerState == RAISED) {
         effectLabel.text = @"Raise!";
         effectLabel.textColor = [UIColor orangeColor];
+        soundFilePath = [[NSBundle mainBundle] pathForResource:@"money" ofType:@"wav"];
     }
     else if (aPlayer.playerState == BET) {
         effectLabel.text = @"Bet!";
         effectLabel.textColor = [UIColor orangeColor];
+        soundFilePath = [[NSBundle mainBundle] pathForResource:@"money" ofType:@"wav"];
     }
     else if (aPlayer.playerState == ALL_IN) {
         effectLabel.text = @"ALL IN!";
         effectLabel.textColor = [UIColor orangeColor];
+        soundFilePath = [[NSBundle mainBundle] pathForResource:@"money" ofType:@"wav"];
     }
     else if (aPlayer.playerState == FOLDED) {
         effectLabel.text = @"Fold!";
         effectLabel.textColor = [UIColor redColor];
+        soundFilePath = [[NSBundle mainBundle] pathForResource:@"fold" ofType:@"wav"];
     }
+    
+    moneySoundPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:soundFilePath] error:nil];
+    moneySoundPlayer.delegate = self;
+    moneySoundPlayer.volume = 0.2;
+    [moneySoundPlayer prepareToPlay];
+    BOOL ok = [moneySoundPlayer play];
+    NSLog(@"ok: %@", ok ? @"Y" : @"N");
+    
     [effectLabel bringSubviewToFront:self.view];
     effectLabel.alpha = 1.0;
     [self fadeOutLabel:effectLabel duration:2.0 option:nil];
@@ -640,6 +680,152 @@
     [self fadeOutLabel:effectLabel duration:2.0 option:nil];    
 }
 
+- (void) showAnimationWhenPlayer: (Player* ) aPlayer showsCard:(UIImageView *)card1 andCard:(UIImageView *)card2
+{
+    CGRect startFrame1;
+    CGRect destinationFrame1;
+    CGRect startFrame2;
+    CGRect destinationFrame2;
+    if (!aPlayer.isYou) {
+        destinationFrame1 = CGRectMake(card1.frame.origin.x + 16.0, card1.frame.origin.y, 1, 44);
+        destinationFrame2 = CGRectMake(card2.frame.origin.x + 16.0, card2.frame.origin.y, 1, 44);
+        startFrame1 = card1.frame;
+        startFrame2 = card2.frame;
+    }
+    else {
+        destinationFrame1 = CGRectMake(card1.frame.origin.x, card1.frame.origin.y - 15, 32, 44);
+        destinationFrame2 = CGRectMake(card2.frame.origin.x, card2.frame.origin.y - 15, 32, 44);
+    }
+
+    //Sound abspielen:
+    NSString* soundFilePath = [[NSBundle mainBundle] pathForResource:@"cards1" ofType:@"wav"];
+    cardSoundPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:soundFilePath] error:nil];
+    cardSoundPlayer.delegate = self;
+    cardSoundPlayer.volume = 0.1;
+    [cardSoundPlayer prepareToPlay];
+    [cardSoundPlayer play];
+    
+    [UIView animateWithDuration:0.15 animations:^{
+        card1.frame = destinationFrame1;
+        card2.frame = destinationFrame2;
+    }
+    completion:^(BOOL finished) {
+            if (finished) {
+                if (!aPlayer.isYou) {
+                    card1.image = [[aPlayer.hand.cardsOnHand objectAtIndex:0] playingCardImage];
+                    card2.image = [[aPlayer.hand.cardsOnHand objectAtIndex:1] playingCardImage];
+                    [UIView animateWithDuration:0.15 animations:^{
+                        card1.frame = startFrame1;
+                        card2.frame = startFrame2;
+                    }  completion:^(BOOL finished) {
+                        if (finished) {
+                            [self showAnimationForFiveBestCardsOfPlayer:aPlayer withCard:card1 andCard:card2];
+                        }
+                    }];
+                }
+                else {
+                    [self showAnimationForFiveBestCardsOfPlayer:aPlayer withCard:card1 andCard:card2];
+                }
+            }
+        }];
+}
+
+- (void) showAnimationForFiveBestCardsOfPlayer:(Player *)aPlayer withCard:(UIImageView *)card1 andCard:(UIImageView *)card2
+{
+    [self resetTemporaryOutletsAndBadCards];
+    NSMutableArray* goodCards = [[NSMutableArray alloc] initWithCapacity:5];
+    NSMutableArray* badCards = [[NSMutableArray alloc] initWithCapacity:2];
+    PlayingCard* currentPlayingCard;
+    currentPlayingCard = [aPlayer.hand.cardsOnHand objectAtIndex:0];
+    if ([aPlayer.hand.fiveBestCards.arrayOfFiveBestCards containsObject:currentPlayingCard]) {
+        [goodCards addObject:card1];
+    }
+    else {
+        [badCards addObject:card1];
+    }
+    
+    currentPlayingCard = [aPlayer.hand.cardsOnHand objectAtIndex:1];
+    if ([aPlayer.hand.fiveBestCards.arrayOfFiveBestCards containsObject:currentPlayingCard]) {
+        [goodCards addObject:card2];
+    }
+    else {
+        [badCards addObject:card2];
+    }
+    
+    if ([pokerGame.cardsOnTable.flop count] != 0) {
+        currentPlayingCard = [pokerGame.cardsOnTable.flop objectAtIndex:0];
+        if ([aPlayer.hand.fiveBestCards.arrayOfFiveBestCards containsObject:currentPlayingCard]) {
+            [goodCards addObject:flopCardOneImage];
+        }
+        else {
+            [badCards addObject:flopCardOneImage];
+        }
+    
+        currentPlayingCard = [pokerGame.cardsOnTable.flop objectAtIndex:1];
+        if ([aPlayer.hand.fiveBestCards.arrayOfFiveBestCards containsObject:currentPlayingCard]) {
+            [goodCards addObject:flopCardTwoImage];
+        }
+        else {
+            [badCards addObject:flopCardTwoImage];
+        } 
+    
+        currentPlayingCard = [pokerGame.cardsOnTable.flop objectAtIndex:2];
+        if ([aPlayer.hand.fiveBestCards.arrayOfFiveBestCards containsObject:currentPlayingCard]) {
+            [goodCards addObject:flopCardThreeImage];
+        }
+        else {
+            [badCards addObject:flopCardThreeImage];
+        }
+    }
+    if (pokerGame.cardsOnTable.turn != nil) {
+        currentPlayingCard = pokerGame.cardsOnTable.turn;
+        if ([aPlayer.hand.fiveBestCards.arrayOfFiveBestCards containsObject:currentPlayingCard]) {
+            [goodCards addObject:turnCardImage];
+        }
+        else {
+            [badCards addObject:turnCardImage];
+        }
+    }
+    
+    if (pokerGame.cardsOnTable.river != nil) {
+        currentPlayingCard = pokerGame.cardsOnTable.river;
+        if ([aPlayer.hand.fiveBestCards.arrayOfFiveBestCards containsObject:currentPlayingCard]) {
+            [goodCards addObject:riverCardImage];
+        }
+        else {
+            [badCards addObject:riverCardImage];
+        }
+    }
+    if (temporaryOutletsAndBadCards == nil) {
+        temporaryOutletsAndBadCards = [[NSMutableArray alloc] initWithCapacity:5];
+    }
+    for (UIImageView* imageView in badCards) {
+        UILabel* aLabel = [[UILabel alloc] initWithFrame:imageView.frame];
+        [self.view addSubview:aLabel];
+        [self.view bringSubviewToFront:aLabel];
+        [temporaryOutletsAndBadCards addObject:aLabel];
+        aLabel.backgroundColor = [UIColor darkGrayColor];
+        aLabel.text = @"";
+        aLabel.alpha = 0.0;
+    }
+    
+    [UIView animateWithDuration:0.5 animations:^{
+        for (UILabel* label in temporaryOutletsAndBadCards) {
+            label.alpha = 0.7;
+        }
+    }
+        completion:nil
+    ];
+}
+
+- (void) resetTemporaryOutletsAndBadCards
+{
+    for (UILabel* aLabel in temporaryOutletsAndBadCards) {
+        [aLabel removeFromSuperview];
+    }
+    [temporaryOutletsAndBadCards removeAllObjects];
+}
+
 - (void) showAnimationWhenGameIsPaused
 {
     NSMutableArray* allOutlets = [NSMutableArray arrayWithArray:[self.view subviews]];
@@ -647,13 +833,19 @@
     if (paused) {
         pauseTableView.alpha = 0.0;
         pauseTableView.hidden = NO;
+        if (pauseLabel == nil) {
+            pauseLabel = [[UILabel alloc] initWithFrame:CGRectMake(0,0,480,300)];
+            pauseLabel.text = @"";
+            pauseLabel.backgroundColor = [UIColor lightGrayColor];
+        }
+        pauseLabel.hidden = NO;
+        pauseLabel.alpha = 0.0;
+        [self.view addSubview:pauseLabel];
+        [self.view bringSubviewToFront:pauseLabel];
         [self.view bringSubviewToFront:pauseTableView];
+
         [UIView animateWithDuration:1.0 animations:^{
-            for (id outlet in allOutlets) {
-                if ([outlet alpha] > 0) {
-                    [outlet setAlpha:0.2];
-                }
-            }
+            pauseLabel.alpha = 0.8;
             pauseTableView.alpha = 1.0;
             //self.view.backgroundColor = [UIColor lightGrayColor];
         }
@@ -661,16 +853,13 @@
     }
     else {
         [UIView animateWithDuration:1.0 animations:^{
-            for (id outlet in allOutlets) {
-                if ([outlet alpha] >= 0.2) {
-                    [outlet setAlpha:1.0];
-                }
-            }
+            pauseLabel.alpha = 0.0;
             pauseTableView.alpha = 0.0;
         }
     completion:^(BOOL finished) {
         if (finished) {
             self.pauseTableView.hidden = YES;
+            pauseLabel.hidden = YES;
             
             //Outlets enablen:
             betSlider.userInteractionEnabled = YES;
@@ -791,7 +980,7 @@
                     [self playerThrowsCardsAway:aPlayer]; // schmeißt Karten weg
                 }
                 else {
-                    [aPlayer showCards];
+                    [aPlayer showCards:NO];
                 }
             }
         }
@@ -802,6 +991,10 @@
                 NSDate* creationTime = [aPlayer.currentlyRunningTimersWithCreationTimes lastObject];
                 [self pauseRunningTimer:timer creationTime:creationTime];
             }
+        }
+        else if ([keyPath isEqualToString:@"counter"]) {
+            Player* aPlayer = (Player* ) object;
+            [self changeGameOutlets_playerCountDown:aPlayer];
         }
     }
     else if ([object isKindOfClass:[PokerGame class]]) {
@@ -819,6 +1012,9 @@
                 [self changeGameOutlets_cards];
             }
             if (pokerGame.gameState == SETUP) {
+                [self resetTemporaryOutletsAndBadCards];
+                player1CardOne.frame = CGRectMake(270, 205, 32, 44);
+                player1CardTwo.frame = CGRectMake(310, 205, 32, 44);
                 [self resetObservationForSidePots];
             }
         }
@@ -830,6 +1026,17 @@
                 NSTimer* timer = [pokerGame.currentlyRunningTimersWithCreationTimes objectAtIndex:([pokerGame.currentlyRunningTimersWithCreationTimes count]-2)];
                 NSDate* creationTime = [pokerGame.currentlyRunningTimersWithCreationTimes lastObject];
                 [self pauseRunningTimer:timer creationTime:creationTime];
+            }
+        }
+        else if ([keyPath isEqualToString:@"blindsCountdown"]) {
+            [self changeGameOutlets_blindsCountdown];
+        }
+        else if ([keyPath isEqualToString:@"roundsPlayed"]) {
+            [self changeGameOutlets_roundsPlayed];
+        }
+        else if ([keyPath isEqualToString:@"smallBlind"]) {
+            if (!(pokerGame.gameSettings.startBlinds == pokerGame.smallBlind)) {
+                [self showAnimationWhenBlindsAreIncreased];
             }
         }
     }
@@ -846,12 +1053,62 @@
 
 - (void) setUpGame
 {
+    if ([pokerGame.gameSettings.blinds isEqualToString:@"nach Minuten"]) {
+        [pokerGame addObserver:self forKeyPath:@"blindsCountdown" options:0 context:nil];
+        blindsCountdownLabel = [[UILabel alloc] initWithFrame:CGRectMake(100, 2, 80, 22)];
+        blindsCountdownLabel.textColor = [UIColor blueColor];
+        blindsCountdownLabel.font = [UIFont fontWithName:@"System" size:14.0];
+        blindsCountdownLabel.text = @"";
+        blindsCountdownLabel.backgroundColor = [UIColor clearColor];
+        [self.view addSubview:blindsCountdownLabel];
+    }
+    
+    [pokerGame addObserver:self forKeyPath:@"roundsPlayed" options:0 context:nil];
+    roundsPlayedLabel = [[UILabel alloc] initWithFrame:CGRectMake(45,2,50,22)];
+    roundsPlayedLabel.textColor = [UIColor blueColor];
+    roundsPlayedLabel.backgroundColor = [UIColor clearColor];
+    roundsPlayedLabel.text = @"0";
+    roundsPlayedLabel.font = [UIFont fontWithName:@"System" size:14.0];
+    [self.view addSubview:roundsPlayedLabel];
+    
+    [pokerGame addObserver:self forKeyPath:@"smallBlind" options:0 context:nil];
     [pokerGame addObserver:self forKeyPath:@"cardDeck.popsFor" options:0 context:nil];
     [pokerGame addObserver:self forKeyPath:@"mainPot.chipsInPot" options:0 context:nil];
     [pokerGame addObserver:self forKeyPath:@"gameState" options:0 context:nil];
     //der aktuell laufende Timer soll immer beobachtet werden: fuer Pausierungen:
     [pokerGame addObserver:self forKeyPath:@"createdTimerDuringPause" options:0 context:nil];
     [pokerGame prepareGame];
+}
+
+- (IBAction)cardsTouchDown:(id)sender
+{
+    //Karten vergrößern
+    CGRect destinationFrame1 = CGRectMake(player1CardOne.frame.origin.x - 50, player1CardOne.frame.origin.y - 68.75, 82, 112.75);
+    CGRect destinationFrame2 = CGRectMake(player1CardTwo.frame.origin.x, player1CardTwo.frame.origin.y - 68.75, 82, 112.75);
+    [UIView animateWithDuration:0.2 animations:^{
+        player1CardOne.frame = destinationFrame1;
+        player1CardTwo.frame = destinationFrame2;
+    }
+                     completion:nil];
+    
+    //jetzt noch die besten fünf Karten anzeigen:
+    Player* aPlayer = [pokerGame.allPlayers objectAtIndex:0]; // das bist du:
+    [aPlayer.hand defineValueOfCardsWithTableCards:pokerGame.cardsOnTable];
+    UIImageView* card1 = player1CardOne;
+    UIImageView* card2 = player1CardTwo;
+    [self showAnimationForFiveBestCardsOfPlayer:aPlayer withCard:card1 andCard:card2];
+}
+
+- (IBAction)cardsTouchUp:(id)sender
+{
+    //Karten wieder verkleinern
+    [UIView animateWithDuration:0.2 animations:^{
+        player1CardOne.frame = CGRectMake(270, 205, 32, 44);
+        player1CardTwo.frame = CGRectMake(310, 205, 32, 44);
+    } completion:nil];
+    
+    //und five-best-cards-Anzeige ausblenden:
+    [self resetTemporaryOutletsAndBadCards];
 }
 
 - (void)viewDidLoad
@@ -866,12 +1123,12 @@
     self.view.backgroundColor = [UIColor colorWithRed:red green:green blue:blue alpha:0.7];*/
 
     //immer benötigte Outlets:
+    blindsIncreasedLabel.alpha = 0.0;
+    
     cardDeckImage = [[UIImageView alloc] initWithFrame:CGRectMake(5,22,32,44)];
     cardDeckImage.image = [UIImage imageNamed:@"Nathan.PNG"];
     [self.view addSubview:cardDeckImage];
-    
-    
-    
+        
     pauseTableView = [[UITableView alloc] initWithFrame:CGRectMake(120, 75, 240, 150) style:UITableViewStyleGrouped];
     [self.view addSubview:pauseTableView];
     pauseTableView.delegate = self;
@@ -941,7 +1198,7 @@
     // Outlets für Player1
     
     player1NameLabel = [[UILabel alloc]initWithFrame:CGRectMake(222, 183, 40, 20)];
-    player1NameLabel.text = @"Text";
+    player1NameLabel.text = @"Nathan";
     [self.view addSubview:player1NameLabel];
     player1NameLabel.backgroundColor = [UIColor clearColor];
     player1NameLabel.font = [UIFont fontWithName:@"System" size: 13.0];
@@ -957,9 +1214,22 @@
     
     player1CardOne = [[UIImageView alloc]initWithFrame:CGRectMake(270, 205, 32, 44)];
     [self.view addSubview:player1CardOne];
+
     
     player1CardTwo = [[UIImageView alloc]initWithFrame:CGRectMake(310, 205, 32, 44)];
     [self.view addSubview:player1CardTwo];
+    
+    
+    //unsichtbarer Button, der hinten den Karten liegt und auf User-Interaction reagiert:
+    UIButton* cardsButton = [[UIButton alloc] initWithFrame:CGRectMake(270, 205, 72, 44)];
+    cardsButton.titleLabel.text = @"";
+    cardsButton.titleLabel.backgroundColor = [UIColor clearColor];
+    cardsButton.backgroundColor = [UIColor clearColor];
+    [cardsButton addTarget:self action:@selector(cardsTouchUp:) forControlEvents:UIControlEventTouchUpInside];
+    [cardsButton addTarget:self action:@selector(cardsTouchDown:) forControlEvents:UIControlEventTouchDown];
+    [self.view addSubview:cardsButton];
+    [self.view bringSubviewToFront:cardsButton];
+    
     
     player1ChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(222, 245, 50, 20)];
     player1ChipsLabel.text = @"Chips";
@@ -982,7 +1252,7 @@
     // Outlets für Player2
     
     player2NameLabel = [[UILabel alloc]initWithFrame:CGRectMake(17, 87, 40, 20)];
-    player2NameLabel.text = @"Text";
+    player2NameLabel.text = @"Eric C.";
     [self.view addSubview:player2NameLabel];
     player2NameLabel.backgroundColor = [UIColor clearColor];
     player2NameLabel.font = [UIFont fontWithName:@"System" size: 13.0];
@@ -994,13 +1264,14 @@
     
     player2ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(17, 107, 40, 40)];
     [self.view addSubview:player2ProfilePictureImage];
-    [player2ProfilePictureImage setImage:[UIImage imageNamed: @"Nathan.png"]];
+    [player2ProfilePictureImage setImage:[UIImage imageNamed: @"Cartman.png"]];
     
     player2CardOne = [[UIImageView alloc]initWithFrame:CGRectMake(12, 107, 32, 44)];
     [self.view addSubview:player2CardOne];
     
     player2CardTwo = [[UIImageView alloc]initWithFrame:CGRectMake(38, 107, 32, 44)];
     [self.view addSubview:player2CardTwo];
+
 
     player2AlreadyBetChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(65, 107, 40, 20)];
     player2AlreadyBetChipsLabel.text = @"Text";
@@ -1019,7 +1290,7 @@
         //Player3 Outlets
         
         player3NameLabel = [[UILabel alloc]initWithFrame:CGRectMake(121, 2, 40, 20)];
-        player3NameLabel.text = @"Text";
+        player3NameLabel.text = @"Stan M.";
         [self.view addSubview:player3NameLabel];
         player3NameLabel.backgroundColor = [UIColor clearColor];
         player3NameLabel.font = [UIFont fontWithName:@"System" size: 13.0];
@@ -1031,7 +1302,7 @@
         
         player3ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(121, 22, 40, 40)];
         [self.view addSubview:player3ProfilePictureImage];
-        [player3ProfilePictureImage setImage:[UIImage imageNamed: @"Nathan.png"]];
+        [player3ProfilePictureImage setImage:[UIImage imageNamed: @"Stan.png"]];
         
         player3CardOne = [[UIImageView alloc]initWithFrame:CGRectMake(116, 28, 32, 44)];
         [self.view addSubview:player3CardOne];
@@ -1062,7 +1333,7 @@
             //Player4 Outlets
             
             player4NameLabel = [[UILabel alloc]initWithFrame:CGRectMake(313, 2, 40, 20)];
-            player4NameLabel.text = @"Text";
+            player4NameLabel.text = @"Kyle B.";
             [self.view addSubview:player4NameLabel];
             player4NameLabel.backgroundColor = [UIColor clearColor];
             player4NameLabel.font = [UIFont fontWithName:@"System" size: 13.0];
@@ -1074,7 +1345,7 @@
             
             player4ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(313, 22, 40, 40)];
             [self.view addSubview:player4ProfilePictureImage];
-            [player4ProfilePictureImage setImage:[UIImage imageNamed: @"Nathan.png"]];
+            [player4ProfilePictureImage setImage:[UIImage imageNamed: @"Kyle.png"]];
             
             player4CardOne = [[UIImageView alloc]initWithFrame:CGRectMake(308, 28, 32, 44)];
             [self.view addSubview:player4CardOne];
@@ -1105,7 +1376,7 @@
                 //Player5 Outlets
                 
                 player5NameLabel = [[UILabel alloc]initWithFrame:CGRectMake(427, 87, 40, 20)];
-                player5NameLabel.text = @"Text";
+                player5NameLabel.text = @"Kenny M.";
                 [self.view addSubview:player5NameLabel];
                 player5NameLabel.backgroundColor = [UIColor clearColor];
                 player5NameLabel.font = [UIFont fontWithName:@"System" size: 13.0];
@@ -1117,7 +1388,7 @@
                 
                 player5ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(427, 107, 40, 40)];
                 [self.view addSubview:player5ProfilePictureImage];
-                [player5ProfilePictureImage setImage:[UIImage imageNamed: @"Nathan.png"]];
+                [player5ProfilePictureImage setImage:[UIImage imageNamed: @"Kenny.png"]];
                 
                 player5CardOne = [[UIImageView alloc]initWithFrame:CGRectMake(422, 107, 32, 44)];
                 [self.view addSubview:player5CardOne];
@@ -1229,18 +1500,19 @@
     [UIView animateWithDuration:secs animations:^{
         effectLabel.alpha = 0.0;
     }
-    completion:nil];
+                     completion:nil];
 }
 
 - (void) movePlayingCardFromFrame: (CGRect) startFrame toDestinationFrame:(CGRect)destinationFrame duration:(float)secs option:(UIViewAnimationOptions)option
 {
-   /* AVAudioPlayer* cardSoundPlayer;
-    NSString* soundFilePath = [[NSBundle mainBundle] pathForResource:@"cards1" ofType:@"wav"];
+    NSString* soundFilePath = [[NSBundle mainBundle] pathForResource:@"cards3" ofType:@"wav"];
     cardSoundPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:soundFilePath] error:nil];
     cardSoundPlayer.delegate = self;
-    cardSoundPlayer.volume = 0.5;
-    [cardSoundPlayer play];
-    */
+    cardSoundPlayer.volume = 0.1;
+    [cardSoundPlayer prepareToPlay];
+    BOOL ok = [cardSoundPlayer play];
+    NSLog(@"ok: %@", ok ? @"Y" : @"N");
+    
     
     
     UIImageView* temporaryImageView = [[UIImageView alloc] initWithFrame:startFrame];
@@ -1257,6 +1529,30 @@
 - (void) removeTemporaryOutlet:(UIImageView* )outlet
 {
     [outlet removeFromSuperview];
+}
+
+- (void) changeGameOutlets_roundsPlayed
+{
+    roundsPlayedLabel.text = [NSString stringWithFormat:@"%i",pokerGame.roundsPlayed];
+}
+
+- (void) changeGameOutlets_blindsCountdown
+{
+    if (pokerGame.blindsCountdown >= 10.0) {
+        if (blindsCountdownLabel.textColor = [UIColor redColor]) {
+            blindsCountdownLabel.textColor = [UIColor blueColor];
+        }
+    }
+    else {
+        blindsCountdownLabel.textColor = [UIColor redColor];
+    }
+    blindsCountdownLabel.text = [NSString stringWithFormat:@"%i",pokerGame.blindsCountdown];
+}
+
+- (void) showAnimationWhenBlindsAreIncreased
+{
+    blindsIncreasedLabel.alpha = 1.0;
+    [self fadeOutLabel:blindsIncreasedLabel duration:3.0 option:nil];
 }
 
 - (void) showAnimationWhenPlayerFolds:(Player *)aPlayer
@@ -1364,6 +1660,28 @@
                 }
             }
         }
+    }
+}
+
+- (void) changeGameOutlets_playerCountDown: (Player* ) aPlayer
+{
+    if (aPlayer.counter > 3) {
+        if (self.playerCountdownLabel.textColor == [UIColor redColor]) {
+            self.playerCountdownLabel.textColor = [UIColor blueColor];
+        }
+    }
+    else {
+        self.playerCountdownLabel.textColor = [UIColor redColor];
+        NSString* soundFilePath = [[NSBundle mainBundle] pathForResource:@"time" ofType:@"wav"];
+        countdownSoundPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:soundFilePath] error:nil];
+        countdownSoundPlayer.delegate = self;
+        countdownSoundPlayer.volume = 0.2;
+        [countdownSoundPlayer prepareToPlay];
+        BOOL ok = [countdownSoundPlayer play];
+        NSLog(@"ok: %@", ok ? @"Y" : @"N");
+    }
+    if (aPlayer.counter >= 0) {
+        self.playerCountdownLabel.text = [NSString stringWithFormat:@"%i", aPlayer.counter];
     }
 }
 

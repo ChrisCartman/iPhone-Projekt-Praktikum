@@ -62,6 +62,8 @@
 @property(nonatomic, retain) IBOutlet UILabel* sidePotLabel5;
 @property(nonatomic, retain) PokerGame* pokerGame;
 
+@property(nonatomic, retain) IBOutlet UILabel* playerCountdownLabel;
+
 @property(nonatomic, retain) IBOutlet UILabel* betLabel;
 @property(nonatomic, retain) IBOutlet UISlider* betSlider;
 @property(nonatomic, retain) UISegmentedControl* foldButton;
@@ -73,15 +75,26 @@
 @property(nonatomic, retain) IBOutlet UILabel* effectLabel4;
 @property(nonatomic, retain) IBOutlet UILabel* effectLabel5;
 
+@property (nonatomic, retain) IBOutlet UILabel* blindsCountdownLabel;
+@property (nonatomic, retain) IBOutlet UILabel* roundsPlayedLabel;
+@property (nonatomic, retain) IBOutlet UILabel* blindsIncreasedLabel;
+
 @property(nonatomic, retain) IBOutlet UISegmentedControl* showCardsButton;
 @property(nonatomic, retain) IBOutlet UISegmentedControl* throwCardsAwayButton;
 
 @property(nonatomic, retain) IBOutlet UISegmentedControl* pauseButton;
+@property(nonatomic, retain) IBOutlet UILabel* pauseLabel;
 
 @property(nonatomic, retain) NSMutableArray* currentlyRunningTimersWithCreationsTimes;
 @property(nonatomic, retain) NSMutableArray* timesToGoForCurrentlyRunningTimers;
 @property(nonatomic, retain) UITableView* pauseTableView;
 @property(nonatomic, retain) IBOutlet UIImageView* table;
+@property(nonatomic, retain) NSMutableArray* temporaryOutletsAndBadCards; //nur für Animationen von Bedeutung
+
+@property(nonatomic, strong) AVAudioPlayer* cardSoundPlayer;
+@property(nonatomic, strong) AVAudioPlayer* foldSoundPlayer;
+@property(nonatomic, strong) AVAudioPlayer* moneySoundPlayer;
+@property(nonatomic, strong) AVAudioPlayer* countdownSoundPlayer;
 
 - (void) setUpGraphics;
 
@@ -93,6 +106,10 @@
 - (void) changePlayerOutlets_mayShowCards: (Player* ) aPlayer;
 - (void) changeGameOutlets_pot;
 - (void) changeGameOutlets_cards;
+- (void) changeGameOutlets_blindsCountdown;
+- (void) changeGameOutlets_roundsPlayed;
+- (void) changeGameOutlets_playerCountDown: (Player* ) aPlayer;
+
 - (IBAction) changeBetSliderValue:(id)sender;
 - (IBAction) betButtonPressed:(id)sender;
 - (IBAction) foldButtonPressed:(id)sender;
@@ -102,7 +119,11 @@
 - (void) showAnimationWhenCardPopsFromDeck;
 - (void) showAnimationWhenPlayerFolds: (Player* ) aPlayer;
 - (void) showAnimationWhenGameIsPaused;
+- (void) showAnimationWhenPlayer: (Player* ) aPlayer showsCard: (UIImageView* ) card1 andCard: (UIImageView* ) card2;
+- (void) showAnimationWhenBlindsAreIncreased;
+- (void) showAnimationForFiveBestCardsOfPlayer: (Player* ) aPlayer withCard: (UIImageView* ) card1 andCard: (UIImageView* ) card2;
 
+- (void) resetTemporaryOutletsAndBadCards;
 - (void) removeTemporaryOutlet:(UIImageView* ) outlet;
 
 - (void) resetObservationForSidePots;
@@ -117,6 +138,9 @@
 - (void) unpauseRunningTimer: (NSTimer* ) timer timeToGo: (NSTimeInterval) timeToGo;
 
 
+
+- (IBAction)cardsTouchDown:(id)sender;
+- (IBAction)cardsTouchUp:(id)sender;
 - (IBAction)showCardsButtonClicked:(id)sender;
 - (IBAction)throwCardsAwayButtonClicked:(id)sender;
 
