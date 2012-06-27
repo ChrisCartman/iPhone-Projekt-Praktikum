@@ -38,7 +38,6 @@
 @synthesize paused;
 @synthesize createdTimerDuringPause;
 @synthesize throwsCardsAway;
-@synthesize hasLost;
 
 
 - (id)init
@@ -58,7 +57,6 @@
         self.throwsCardsAway = NO;
         self.mayShowCards = NO;
         self.doesNotWinAnything = NO;
-        self.hasLost = NO;
     }
     return self;
 }
@@ -212,7 +210,12 @@
         }
     }
     else if (n==9 || n==8) {
-        [self bet:(pokerGame.highestBet+10.0) asBlind:NO];
+        if (pokerGame.highestBet >= self.chips) {
+            [self call];
+        }
+        else {
+            [self bet:(pokerGame.highestBet+10.0) asBlind:NO];
+        }
     }
     else {
         if (pokerGame.highestBet - alreadyBetChips > 0) {

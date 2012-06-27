@@ -8,5 +8,6 @@ typedef enum {
     CALLED,
     BET,
     RAISED,
-    ALL_IN
+    ALL_IN,
+    LOST
 } PlayerState;

@@ -205,7 +205,6 @@
     [player1 addObserver:self forKeyPath:@"mayShowCards" options:0 context:nil];
     [player1 addObserver:self forKeyPath:@"createdTimerDuringPause" options:0 context:nil];
     [player1 addObserver:self forKeyPath:@"counter" options:0 context:nil];
-    [player1 addObserver:self forKeyPath:@"hasLost" options:0 context:nil];
     // jeder Spieler wird mit seinen Outlets verknüpft
     Player* player2 = [[Player alloc] init];
     [pokerGame addPlayer:player2];
@@ -218,7 +217,6 @@
     [player2 addObserver:self forKeyPath:@"mayShowCards" options:0 context:nil];
     [player2 addObserver:self forKeyPath:@"createdTimerDuringPause" options:0 context:nil];;
     [player2 addObserver:self forKeyPath:@"counter" options:0 context:nil];
-    [player2 addObserver:self forKeyPath:@"hasLost" options:0 context:nil];
     if (pokerGame.gameSettings.anzahlKI > 1) {
         Player* player3 = [[Player alloc] init];
         [pokerGame addPlayer:player3];
@@ -231,7 +229,6 @@
         [player3 addObserver:self forKeyPath:@"mayShowCards" options:0 context:nil];
         [player3 addObserver:self forKeyPath:@"createdTimerDuringPause" options:0 context:nil];
         [player3 addObserver:self forKeyPath:@"counter" options:0 context:nil];
-        [player3 addObserver:self forKeyPath:@"hasLost" options:0 context:nil];
     }
     if (pokerGame.gameSettings.anzahlKI > 2) {
         Player* player4 = [[Player alloc] init];
@@ -245,7 +242,6 @@
         [player4 addObserver:self forKeyPath:@"mayShowCards" options:0 context:nil];
         [player4 addObserver:self forKeyPath:@"createdTimerDuringPause" options:0 context:nil];
         [player4 addObserver:self forKeyPath:@"counter" options:0 context:nil];
-        [player4 addObserver:self forKeyPath:@"hasLost" options:0 context:nil];
     }
     if (pokerGame.gameSettings.anzahlKI > 3) {
         Player* player5 = [[Player alloc] init];
@@ -259,7 +255,6 @@
         [player5 addObserver:self forKeyPath:@"mayShowCards" options:0 context:nil];
         [player5 addObserver:self forKeyPath:@"createdTimerDuringPause" options:0 context:nil];
         [player5 addObserver:self forKeyPath:@"counter" options:0 context:nil];
-        [player5 addObserver:self forKeyPath:@"hasLost" options:0 context:nil];
     }
 }
 
@@ -307,8 +302,17 @@
         card1 = player5CardOne;
         card2 = player5CardTwo;
     }
-    if (!([pokerGame.remainingPlayersInRound count] == 2 && (pokerGame.firstInRound.isAllIn || pokerGame.firstInRound.nextPlayerInRound.isAllIn))) {
+    /*if (!([pokerGame.remainingPlayersInRound count] == 2 && (pokerGame.firstInRound.isAllIn || pokerGame.firstInRound.nextPlayerInRound.isAllIn))) {
         [self showAnimationWhenPlayer:aPlayer showsCard:card1 andCard:card2];
+    }*/
+    if (pokerGame.exactlyTwoPlayersAllIn && animated) {
+        [self showAnimationForFiveBestCardsOfPlayer:aPlayer withCard:card1 andCard:card2];
+    }
+    else if (pokerGame.exactlyTwoPlayersAllIn && !animated) {
+        [self showAnimationWhenPlayer:aPlayer showsCard:card1 andCard:card2 fiveBestCardsAnimated:NO];
+    }
+    else {
+        [self showAnimationWhenPlayer:aPlayer showsCard:card1 andCard:card2 fiveBestCardsAnimated:YES];
     }
     if (animated) {
         [self showAnimationWhenPlayerShowsCards:aPlayer]; //Diese Animation lässt die Kartenstärke aufblinken
@@ -362,7 +366,7 @@
 - (void) changePlayerOutlets_cards:(Player *)aPlayer
 {
     if ([aPlayer.identification isEqualToString:@"player1"]) {
-        if (aPlayer.playerState == FOLDED || aPlayer.playerState == SET_UP) {
+        if (aPlayer.playerState == FOLDED || aPlayer.playerState == SET_UP || aPlayer.playerState == LOST) {
             player1CardOne.image = nil;
             player1CardTwo.image = nil;
         }
@@ -374,15 +378,15 @@
                 }
             }
             else {
-                player1CardOne.image = [UIImage imageNamed:@"Nathan.PNG"];
+                player1CardOne.image = [UIImage imageNamed:@"back.png"];
                 if ([aPlayer.hand.cardsOnHand count] > 1) {
-                    player1CardTwo.image = [UIImage imageNamed:@"Nathan.PNG"];
+                    player1CardTwo.image = [UIImage imageNamed:@"back.png"];
                 }
             }
         }
     }
     else if ([aPlayer.identification isEqualToString:@"player2"]) {
-        if (aPlayer.playerState == FOLDED || aPlayer.playerState == SET_UP) {
+        if (aPlayer.playerState == FOLDED || aPlayer.playerState == SET_UP || aPlayer.playerState == LOST) {
             player2CardOne.image = nil;
             player2CardTwo.image = nil;
         }
@@ -394,15 +398,15 @@
                 }
             }
             else {
-                player2CardOne.image = [UIImage imageNamed:@"Nathan.PNG"];
+                player2CardOne.image = [UIImage imageNamed:@"back.png"];
                 if ([aPlayer.hand.cardsOnHand count] > 1) {
-                    player2CardTwo.image = [UIImage imageNamed:@"Nathan.PNG"];
+                    player2CardTwo.image = [UIImage imageNamed:@"back.png"];
                 }
             }
         }
     }
     else if ([aPlayer.identification isEqualToString:@"player3"]) {
-        if (aPlayer.playerState == FOLDED || aPlayer.playerState == SET_UP) {
+        if (aPlayer.playerState == FOLDED || aPlayer.playerState == SET_UP || aPlayer.playerState == LOST) {
             player3CardOne.image = nil;
             player3CardTwo.image = nil;
         }
@@ -414,15 +418,15 @@
                 }
             }
             else {
-                player3CardOne.image = [UIImage imageNamed:@"Nathan.PNG"];
+                player3CardOne.image = [UIImage imageNamed:@"back.png"];
                 if ([aPlayer.hand.cardsOnHand count] > 1) {
-                    player3CardTwo.image = [UIImage imageNamed:@"Nathan.PNG"];
+                    player3CardTwo.image = [UIImage imageNamed:@"back.png"];
                 }
             }
         }
     }
     else if ([aPlayer.identification isEqualToString:@"player4"]) {
-        if (aPlayer.playerState == FOLDED || aPlayer.playerState == SET_UP) {
+        if (aPlayer.playerState == FOLDED || aPlayer.playerState == SET_UP || aPlayer.playerState == LOST) {
             player4CardOne.image = nil;
             player4CardTwo.image = nil;
 
@@ -435,15 +439,15 @@
                 }
             }
             else {
-                player4CardOne.image = [UIImage imageNamed:@"Nathan.PNG"];
+                player4CardOne.image = [UIImage imageNamed:@"back.png"];
                 if ([aPlayer.hand.cardsOnHand count] > 1) {
-                    player4CardTwo.image = [UIImage imageNamed:@"Nathan.PNG"];
+                    player4CardTwo.image = [UIImage imageNamed:@"back.png"];
                 }
             }
         }
     }
     else if ([aPlayer.identification isEqualToString:@"player5"]) {
-        if (aPlayer.playerState == FOLDED || aPlayer.playerState == SET_UP) {
+        if (aPlayer.playerState == FOLDED || aPlayer.playerState == SET_UP || aPlayer.playerState == LOST) {
             player5CardOne.image = nil;
             player5CardTwo.image = nil;
         }
@@ -455,9 +459,9 @@
                 }
             }
             else {
-                player5CardOne.image = [UIImage imageNamed:@"Nathan.PNG"];
+                player5CardOne.image = [UIImage imageNamed:@"back.png"];
                 if ([aPlayer.hand.cardsOnHand count] > 1) {
-                    player5CardTwo.image = [UIImage imageNamed:@"Nathan.PNG"];
+                    player5CardTwo.image = [UIImage imageNamed:@"back.png"];
                 }
             }
         }
@@ -692,7 +696,7 @@
     [self fadeOutLabel:effectLabel duration:2.0 option:nil];    
 }
 
-- (void) showAnimationWhenPlayer: (Player* ) aPlayer showsCard:(UIImageView *)card1 andCard:(UIImageView *)card2
+- (void) showAnimationWhenPlayer: (Player* ) aPlayer showsCard:(UIImageView *)card1 andCard:(UIImageView *)card2 fiveBestCardsAnimated:(BOOL) animated
 {
     CGRect startFrame1;
     CGRect destinationFrame1;
@@ -731,12 +735,16 @@
                         card2.frame = startFrame2;
                     }  completion:^(BOOL finished) {
                         if (finished) {
-                            [self showAnimationForFiveBestCardsOfPlayer:aPlayer withCard:card1 andCard:card2];
+                            if (animated) {
+                                [self showAnimationForFiveBestCardsOfPlayer:aPlayer withCard:card1 andCard:card2];
+                            }
                         }
                     }];
                 }
                 else {
-                    [self showAnimationForFiveBestCardsOfPlayer:aPlayer withCard:card1 andCard:card2];
+                    if (animated) {
+                        [self showAnimationForFiveBestCardsOfPlayer:aPlayer withCard:card1 andCard:card2];
+                    }
                 }
             }
         }];
@@ -961,6 +969,9 @@
             if (aPlayer.isYou == YES) {
                 [self changePlayerOutlets_activePlayer:aPlayer];
             }
+            if (aPlayer.playerState == LOST) {
+                [self changePlayerOutlets_lost:aPlayer];
+            }
         }
         else if ([keyPath isEqualToString:@"hasSidePot"]) {
             Player* aPlayer = (Player* ) object;
@@ -1015,21 +1026,15 @@
             Player* aPlayer = (Player* ) object;
             [self changeGameOutlets_playerCountDown:aPlayer];
         }
-        else if ([keyPath isEqualToString:@"hasLost"]) {
-            Player* aPlayer = (Player* ) object;
-            [self changePlayerOutlets_lost:aPlayer];
-        }
     }
     else if ([object isKindOfClass:[PokerGame class]]) {
         if ([keyPath isEqualToString:@"mainPot.chipsInPot"]) {
             [self changeGameOutlets_pot];
         }
         else if ([keyPath isEqualToString:@"gameState"]) {
-            if (pokerGame.gameState == TWO_PLAYERS_ALL_IN_SHOW_DOWN) {
-                Player* player1 = [pokerGame.remainingPlayersInRound objectAtIndex:0];
-                Player* player2 = [pokerGame.remainingPlayersInRound objectAtIndex:1];
-                [self showCardsOfPlayer:player1 withAnimation:NO];
-                [self showCardsOfPlayer:player2 withAnimation:NO];
+            if (pokerGame.gameState == ENDED) {
+                Player* aPlayer = [pokerGame.allPlayers objectAtIndex:0];
+                [self changePlayerOutlets_won:aPlayer];
             }
             else if (pokerGame.gameState != SHOW_DOWN) {
                 [self changeGameOutlets_cards];
@@ -1062,9 +1067,13 @@
                 [self showAnimationWhenBlindsAreIncreased];
             }
         }
-        else if ([keyPath isEqualToString:@"gameEnded"]) {
-            Player* aPlayer = [pokerGame.allPlayers objectAtIndex:0];
-            [self changePlayerOutlets_won:aPlayer];
+        else if ([keyPath isEqualToString:@"exactlyTwoPlayersAllIn"]) {
+            if (pokerGame.exactlyTwoPlayersAllIn) {
+                Player* player1 = [pokerGame.remainingPlayersInRound objectAtIndex:0];
+                Player* player2 = [pokerGame.remainingPlayersInRound objectAtIndex:1];
+                [self showCardsOfPlayer:player1 withAnimation:NO];
+                [self showCardsOfPlayer:player2 withAnimation:NO];
+            }
         }
     }
 }
@@ -1098,7 +1107,7 @@
     roundsPlayedLabel.font = [UIFont fontWithName:@"System" size:14.0];
     [self.view addSubview:roundsPlayedLabel];
     
-    [pokerGame addObserver:self forKeyPath:@"gameEnded" options:0 context:nil];
+    [pokerGame addObserver:self forKeyPath:@"exactlyTwoPlayersAllIn" options:0 context:nil];
     [pokerGame addObserver:self forKeyPath:@"smallBlind" options:0 context:nil];
     [pokerGame addObserver:self forKeyPath:@"cardDeck.popsFor" options:0 context:nil];
     [pokerGame addObserver:self forKeyPath:@"mainPot.chipsInPot" options:0 context:nil];
@@ -1158,7 +1167,7 @@
     blindsIncreasedLabel.alpha = 0.0;
     
     cardDeckImage = [[UIImageView alloc] initWithFrame:CGRectMake(5,22,32,44)];
-    cardDeckImage.image = [UIImage imageNamed:@"Nathan.PNG"];
+    cardDeckImage.image = [UIImage imageNamed:@"back.png"];
     [self.view addSubview:cardDeckImage];
         
     pauseTableView = [[UITableView alloc] initWithFrame:CGRectMake(120, 75, 240, 150) style:UITableViewStyleGrouped];
@@ -1566,7 +1575,7 @@
     
     
     UIImageView* temporaryImageView = [[UIImageView alloc] initWithFrame:startFrame];
-    temporaryImageView.image = [UIImage imageNamed:@"Nathan.PNG"];
+    temporaryImageView.image = [UIImage imageNamed:@"back.png"];
     [self.view addSubview:temporaryImageView];
     [UIView animateWithDuration:secs animations:^{
         temporaryImageView.frame = destinationFrame;
@@ -1745,15 +1754,15 @@
         player2NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player2NameLabel.text, @"Lost!"];
         player2NameLabel.textColor = [UIColor redColor];
     }
-    else if ([aPlayer.identification isEqualToString:@"player2"]) {
+    else if ([aPlayer.identification isEqualToString:@"player3"]) {
         player3NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player3NameLabel.text, @"Lost!"];
         player3NameLabel.textColor = [UIColor redColor];
     }    
-    else if ([aPlayer.identification isEqualToString:@"player2"]) {
+    else if ([aPlayer.identification isEqualToString:@"player4"]) {
         player4NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player4NameLabel.text, @"Lost!"];
         player4NameLabel.textColor = [UIColor redColor];
     }    
-    else if ([aPlayer.identification isEqualToString:@"player2"]) {
+    else if ([aPlayer.identification isEqualToString:@"player5"]) {
         player5NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player5NameLabel.text, @"Lost!"];
         player5NameLabel.textColor = [UIColor redColor];
     }
@@ -1769,20 +1778,21 @@
         player2NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player2NameLabel.text, @"Won!"];
         player2NameLabel.textColor = [UIColor greenColor];
     }
-    else if ([aPlayer.identification isEqualToString:@"player2"]) {
+    else if ([aPlayer.identification isEqualToString:@"player3"]) {
         player3NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player3NameLabel.text, @"Won!"];
         player3NameLabel.textColor = [UIColor greenColor];
     }    
-    else if ([aPlayer.identification isEqualToString:@"player2"]) {
+    else if ([aPlayer.identification isEqualToString:@"player4"]) {
         player4NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player4NameLabel.text, @"Won!"];
         player4NameLabel.textColor = [UIColor greenColor];
     }    
-    else if ([aPlayer.identification isEqualToString:@"player2"]) {
+    else if ([aPlayer.identification isEqualToString:@"player5"]) {
         player5NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player5NameLabel.text, @"Won!"];
         player5NameLabel.textColor = [UIColor greenColor];
     }
     winnersCup.hidden = NO;
     winnersCup.image = [UIImage imageNamed:@"Pokal.png"];
+    [self.view bringSubviewToFront:winnersCup];
     [self showAnimationWhenPlayerWonGame];
 }
 
@@ -1794,11 +1804,11 @@
     float destinationHeight = 96;
     CGRect startFrame = winnersCup.frame;
     CGRect destinationFrame = CGRectMake(destinationX, destinationY, destinationWidth, destinationHeight);
-    [UIView animateWithDuration:0.8 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+    [UIView animateWithDuration:1.5 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
         winnersCup.frame = destinationFrame;
     }
                      completion:^(BOOL finished) {
-                         [UIView animateWithDuration:0.8 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+                         [UIView animateWithDuration:1.5 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
                              winnersCup.frame = startFrame;
                          }
                                           completion:^(BOOL finished) {

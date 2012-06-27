@@ -7,5 +7,5 @@ typedef enum {
     TURN,
     RIVER,
     SHOW_DOWN,
-    TWO_PLAYERS_ALL_IN_SHOW_DOWN,
+    ENDED
 } GameState;

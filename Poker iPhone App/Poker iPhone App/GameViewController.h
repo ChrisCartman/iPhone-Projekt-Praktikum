@@ -126,7 +126,7 @@
 - (void) showAnimationWhenGameIsPaused;
 - (void) showAnimationWhenPlayer: (Player* ) aPlayer showsCard: (UIImageView* ) card1 andCard: (UIImageView* ) card2;
 - (void) showAnimationWhenBlindsAreIncreased;
-- (void) showAnimationForFiveBestCardsOfPlayer: (Player* ) aPlayer withCard: (UIImageView* ) card1 andCard: (UIImageView* ) card2;
+- (void) showAnimationForFiveBestCardsOfPlayer: (Player* ) aPlayer withCard: (UIImageView* ) card1 andCard: (UIImageView* ) card2 fiveBestCardsAnimated:(BOOL) animated;
 
 - (void) resetTemporaryOutletsAndBadCards;
 - (void) removeTemporaryOutlet:(UIImageView* ) outlet;

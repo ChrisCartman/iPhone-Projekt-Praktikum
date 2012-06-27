@@ -36,7 +36,7 @@
 @synthesize roundsPlayed;
 @synthesize blindsTimer;
 @synthesize blindsCountdown;
-@synthesize gameEnded;
+@synthesize exactlyTwoPlayersAllIn;
 
 - (void) dealOut
 {
@@ -120,6 +120,7 @@
     self.highestBet = 0;
     self.playerWhoBetMost = nil;
     self.gameState = SETUP;
+    self.exactlyTwoPlayersAllIn = NO;
     [self.playersWhoAreAllIn removeAllObjects];
     [self.playersWhoHaveShownCards removeAllObjects];
 }
@@ -146,15 +147,7 @@
     PlayingCard* newPlayingCard = [cardDeck popFor:popsFor];
     [cardsOnTable.flop addObject:newPlayingCard];
     [cardsOnTable.allCards addObject:newPlayingCard];
-    if ([numberI intValue] == 1) {
-        [self performSelector:@selector(changeGameState) withObject:nil afterDelay:0.2];
-    }
-    else if ([numberI intValue] == 2) {
-        [self performSelector:@selector(changeGameState) withObject:nil afterDelay:0.2];
-    }
-    else {
-        [self performSelector:@selector(changeGameState) withObject:nil afterDelay:0.2];
-    }
+    [self performSelector:@selector(changeGameState) withObject:nil afterDelay:0.2];
     
     int index = [self.currentlyRunningTimersWithCreationTimes indexOfObject:aTimer];
     for (int i=1;i<=2;i++) {
@@ -222,6 +215,7 @@
     playersWhoHaveShownCards = [[NSMutableArray alloc] init];
     mainPot = [[MainPot alloc] init];
     self.roundsPlayed = 0;
+    self.exactlyTwoPlayersAllIn = NO;
     return self;
 }
 
@@ -633,7 +627,7 @@
         for (Player* winner in winners) {
             int numberAsIntTimesHundred = playerWithSidePot.sidePot.chipsInPot / divider * 100;
             float roundedNumber = numberAsIntTimesHundred / 100.0;
-            winner.chipsWon += roundedNumber;
+            winner.chips += roundedNumber;
         }
         self.mainPot.allChipsInAllPots -= playerWithSidePot.sidePot.chipsInPot;
         divider -= 1;
@@ -775,10 +769,13 @@
             [remainingPlayersInRound removeObject:alreadyPaidWinner];
         }
     }
-    for (Player* aPlayer in playersWhoAreAllIn) {
+    for (int i=0; i<[allPlayers count]; i++) {
+        Player* aPlayer = [allPlayers objectAtIndex:i];
         if (aPlayer.chips == 0) {
-            aPlayer.hasLost = YES;
-            [allPlayers removeObject:aPlayer];
+            aPlayer.playerState = LOST;
+            [allPlayers removeObjectAtIndex:i];
+            maxPlayers -= 1;
+            i--;
             aPlayer.playerOnRightSide.playerOnLeftSide = aPlayer.playerOnLeftSide;
             aPlayer.playerOnLeftSide.playerOnRightSide = aPlayer.playerOnRightSide;
         }
@@ -801,7 +798,7 @@
 
 - (void) endGame
 {
-    self.gameEnded = YES;
+    self.gameState = ENDED;
 }
 
 - (void) startShowDown
@@ -818,7 +815,7 @@
 {
     //Alle Spieler haben gezeigt oder gefoldet
     if (activePlayer == playerWhoBetMost && [playersWhoHaveShownCards containsObject:activePlayer]) {
-        [self endRound];
+        [self performSelector:@selector(endRound) withObject:nil afterDelay:1.5];
     }
     else {
         if (!activePlayer.isYou) {
@@ -842,7 +839,7 @@
         }
         //Nur ein Spieler, der durfte zeigen
         if ([remainingPlayersInRound count] == 1) {
-            [self endRound];
+            [self performSelector:@selector(endRound) withObject:nil afterDelay:1.5];
         }
         else {
             activePlayer = activePlayer.nextPlayerInRound;
@@ -900,7 +897,6 @@
         [self sortPlayersWhoAreAllIn];
         for (int i=[playersWhoHaveShownCards count]-1; i>=0; i--) {
             //wie oben:
-            [NSThread sleepForTimeInterval:2.0];
             Player* playerWhoHasShownCards = [playersWhoHaveShownCards objectAtIndex:i];
             if (!playerWhoHasShownCards.hasSidePot) {
                 if ([playerWhoHasShownCards hasBetterCardsThan:aPlayer]) {
@@ -960,7 +956,7 @@
     else if (self.gameState == RIVER) {
         counterForTimer = 1;
     }
-    self.gameState = TWO_PLAYERS_ALL_IN_SHOW_DOWN;
+    self.exactlyTwoPlayersAllIn = YES;
     showDownTimer = [NSTimer scheduledTimerWithTimeInterval:1.5 target:self selector:@selector(twoPlayersAllInShowDownTimerFired:) userInfo:nil repeats:YES];
     NSArray* temporaryArray = [NSArray arrayWithObjects:showDownTimer, [NSDate date], nil];
     [self.currentlyRunningTimersWithCreationTimes addObjectsFromArray:temporaryArray];
@@ -983,18 +979,22 @@
     else if (counterForTimer == 1) {
         [self showRiver];
         //self.gameState = RIVER;
-        Player* player1 = [remainingPlayersInRound objectAtIndex:0];
-        Player* player2 = [remainingPlayersInRound objectAtIndex:1];
-        [player1 showCards:YES]; //Karten wurden zwar schon gezeigt, so kommt aber noch die Animation hinzu
-        [player2 showCards:YES]; 
     }
     else if (counterForTimer == 0) {
+        Player* player1 = [remainingPlayersInRound objectAtIndex:0];
+        [player1.hand defineValueOfCardsWithTableCards:cardsOnTable];
+        [player1 showCards:YES]; //Karten wurden zwar schon gezeigt, so kommt aber noch die Animation hinzu
+    }
+    else if (counterForTimer == -1) {
+        Player* player2 = [remainingPlayersInRound objectAtIndex:1];
+        [player2.hand defineValueOfCardsWithTableCards:cardsOnTable];
+        [player2 showCards:YES]; 
         [aTimer invalidate];
         int index = [self.currentlyRunningTimersWithCreationTimes indexOfObject:aTimer];
         for (int i=1;i<=2;i++) {
             [currentlyRunningTimersWithCreationTimes removeObjectAtIndex:index]; //alle Timer und zugehörtige Startzeiten wieder rauswerfen.
         }
-        [self endRound];
+        [self performSelector:@selector(endRound) withObject:nil afterDelay:2.0];
     }
 }
 
