@@ -95,6 +95,8 @@
 @synthesize playerCountdownLabel;
 @synthesize countdownSoundPlayer;
 
+@synthesize winnersCup;
+
 //User-Interaction:
 - (IBAction) changeBetSliderValue:(id)sender
 {
@@ -176,7 +178,7 @@
 {
     Player* aPlayer = pokerGame.activePlayer;
     aPlayer.mayShowCards = NO;
-    [self playerThrowsCardsAway:aPlayer];
+    aPlayer.throwsCardsAway = YES;
     [pokerGame.showDownTimer fire];
 }
 
@@ -199,9 +201,11 @@
     [player1 addObserver:self forKeyPath:@"playerState" options:0 context:nil];
     [player1 addObserver:self forKeyPath:@"hasSidePot" options:0 context:nil];
     [player1 addObserver:self forKeyPath:@"showsCards" options:0 context:nil];
+    [player1 addObserver:self forKeyPath:@"throwsCardsAway" options:0 context:nil];
     [player1 addObserver:self forKeyPath:@"mayShowCards" options:0 context:nil];
     [player1 addObserver:self forKeyPath:@"createdTimerDuringPause" options:0 context:nil];
     [player1 addObserver:self forKeyPath:@"counter" options:0 context:nil];
+    [player1 addObserver:self forKeyPath:@"hasLost" options:0 context:nil];
     // jeder Spieler wird mit seinen Outlets verknüpft
     Player* player2 = [[Player alloc] init];
     [pokerGame addPlayer:player2];
@@ -210,9 +214,11 @@
     [player2 addObserver:self forKeyPath:@"playerState" options:0 context:nil];
     [player2 addObserver:self forKeyPath:@"hasSidePot" options:0 context:nil];
     [player2 addObserver:self forKeyPath:@"showsCards" options:0 context:nil];
+    [player2 addObserver:self forKeyPath:@"throwsCardsAway" options:0 context:nil];
     [player2 addObserver:self forKeyPath:@"mayShowCards" options:0 context:nil];
     [player2 addObserver:self forKeyPath:@"createdTimerDuringPause" options:0 context:nil];;
     [player2 addObserver:self forKeyPath:@"counter" options:0 context:nil];
+    [player2 addObserver:self forKeyPath:@"hasLost" options:0 context:nil];
     if (pokerGame.gameSettings.anzahlKI > 1) {
         Player* player3 = [[Player alloc] init];
         [pokerGame addPlayer:player3];
@@ -221,9 +227,11 @@
         [player3 addObserver:self forKeyPath:@"playerState" options:0 context:nil];
         [player3 addObserver:self forKeyPath:@"hasSidePot2" options:0 context:nil];
         [player3 addObserver:self forKeyPath:@"showsCards" options:0 context:nil];
+        [player3 addObserver:self forKeyPath:@"throwsCardsAway" options:0 context:nil];
         [player3 addObserver:self forKeyPath:@"mayShowCards" options:0 context:nil];
         [player3 addObserver:self forKeyPath:@"createdTimerDuringPause" options:0 context:nil];
         [player3 addObserver:self forKeyPath:@"counter" options:0 context:nil];
+        [player3 addObserver:self forKeyPath:@"hasLost" options:0 context:nil];
     }
     if (pokerGame.gameSettings.anzahlKI > 2) {
         Player* player4 = [[Player alloc] init];
@@ -233,9 +241,11 @@
         [player4 addObserver:self forKeyPath:@"playerState" options:0 context:nil];
         [player4 addObserver:self forKeyPath:@"hasSidePot" options:0 context:nil];
         [player4 addObserver:self forKeyPath:@"showsCards" options:0 context:nil];
+        [player4 addObserver:self forKeyPath:@"throwsCardsAway" options:0 context:nil];
         [player4 addObserver:self forKeyPath:@"mayShowCards" options:0 context:nil];
         [player4 addObserver:self forKeyPath:@"createdTimerDuringPause" options:0 context:nil];
         [player4 addObserver:self forKeyPath:@"counter" options:0 context:nil];
+        [player4 addObserver:self forKeyPath:@"hasLost" options:0 context:nil];
     }
     if (pokerGame.gameSettings.anzahlKI > 3) {
         Player* player5 = [[Player alloc] init];
@@ -245,9 +255,11 @@
         [player5 addObserver:self forKeyPath:@"playerState" options:0 context:nil];
         [player5 addObserver:self forKeyPath:@"hasSidePot" options:0 context:nil];
         [player5 addObserver:self forKeyPath:@"showsCards" options:0 context:nil];
+        [player5 addObserver:self forKeyPath:@"throwsCardsAway" options:0 context:nil];
         [player5 addObserver:self forKeyPath:@"mayShowCards" options:0 context:nil];
         [player5 addObserver:self forKeyPath:@"createdTimerDuringPause" options:0 context:nil];
         [player5 addObserver:self forKeyPath:@"counter" options:0 context:nil];
+        [player5 addObserver:self forKeyPath:@"hasLost" options:0 context:nil];
     }
 }
 
@@ -926,7 +938,7 @@
     [self movePlayingCardFromFrame:startFrame toDestinationFrame:destinationFrame duration:0.2 option:nil];
 }
 
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
+- (void) observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
     if ([object isKindOfClass:[Player class]]) {
         if ([keyPath isEqualToString:@"alreadyBetChips"]) {
@@ -984,6 +996,13 @@
                 }
             }
         }
+        else if ([keyPath isEqualToString:@"throwsCardsAway"] && pokerGame.gameState == SHOW_DOWN) {
+            Player* aPlayer = (Player* ) object;
+            if (aPlayer.throwsCardsAway) {
+                [self playerThrowsCardsAway:aPlayer];
+            }
+            
+        }
         else if ([keyPath isEqualToString:@"createdTimerDuringPause"]) {
             Player* aPlayer = (Player* ) object;
             if (aPlayer.createdTimerDuringPause) {
@@ -995,6 +1014,10 @@
         else if ([keyPath isEqualToString:@"counter"]) {
             Player* aPlayer = (Player* ) object;
             [self changeGameOutlets_playerCountDown:aPlayer];
+        }
+        else if ([keyPath isEqualToString:@"hasLost"]) {
+            Player* aPlayer = (Player* ) object;
+            [self changePlayerOutlets_lost:aPlayer];
         }
     }
     else if ([object isKindOfClass:[PokerGame class]]) {
@@ -1039,6 +1062,10 @@
                 [self showAnimationWhenBlindsAreIncreased];
             }
         }
+        else if ([keyPath isEqualToString:@"gameEnded"]) {
+            Player* aPlayer = [pokerGame.allPlayers objectAtIndex:0];
+            [self changePlayerOutlets_won:aPlayer];
+        }
     }
 }
 
@@ -1071,6 +1098,7 @@
     roundsPlayedLabel.font = [UIFont fontWithName:@"System" size:14.0];
     [self.view addSubview:roundsPlayedLabel];
     
+    [pokerGame addObserver:self forKeyPath:@"gameEnded" options:0 context:nil];
     [pokerGame addObserver:self forKeyPath:@"smallBlind" options:0 context:nil];
     [pokerGame addObserver:self forKeyPath:@"cardDeck.popsFor" options:0 context:nil];
     [pokerGame addObserver:self forKeyPath:@"mainPot.chipsInPot" options:0 context:nil];
@@ -1083,6 +1111,8 @@
 - (IBAction)cardsTouchDown:(id)sender
 {
     //Karten vergrößern
+    [self.view bringSubviewToFront:player1CardOne];
+    [self.view bringSubviewToFront:player1CardTwo];
     CGRect destinationFrame1 = CGRectMake(player1CardOne.frame.origin.x - 50, player1CardOne.frame.origin.y - 68.75, 82, 112.75);
     CGRect destinationFrame2 = CGRectMake(player1CardTwo.frame.origin.x, player1CardTwo.frame.origin.y - 68.75, 82, 112.75);
     [UIView animateWithDuration:0.2 animations:^{
@@ -1114,6 +1144,8 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    AppDelegate* appDelegate = (AppDelegate* ) [[UIApplication sharedApplication] delegate];
 	// Do any additional setup after loading the view.
     
     //view-Hintergrund:
@@ -1198,7 +1230,12 @@
     // Outlets für Player1
     
     player1NameLabel = [[UILabel alloc]initWithFrame:CGRectMake(222, 183, 40, 20)];
-    player1NameLabel.text = @"Nathan";
+    if (appDelegate.playerProfile != nil) {
+        player1NameLabel.text = [NSString stringWithFormat:@"%@",appDelegate.playerProfile.playerName];
+    }
+    else {
+        player1NameLabel.text = @"Nathan";
+    }
     [self.view addSubview:player1NameLabel];
     player1NameLabel.backgroundColor = [UIColor clearColor];
     player1NameLabel.font = [UIFont fontWithName:@"System" size: 13.0];
@@ -1210,7 +1247,12 @@
     
     player1ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(222, 203, 40, 40)];
     [self.view addSubview:player1ProfilePictureImage];
-    [player1ProfilePictureImage setImage:[UIImage imageNamed: @"Nathan.png"]];
+    if (appDelegate.playerProfile != nil) {
+        [player1ProfilePictureImage setImage:appDelegate.playerProfile.playerImage];
+    }
+    else {
+        [player1ProfilePictureImage setImage:[UIImage imageNamed:@"Nathan.PNG"]];
+    }
     
     player1CardOne = [[UIImageView alloc]initWithFrame:CGRectMake(270, 205, 32, 44)];
     [self.view addSubview:player1CardOne];
@@ -1271,7 +1313,11 @@
     
     player2CardTwo = [[UIImageView alloc]initWithFrame:CGRectMake(38, 107, 32, 44)];
     [self.view addSubview:player2CardTwo];
-
+    
+    player2ChipsLabel = [[UILabel alloc] initWithFrame:CGRectMake(17, 150, 40, 20)];
+    player2ChipsLabel.font = [UIFont fontWithName:@"System" size:13.0];
+    player2ChipsLabel.backgroundColor = [UIColor clearColor];
+    [self.view addSubview:player2ChipsLabel];
 
     player2AlreadyBetChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(65, 107, 40, 20)];
     player2AlreadyBetChipsLabel.text = @"Text";
@@ -1475,6 +1521,10 @@
 
 - (void) viewDidAppear:(BOOL)animated
 {
+    /*winnersCup.hidden = NO;
+    winnersCup.image = [UIImage imageNamed:@"Pokal.png"];
+    [self showAnimationWhenPlayerWonGame];*/
+    
     [self setUpPlayers];
     //Spiel vorbereiten (prepareGame ordnet Spieler und allokiert wichtige Objekte) und KVO aktivieren
     [self setUpGame];
@@ -1685,6 +1735,77 @@
     }
 }
 
+- (void) changePlayerOutlets_lost:(Player *)aPlayer
+{
+    if ([aPlayer.identification isEqualToString:@"player1"]) {
+        player1NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player1NameLabel.text, @"Lost!"];
+        player1NameLabel.textColor = [UIColor redColor];
+    }
+    else if ([aPlayer.identification isEqualToString:@"player2"]) {
+        player2NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player2NameLabel.text, @"Lost!"];
+        player2NameLabel.textColor = [UIColor redColor];
+    }
+    else if ([aPlayer.identification isEqualToString:@"player2"]) {
+        player3NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player3NameLabel.text, @"Lost!"];
+        player3NameLabel.textColor = [UIColor redColor];
+    }    
+    else if ([aPlayer.identification isEqualToString:@"player2"]) {
+        player4NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player4NameLabel.text, @"Lost!"];
+        player4NameLabel.textColor = [UIColor redColor];
+    }    
+    else if ([aPlayer.identification isEqualToString:@"player2"]) {
+        player5NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player5NameLabel.text, @"Lost!"];
+        player5NameLabel.textColor = [UIColor redColor];
+    }
+}
+
+- (void) changePlayerOutlets_won:(Player *)aPlayer
+{
+    if ([aPlayer.identification isEqualToString:@"player1"]) {
+        player1NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player1NameLabel.text, @"Won!"];
+        player1NameLabel.textColor = [UIColor greenColor];
+    }
+    else if ([aPlayer.identification isEqualToString:@"player2"]) {
+        player2NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player2NameLabel.text, @"Won!"];
+        player2NameLabel.textColor = [UIColor greenColor];
+    }
+    else if ([aPlayer.identification isEqualToString:@"player2"]) {
+        player3NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player3NameLabel.text, @"Won!"];
+        player3NameLabel.textColor = [UIColor greenColor];
+    }    
+    else if ([aPlayer.identification isEqualToString:@"player2"]) {
+        player4NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player4NameLabel.text, @"Won!"];
+        player4NameLabel.textColor = [UIColor greenColor];
+    }    
+    else if ([aPlayer.identification isEqualToString:@"player2"]) {
+        player5NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player5NameLabel.text, @"Won!"];
+        player5NameLabel.textColor = [UIColor greenColor];
+    }
+    winnersCup.hidden = NO;
+    winnersCup.image = [UIImage imageNamed:@"Pokal.png"];
+    [self showAnimationWhenPlayerWonGame];
+}
+
+- (void) showAnimationWhenPlayerWonGame
+{
+    float destinationX = winnersCup.frame.origin.x + 43;
+    float destinationY = winnersCup.frame.origin.y;
+    float destinationWidth = 10.0;
+    float destinationHeight = 96;
+    CGRect startFrame = winnersCup.frame;
+    CGRect destinationFrame = CGRectMake(destinationX, destinationY, destinationWidth, destinationHeight);
+    [UIView animateWithDuration:0.8 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+        winnersCup.frame = destinationFrame;
+    }
+                     completion:^(BOOL finished) {
+                         [UIView animateWithDuration:0.8 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+                             winnersCup.frame = startFrame;
+                         }
+                                          completion:^(BOOL finished) {
+                                              [self showAnimationWhenPlayerWonGame];
+                                          }];
+                          }];
+}
 
 
 

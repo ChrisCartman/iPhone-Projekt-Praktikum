@@ -187,6 +187,7 @@
 
 - (void)blindsPickerViewController:(BlindsViewController *)controller didSelectBlinds:(NSString *)theBlinds{
    blinds = theBlinds;
+    gameSettings.blinds = theBlinds;
     
     if (blinds == @"nach Minuten"){anzahlblindslabel.text = @"Anzahl Minuten";}
     if (blinds == @"nach Runden"){anzahlblindslabel.text = @"Anzahl Runden";}
@@ -209,9 +210,9 @@
 { [sender resignFirstResponder];
     
   
-    startBlinds = [[startsmallblind text] intValue];
-    startChips = [[startkapital text]intValue];
-    increaseBlindsAfter = [[blindanzahl text]intValue];
+    gameSettings.startBlinds = [[startsmallblind text] intValue];
+    gameSettings.startChips = [[startkapital text] intValue];
+    gameSettings.increaseBlindsAfter = [[blindanzahl text]intValue];
 
 
 

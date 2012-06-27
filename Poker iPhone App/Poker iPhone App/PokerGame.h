@@ -57,6 +57,7 @@
 @property (nonatomic, assign) BOOL paused;
 @property (nonatomic, assign) BOOL createdTimerDuringPause;
 @property (nonatomic, assign) int roundsPlayed;
+@property (nonatomic, assign) BOOL gameEnded;
 
 @property (nonatomic, retain) NSTimer* blindsTimer;
 @property (nonatomic, assign) int blindsCountdown;

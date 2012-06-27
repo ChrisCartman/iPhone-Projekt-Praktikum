@@ -37,6 +37,8 @@
 @synthesize currentlyRunningTimersWithCreationTimes;
 @synthesize paused;
 @synthesize createdTimerDuringPause;
+@synthesize throwsCardsAway;
+@synthesize hasLost;
 
 
 - (id)init
@@ -53,8 +55,10 @@
         self.hasSidePot = NO;
         self.chipsWon = 0;
         self.showsCards = NO;
+        self.throwsCardsAway = NO;
         self.mayShowCards = NO;
         self.doesNotWinAnything = NO;
+        self.hasLost = NO;
     }
     return self;
 }
@@ -74,6 +78,7 @@
     self.showsCards = NO;
     self.mayShowCards = NO;
     self.doesNotWinAnything = NO;
+    self.throwsCardsAway = NO;
 }
 
 - (void) check

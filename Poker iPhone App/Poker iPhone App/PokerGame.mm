@@ -36,6 +36,7 @@
 @synthesize roundsPlayed;
 @synthesize blindsTimer;
 @synthesize blindsCountdown;
+@synthesize gameEnded;
 
 - (void) dealOut
 {
@@ -774,13 +775,33 @@
             [remainingPlayersInRound removeObject:alreadyPaidWinner];
         }
     }
-    //alles für neue Runde resetten:
-    self.roundsPlayed += 1;
-    if ([self.gameSettings.blinds isEqualToString:@"nach Runden"] && roundsPlayed % self.gameSettings.increaseBlindsAfter == 0) {
-        [self increaseBlinds];
+    for (Player* aPlayer in playersWhoAreAllIn) {
+        if (aPlayer.chips == 0) {
+            aPlayer.hasLost = YES;
+            [allPlayers removeObject:aPlayer];
+            aPlayer.playerOnRightSide.playerOnLeftSide = aPlayer.playerOnLeftSide;
+            aPlayer.playerOnLeftSide.playerOnRightSide = aPlayer.playerOnRightSide;
+        }
     }
-    [self prepareNewRound];
-    [self performSelector:@selector(startBetRound) withObject:nil afterDelay:3.0];
+    if ([allPlayers count] == 1) { //nur noch ein Spieler übrig? => Spiel vorbei
+        [self endGame];
+    }
+    else {
+        //Rundenzahl erhöhen:
+        self.roundsPlayed += 1;
+        //Wenn nötig: Blinds erhöhen
+        if ([self.gameSettings.blinds isEqualToString:@"nach Runden"] && roundsPlayed % self.gameSettings.increaseBlindsAfter == 0) {
+            [self increaseBlinds];
+        }
+        //alles für neue Runde resetten:
+        [self prepareNewRound];
+        [self performSelector:@selector(startBetRound) withObject:nil afterDelay:3.0];
+    }
+}
+
+- (void) endGame
+{
+    self.gameEnded = YES;
 }
 
 - (void) startShowDown
@@ -811,6 +832,9 @@
         else {
             if ([aTimer.userInfo isEqualToString:@"mayShowCards"]) {
                 activePlayer.mayShowCards = NO;
+                if (!activePlayer.showsCards) {
+                    activePlayer.throwsCardsAway = YES;
+                }
             }
             else {
                 [activePlayer showCards:YES];
@@ -974,7 +998,7 @@
     }
 }
 
-- (void) startMoreThanTwoPlayersAllInShowDown: (NSTimer* ) aTimer
+- (void) startMoreThanTwoPlayersAllInShowDown
 {
     //counter For Timer legt fest wie oft der Timer repeaten soll
     if (self.gameState == PRE_FLOP) {
@@ -1029,7 +1053,7 @@
 
 - (void) blindsTimerFired:(NSTimer *)aTimer
 {
-    if (self.blindsCountdown >= 0) {
+    if (self.blindsCountdown > 0) {
         self.blindsCountdown -= 1;
     }
     else {

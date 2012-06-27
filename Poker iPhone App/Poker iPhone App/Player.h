@@ -59,10 +59,12 @@
 @property (nonatomic, strong) NSTimer* countdownTimer;
 @property (nonatomic, assign) float chipsWon;
 @property (nonatomic, assign) BOOL showsCards;
+@property (nonatomic, assign) BOOL throwsCardsAway;
 @property (nonatomic, assign) BOOL mayShowCards;
 @property (nonatomic, assign) BOOL doesNotWinAnything;
 @property (nonatomic, assign) BOOL paused;
 @property (nonatomic, assign) BOOL createdTimerDuringPause;
+@property (nonatomic, assign) BOOL hasLost;
 
 //Idee: um das Spiel pausieren zu können, soll es einen Pointer geben, der immer auf den aktuellen Timer zeigt. Sobald Pause gedrückt wird, wie das TimeInterval des Timers auf eine beliebig große Zal gesetzt
 @property (nonatomic, retain) NSMutableArray* currentlyRunningTimersWithCreationTimes;

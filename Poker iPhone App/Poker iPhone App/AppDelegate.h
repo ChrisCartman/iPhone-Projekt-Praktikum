@@ -9,16 +9,17 @@
 #import <UIKit/UIKit.h>
 #import "Enum_CardValues.h"
 #import "PlayingCard.h"
-#import <AudioToolbox/AudioToolbox.h>
+#import "PlayerProfile.h"
 
 
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 {
-   
+    PlayerProfile* playerProfile;
 }
 
 @property (strong, nonatomic) UIWindow *window;
+@property (nonatomic, strong) PlayerProfile* playerProfile;
 
 
 

@@ -17,6 +17,8 @@
 @synthesize imageView;
 @synthesize takePictureButton;
 @synthesize selectPictureButton;
+@synthesize playerProfile;
+@synthesize playerNameTextField;
 
 - (id)initWithStyle:(UITableViewStyle)style
 {
@@ -138,6 +140,16 @@
     
 }
 
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender{
+    if (self.playerProfile == nil) {
+        playerProfile = [[PlayerProfile alloc] init];
+    }
+    playerProfile.playerImage = imageView.image;
+    playerProfile.playerName = playerNameTextField.text;
+    AppDelegate* appDelegate = (AppDelegate* ) [[UIApplication sharedApplication] delegate];
+    appDelegate.playerProfile = self.playerProfile;
+    NSLog(@"%@", appDelegate.playerProfile.playerName);
+}
 
 
 

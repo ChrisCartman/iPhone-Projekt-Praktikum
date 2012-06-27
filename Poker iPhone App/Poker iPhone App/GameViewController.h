@@ -11,6 +11,7 @@
 #import <CoreFoundation/CoreFoundation.h>
 #import "PokerGame.h"
 #include "Functions.h"
+#import "AppDelegate.h"
 
 @interface GameViewController : UIViewController <UITableViewDelegate, UITableViewDataSource, AVAudioPlayerDelegate>
 {
@@ -96,6 +97,8 @@
 @property(nonatomic, strong) AVAudioPlayer* moneySoundPlayer;
 @property(nonatomic, strong) AVAudioPlayer* countdownSoundPlayer;
 
+@property (nonatomic, strong) IBOutlet UIImageView* winnersCup;
+
 - (void) setUpGraphics;
 
 - (void) changePlayerOutlets_chips: (Player* ) aPlayer;
@@ -109,6 +112,8 @@
 - (void) changeGameOutlets_blindsCountdown;
 - (void) changeGameOutlets_roundsPlayed;
 - (void) changeGameOutlets_playerCountDown: (Player* ) aPlayer;
+- (void) changePlayerOutlets_lost: (Player* ) aPlayer;
+- (void) changePlayerOutlets_won: (Player* ) aPlayer;
 
 - (IBAction) changeBetSliderValue:(id)sender;
 - (IBAction) betButtonPressed:(id)sender;
@@ -137,6 +142,7 @@
 - (void) pauseRunningTimer: (NSTimer* ) timer creationTime: (NSDate* ) creationTime;
 - (void) unpauseRunningTimer: (NSTimer* ) timer timeToGo: (NSTimeInterval) timeToGo;
 
+- (void) showAnimationWhenPlayerWonGame;
 
 
 - (IBAction)cardsTouchDown:(id)sender;
