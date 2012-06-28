@@ -101,7 +101,25 @@
 //User-Interaction:
 - (IBAction) changeBetSliderValue:(id)sender
 {
-
+/*    betSlider.internValue = betSlider.value;
+    betSlider.value = [betSlider roundSliderValue];
+    betLabel.text = [[[NSNumber numberWithFloat:roundNumberOnTwoFigures(betSlider.value)] stringValue] stringByAppendingString:@"$"];
+    betSlider.value = [betSlider roundSliderValue];
+    if (betSlider.value == 0) {
+        // betButton.titleLabel.text = @"Check";
+        [betButton setTitle:@"Check" forSegmentAtIndex:0];    }
+    else if (betSlider.value == betSlider.minimumValue && betSlider.value != 0) {
+        //betButton.titleLabel.text = @"Call";
+        [betButton setTitle:@"Call" forSegmentAtIndex:0]; 
+    }
+    else if (betSlider.value == betSlider.maximumValue) {
+        //betButton.titleLabel.text = @"All in";
+        [betButton setTitle:@"All in" forSegmentAtIndex:0]; 
+    }
+    else {
+        // betButton.titleLabel.text = @"Bet";
+        [betButton setTitle:@"Bet" forSegmentAtIndex:0]; 
+    }*/
 }
 
 - (void)dragBegan:(UIControl *)c withEvent:ev {
@@ -125,14 +143,16 @@
     }
     if (touchPoint.x >= betSlider.frame.origin.x && touchPoint.x <= betSlider.frame.origin.x + betSlider.frame.size.width) {
         if (touchPoint.x > betSlider.startDragPoint.x) {
-            betSlider.internValue = betSlider.startDragValue + (touchPoint.x - betSlider.startDragPoint.x) / betSlider.frame.size.width * betSlider.maximumValue * (touchPoint.y / betSlider.startDragPoint.y);  
+            betSlider.internValue = betSlider.startDragValue + (touchPoint.x - betSlider.startDragPoint.x) / betSlider.frame.size.width * betSlider.maximumValue; // * (touchPoint.y / betSlider.startDragPoint.y);  
             betSlider.value = betSlider.internValue;
         }
         else {
-            betSlider.internValue = betSlider.startDragValue - (- touchPoint.x + betSlider.startDragPoint.x) / betSlider.frame.size.width * betSlider.maximumValue * touchPoint.y / betSlider.startDragPoint.y;    
+            betSlider.internValue = betSlider.startDragValue - (- touchPoint.x + betSlider.startDragPoint.x) / betSlider.frame.size.width * betSlider.maximumValue; // * touchPoint.y / betSlider.startDragPoint.y;    
             betSlider.value = betSlider.internValue;
+        
         }
         betLabel.text = [[[NSNumber numberWithFloat:roundNumberOnTwoFigures([betSlider roundSliderValue])] stringValue] stringByAppendingString:@"$"];
+        betSlider.value = [betSlider roundSliderValue];
         if (betSlider.value == 0) {
         // betButton.titleLabel.text = @"Check";
             [betButton setTitle:@"Check" forSegmentAtIndex:0];    }
@@ -153,6 +173,7 @@
 }
 
 - (void)dragEnded:(UIControl *)c withEvent:ev {
+    betSlider.internValue = [betSlider roundSliderValue];
     betSlider.value = [betSlider roundSliderValue];
 }
 
