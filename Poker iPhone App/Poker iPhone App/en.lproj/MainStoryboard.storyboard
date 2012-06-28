@@ -587,7 +587,7 @@
                                 <color key="backgroundColor" cocoaTouchSystemColor="lightTextColor"/>
                             </imageView>
                             <slider hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" id="LVf-eW-Nc2" customClass="ModifiedSlider">
-                                <rect key="frame" x="128" y="258" width="240" height="23"/>
+                                <rect key="frame" x="128" y="246" width="240" height="23"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <connections>
                                     <action selector="changeBetSliderValue:" destination="ce7-xf-JRT" eventType="valueChanged" id="1pl-WT-oPk"/>
@@ -816,114 +816,6 @@
         <image name="Nathan.PNG" width="68" height="69"/>
         <image name="Table.png" width="960" height="640"/>
     </resources>
-    <classes>
-        <class className="AnzahlComputergegnerViewController" superclassName="UITableViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/AnzahlComputergegnerViewController.h"/>
-        </class>
-        <class className="BlindsViewController" superclassName="UITableViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/BlindsViewController.h"/>
-        </class>
-        <class className="DifficultyViewController" superclassName="UITableViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/DifficultyViewController.h"/>
-        </class>
-        <class className="GameViewController" superclassName="UIViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/GameViewController.h"/>
-            <relationships>
-                <relationship kind="action" name="betButtonPressed:"/>
-                <relationship kind="action" name="cardsTouchDown:"/>
-                <relationship kind="action" name="cardsTouchUp:"/>
-                <relationship kind="action" name="changeBetSliderValue:"/>
-                <relationship kind="action" name="foldButtonPressed:"/>
-                <relationship kind="action" name="showCardsButtonClicked:"/>
-                <relationship kind="action" name="throwCardsAwayButtonClicked:"/>
-                <relationship kind="outlet" name="betLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="betSlider" candidateClass="ModifiedSlider"/>
-                <relationship kind="outlet" name="blindsCountdownLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="blindsIncreasedLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="effectLabel1" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="effectLabel2" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="effectLabel3" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="effectLabel4" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="effectLabel5" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="flopCardOneImage" candidateClass="UIImageView"/>
-                <relationship kind="outlet" name="flopCardThreeImage" candidateClass="UIImageView"/>
-                <relationship kind="outlet" name="flopCardTwoImage" candidateClass="UIImageView"/>
-                <relationship kind="outlet" name="pauseButton" candidateClass="UISegmentedControl"/>
-                <relationship kind="outlet" name="pauseLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="player1AlreadyBetChipsLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="player1CardOne" candidateClass="UIImageView"/>
-                <relationship kind="outlet" name="player1CardTwo" candidateClass="UIImageView"/>
-                <relationship kind="outlet" name="player1ChipsLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="player1NameLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="player1ProfilePictureImage" candidateClass="UIImageView"/>
-                <relationship kind="outlet" name="player2AlreadyBetChipsLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="player2CardOne" candidateClass="UIImageView"/>
-                <relationship kind="outlet" name="player2CardTwo" candidateClass="UIImageView"/>
-                <relationship kind="outlet" name="player2ChipsLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="player2NameLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="player2ProfilePictureImage" candidateClass="UIImageView"/>
-                <relationship kind="outlet" name="player3AlreadyBetChipsLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="player3CardOne" candidateClass="UIImageView"/>
-                <relationship kind="outlet" name="player3CardTwo" candidateClass="UIImageView"/>
-                <relationship kind="outlet" name="player3ChipsLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="player3NameLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="player3ProfilePictureImage" candidateClass="UIImageView"/>
-                <relationship kind="outlet" name="player4AlreadyBetChipsLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="player4CardOne" candidateClass="UIImageView"/>
-                <relationship kind="outlet" name="player4CardTwo" candidateClass="UIImageView"/>
-                <relationship kind="outlet" name="player4ChipsLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="player4NameLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="player4ProfilePictureImage" candidateClass="UIImageView"/>
-                <relationship kind="outlet" name="player5AlreadyBetChipsLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="player5CardOne" candidateClass="UIImageView"/>
-                <relationship kind="outlet" name="player5CardTwo" candidateClass="UIImageView"/>
-                <relationship kind="outlet" name="player5ChipsLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="player5NameLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="player5ProfilePictureImage" candidateClass="UIImageView"/>
-                <relationship kind="outlet" name="playerCountdownLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="potLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="riverCardImage" candidateClass="UIImageView"/>
-                <relationship kind="outlet" name="roundsPlayedLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="showCardsButton" candidateClass="UISegmentedControl"/>
-                <relationship kind="outlet" name="sidePotLabel1" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="sidePotLabel2" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="sidePotLabel3" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="sidePotLabel4" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="sidePotLabel5" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="table" candidateClass="UIImageView"/>
-                <relationship kind="outlet" name="throwCardsAwayButton" candidateClass="UISegmentedControl"/>
-                <relationship kind="outlet" name="turnCardImage" candidateClass="UIImageView"/>
-                <relationship kind="outlet" name="winnersCup" candidateClass="UIImageView"/>
-            </relationships>
-        </class>
-        <class className="ModifiedSlider" superclassName="UISlider">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/ModifiedSlider.h"/>
-        </class>
-        <class className="ProfilViewController" superclassName="UITableViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/ProfilViewController.h"/>
-            <relationships>
-                <relationship kind="action" name="selectPicture"/>
-                <relationship kind="action" name="takePicture:"/>
-                <relationship kind="outlet" name="imageView" candidateClass="UIImageView"/>
-                <relationship kind="outlet" name="playerNameTextField" candidateClass="UITextField"/>
-            </relationships>
-        </class>
-        <class className="SinglePlayerViewController" superclassName="UITableViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/SinglePlayerViewController.h"/>
-            <relationships>
-                <relationship kind="action" name="textFieldDoneEditing:"/>
-                <relationship kind="outlet" name="anzahlLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="anzahlblindslabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="blindanzahl" candidateClass="UITextField"/>
-                <relationship kind="outlet" name="detailLabel" candidateClass="UILabel"/>
-                <relationship kind="outlet" name="startkapital" candidateClass="UITextField"/>
-                <relationship kind="outlet" name="startsmallblind" candidateClass="UITextField"/>
-            </relationships>
-        </class>
-        <class className="ViewController" superclassName="UIViewController">
-            <source key="sourceIdentifier" type="project" relativePath="./Classes/ViewController.h"/>
-        </class>
-    </classes>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
         <simulatedOrientationMetrics key="orientation"/>
