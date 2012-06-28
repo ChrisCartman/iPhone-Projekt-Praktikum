@@ -12,6 +12,7 @@
 #import "PokerGame.h"
 #include "Functions.h"
 #import "AppDelegate.h"
+#import "ModifiedSlider.h"
 
 @interface GameViewController : UIViewController <UITableViewDelegate, UITableViewDataSource, AVAudioPlayerDelegate>
 {
@@ -66,7 +67,7 @@
 @property(nonatomic, retain) IBOutlet UILabel* playerCountdownLabel;
 
 @property(nonatomic, retain) IBOutlet UILabel* betLabel;
-@property(nonatomic, retain) IBOutlet UISlider* betSlider;
+@property(nonatomic, retain) IBOutlet ModifiedSlider* betSlider;
 @property(nonatomic, retain) UISegmentedControl* foldButton;
 @property(nonatomic, retain) UISegmentedControl* betButton;
 
@@ -96,6 +97,7 @@
 @property(nonatomic, strong) AVAudioPlayer* foldSoundPlayer;
 @property(nonatomic, strong) AVAudioPlayer* moneySoundPlayer;
 @property(nonatomic, strong) AVAudioPlayer* countdownSoundPlayer;
+@property(nonatomic, strong) AVAudioPlayer* winnerSoundPlayer;
 
 @property (nonatomic, strong) IBOutlet UIImageView* winnersCup;
 
@@ -118,6 +120,7 @@
 - (IBAction) changeBetSliderValue:(id)sender;
 - (IBAction) betButtonPressed:(id)sender;
 - (IBAction) foldButtonPressed:(id)sender;
+
 
 - (void) showAnimationAtTheEndOfMoveOfPlayer: (Player* ) aPlayer;
 - (void) showAnimationWhenPlayerShowsCards: (Player* ) aPlayer;

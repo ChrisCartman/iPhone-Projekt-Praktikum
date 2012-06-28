@@ -26,6 +26,8 @@
 		D00EB41E159B0A7E009BCC7C /* PlayerProfile.m in Sources */ = {isa = PBXBuildFile; fileRef = D00EB41D159B0A7E009BCC7C /* PlayerProfile.m */; };
 		D00EB421159B1A92009BCC7C /* Pokal.png in Resources */ = {isa = PBXBuildFile; fileRef = D00EB420159B1A92009BCC7C /* Pokal.png */; };
 		D00EB427159B47EB009BCC7C /* back.png in Resources */ = {isa = PBXBuildFile; fileRef = D00EB426159B47EB009BCC7C /* back.png */; };
+		D00EB429159B4E4E009BCC7C /* winner.wav in Resources */ = {isa = PBXBuildFile; fileRef = D00EB428159B4E4E009BCC7C /* winner.wav */; };
+		D00EB42C159B73D7009BCC7C /* ModifiedSlider.m in Sources */ = {isa = PBXBuildFile; fileRef = D00EB42B159B73D7009BCC7C /* ModifiedSlider.m */; };
 		D0121E08159389D6005D54B3 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0121E07159389D6005D54B3 /* AVFoundation.framework */; };
 		D0121E1115938AAE005D54B3 /* cards1.wav in Resources */ = {isa = PBXBuildFile; fileRef = D0121E0B15938AAE005D54B3 /* cards1.wav */; };
 		D0121E1215938AAE005D54B3 /* check.wav in Resources */ = {isa = PBXBuildFile; fileRef = D0121E0C15938AAE005D54B3 /* check.wav */; };
@@ -137,6 +139,10 @@
 		D00EB41D159B0A7E009BCC7C /* PlayerProfile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlayerProfile.m; sourceTree = "<group>"; };
 		D00EB420159B1A92009BCC7C /* Pokal.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Pokal.png; sourceTree = "<group>"; };
 		D00EB426159B47EB009BCC7C /* back.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = back.png; path = "Karten png/back.png"; sourceTree = "<group>"; };
+		D00EB428159B4E4E009BCC7C /* winner.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = winner.wav; sourceTree = "<group>"; };
+		D00EB42A159B73D7009BCC7C /* ModifiedSlider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ModifiedSlider.h; sourceTree = "<group>"; };
+		D00EB42B159B73D7009BCC7C /* ModifiedSlider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ModifiedSlider.m; sourceTree = "<group>"; };
+		D00EB42D159B7539009BCC7C /* Enum_SliderSensibility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Enum_SliderSensibility.h; sourceTree = "<group>"; };
 		D0121E07159389D6005D54B3 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		D0121E0B15938AAE005D54B3 /* cards1.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = cards1.wav; sourceTree = "<group>"; };
 		D0121E0C15938AAE005D54B3 /* check.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = check.wav; sourceTree = "<group>"; };
@@ -307,6 +313,7 @@
 		D0121E0A15938AAE005D54B3 /* Sounds */ = {
 			isa = PBXGroup;
 			children = (
+				D00EB428159B4E4E009BCC7C /* winner.wav */,
 				D0121E0B15938AAE005D54B3 /* cards1.wav */,
 				D0121E0C15938AAE005D54B3 /* check.wav */,
 				D0121E0D15938AAE005D54B3 /* cards3.wav */,
@@ -435,6 +442,7 @@
 				D0F5B36F1584CD6100C62EB4 /* Enum_GameState.h */,
 				D066EC5F1562EF4600B62D50 /* Enum_CardValues.h */,
 				D066EC571562E86A00B62D50 /* Enum_SuitType.h */,
+				D00EB42D159B7539009BCC7C /* Enum_SliderSensibility.h */,
 			);
 			name = "Enums und CppFunktionen";
 			sourceTree = "<group>";
@@ -442,6 +450,8 @@
 		D0FDDF82159218FD00325BB2 /* Klassen zum Spiel */ = {
 			isa = PBXGroup;
 			children = (
+				D00EB42A159B73D7009BCC7C /* ModifiedSlider.h */,
+				D00EB42B159B73D7009BCC7C /* ModifiedSlider.m */,
 				D00EB41C159B0A7E009BCC7C /* PlayerProfile.h */,
 				D00EB41D159B0A7E009BCC7C /* PlayerProfile.m */,
 				D0CC52261563C8E300BF5DC3 /* PokerGame.mm */,
@@ -591,6 +601,7 @@
 				D0310F9C1598D51000344EA7 /* Stan.PNG in Resources */,
 				D00EB421159B1A92009BCC7C /* Pokal.png in Resources */,
 				D00EB427159B47EB009BCC7C /* back.png in Resources */,
+				D00EB429159B4E4E009BCC7C /* winner.wav in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -623,6 +634,7 @@
 				D0A6887D1587FFDF007ED89B /* MainPot.m in Sources */,
 				D0F692BC158F4C7E0065420F /* SidePot.m in Sources */,
 				D00EB41E159B0A7E009BCC7C /* PlayerProfile.m in Sources */,
+				D00EB42C159B73D7009BCC7C /* ModifiedSlider.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

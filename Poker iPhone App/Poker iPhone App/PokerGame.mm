@@ -41,6 +41,7 @@
 - (void) dealOut
 {
     Player* currentPlayer = dealer;
+    NSLog(@"%@", dealer.identification);
     int yourNumber;     //benötigt zur Identifizierung der Spieler mit ihren Outlets
     int numberOfPlayer;
     //finde heraus, der wievielte Spieler in der Reihe man selbst ist (der sitzt vorne)
@@ -51,12 +52,14 @@
         currentPlayer = currentPlayer.playerOnLeftSide;
         if (currentPlayer.isYou) {
             yourNumber = counter;
+            break;
         }
         counter++;
     }
     shift = yourNumber - 1;
     numberOfPlayer = maxPlayers;
     counter = 0;
+    currentPlayer = dealer;
     while (counter < 2*maxPlayers) {
         counter++; //Wiederverwendung von counter, hier soll er regeln, dass die Animationen unterschiedlich lange dauern
         currentPlayer = currentPlayer.playerOnLeftSide;
@@ -315,11 +318,6 @@
     for (Player* aPlayer in allPlayers) {
         [aPlayer resetPlayerForNewRound];
     }
-    // Kartendeck mischen
-    [cardDeck shuffle];
-    // Karten ausgeben
-    [self dealOut];
-    //player inaktiv setzen:
     
     dealer = dealer.playerOnLeftSide;
     if (maxPlayers==2) {
@@ -330,6 +328,12 @@
         dealer.playerOnLeftSide.smallBlind = YES;
         dealer.playerOnLeftSide.playerOnLeftSide.bigBlind = YES;
     }
+    // Kartendeck mischen
+    [cardDeck shuffle];
+    // Karten ausgeben
+    [self dealOut];
+    //player inaktiv setzen:
+    
     //Startspieler festlegen:
     firstInRound = dealer.playerOnLeftSide; //das ist der Smallblind
     

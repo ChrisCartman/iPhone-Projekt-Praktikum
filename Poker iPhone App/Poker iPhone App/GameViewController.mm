@@ -91,6 +91,7 @@
 @synthesize cardSoundPlayer;
 @synthesize foldSoundPlayer;
 @synthesize moneySoundPlayer;
+@synthesize winnerSoundPlayer;
 
 @synthesize playerCountdownLabel;
 @synthesize countdownSoundPlayer;
@@ -100,22 +101,59 @@
 //User-Interaction:
 - (IBAction) changeBetSliderValue:(id)sender
 {
-    betLabel.text = [[[NSNumber numberWithFloat:roundNumberOnTwoFigures(betSlider.value)] stringValue] stringByAppendingString:@"$"];
-    if (betSlider.value == 0) {
-        // betButton.titleLabel.text = @"Check";
-        [betButton setTitle:@"Check" forSegmentAtIndex:0];    }
-    else if (betSlider.value == betSlider.minimumValue && betSlider.value != 0) {
-        //betButton.titleLabel.text = @"Call";
-        [betButton setTitle:@"Call" forSegmentAtIndex:0]; 
+
+}
+
+- (void)dragBegan:(UIControl *)c withEvent:ev {
+    UITouch *touch = [[ev allTouches] anyObject];
+    CGPoint touchPoint = [touch locationInView:self.view];
+    betSlider.startDragPoint = touchPoint;
+    betSlider.startDragValue = betSlider.value;
+}
+
+- (void)dragMoving:(UIControl *)c withEvent:ev {
+    UITouch* touch = [[ev allTouches] anyObject];
+    CGPoint touchPoint = [touch locationInView:self.view];
+    if (touchPoint.y < 50) {
+        betSlider.sensibility = STRONG_SENSIBILITY;
     }
-    else if (betSlider.value == betSlider.maximumValue) {
-        //betButton.titleLabel.text = @"All in";
-        [betButton setTitle:@"All in" forSegmentAtIndex:0]; 
+    else if (touchPoint.y < 150) {
+        betSlider.sensibility = MEDIUM_SENSIBILITY;
     }
     else {
-        // betButton.titleLabel.text = @"Bet";
-        [betButton setTitle:@"Bet" forSegmentAtIndex:0]; 
+        betSlider.sensibility = NO_SENSIBILITY;
     }
+    if (touchPoint.x >= betSlider.frame.origin.x && touchPoint.x <= betSlider.frame.origin.x + betSlider.frame.size.width) {
+        if (touchPoint.x > betSlider.startDragPoint.x) {
+            betSlider.internValue = betSlider.startDragValue + (touchPoint.x - betSlider.startDragPoint.x) / betSlider.frame.size.width * betSlider.maximumValue * (touchPoint.y / betSlider.startDragPoint.y);  
+            betSlider.value = betSlider.internValue;
+        }
+        else {
+            betSlider.internValue = betSlider.startDragValue - (- touchPoint.x + betSlider.startDragPoint.x) / betSlider.frame.size.width * betSlider.maximumValue * touchPoint.y / betSlider.startDragPoint.y;    
+            betSlider.value = betSlider.internValue;
+        }
+        betLabel.text = [[[NSNumber numberWithFloat:roundNumberOnTwoFigures([betSlider roundSliderValue])] stringValue] stringByAppendingString:@"$"];
+        if (betSlider.value == 0) {
+        // betButton.titleLabel.text = @"Check";
+            [betButton setTitle:@"Check" forSegmentAtIndex:0];    }
+        else if (betSlider.value == betSlider.minimumValue && betSlider.value != 0) {
+        //betButton.titleLabel.text = @"Call";
+            [betButton setTitle:@"Call" forSegmentAtIndex:0]; 
+        }
+        else if (betSlider.value == betSlider.maximumValue) {
+        //betButton.titleLabel.text = @"All in";
+            [betButton setTitle:@"All in" forSegmentAtIndex:0]; 
+        }
+        else {
+            // betButton.titleLabel.text = @"Bet";
+            [betButton setTitle:@"Bet" forSegmentAtIndex:0]; 
+        }
+    }
+
+}
+
+- (void)dragEnded:(UIControl *)c withEvent:ev {
+    betSlider.value = [betSlider roundSliderValue];
 }
 
 - (IBAction) betButtonPressed:(id)sender
@@ -477,6 +515,7 @@
         betButton.hidden = NO;
         foldButton.hidden = NO;
         betSlider.hidden = NO;
+        [betSlider setUpWithCurrentBigBlind:2*pokerGame.smallBlind];
         if (pokerGame.highestBet - aPlayer.alreadyBetChips >= aPlayer.chips) {
             betSlider.minimumValue = aPlayer.chips;
         }
@@ -1122,11 +1161,26 @@
     //Karten vergrößern
     [self.view bringSubviewToFront:player1CardOne];
     [self.view bringSubviewToFront:player1CardTwo];
-    CGRect destinationFrame1 = CGRectMake(player1CardOne.frame.origin.x - 50, player1CardOne.frame.origin.y - 68.75, 82, 112.75);
-    CGRect destinationFrame2 = CGRectMake(player1CardTwo.frame.origin.x, player1CardTwo.frame.origin.y - 68.75, 82, 112.75);
+    CGRect flopCardThreeDestinationFrame = CGRectMake(flopCardThreeImage.frame.origin.x - 16, flopCardThreeImage.frame.origin.y - 44, 64, 88);
+    CGRect flopCardTwoDestinationFrame = CGRectMake(flopCardTwoImage.frame.origin.x - 48, flopCardTwoImage.frame.origin.y - 44, 64, 88);
+    CGRect flopCardOneDestinationFrame = CGRectMake(flopCardOneImage.frame.origin.x - 80, flopCardOneImage.frame.origin.y - 44, 64, 88);
+    CGRect turnCardDestinationFrame = CGRectMake(turnCardImage.frame.origin.x + 16, turnCardImage.frame.origin.y - 44, 64, 88);
+    CGRect riverCardDestinationFrame = CGRectMake(riverCardImage.frame.origin.x + 48, riverCardImage.frame.origin.y - 44, 64, 88);
+    CGRect destinationFrame1 = CGRectMake(player1CardOne.frame.origin.x - 32, player1CardOne.frame.origin.y - 44, 64, 88);
+    CGRect destinationFrame2 = CGRectMake(player1CardTwo.frame.origin.x, player1CardTwo.frame.origin.y - 44, 64, 88);
+    [self.view bringSubviewToFront:flopCardTwoImage];
+    [self.view bringSubviewToFront:flopCardOneImage];
+    [self.view bringSubviewToFront:flopCardThreeImage];
+    [self.view bringSubviewToFront:turnCardImage];
+    [self.view bringSubviewToFront:riverCardImage];
     [UIView animateWithDuration:0.2 animations:^{
         player1CardOne.frame = destinationFrame1;
         player1CardTwo.frame = destinationFrame2;
+        flopCardOneImage.frame = flopCardOneDestinationFrame;
+        flopCardTwoImage.frame = flopCardTwoDestinationFrame;
+        flopCardThreeImage.frame = flopCardThreeDestinationFrame;
+        turnCardImage.frame = turnCardDestinationFrame;
+        riverCardImage.frame = riverCardDestinationFrame;
     }
                      completion:nil];
     
@@ -1144,6 +1198,11 @@
     [UIView animateWithDuration:0.2 animations:^{
         player1CardOne.frame = CGRectMake(270, 205, 32, 44);
         player1CardTwo.frame = CGRectMake(310, 205, 32, 44);
+        flopCardOneImage.frame = CGRectMake(144,128,32,44);
+        flopCardTwoImage.frame = CGRectMake(184,128,32,44);
+        flopCardThreeImage.frame = CGRectMake(224,128,32,44);
+        turnCardImage.frame = CGRectMake(264,128,32,44);
+        riverCardImage.frame = CGRectMake(304,128,32,44);
     } completion:nil];
     
     //und five-best-cards-Anzeige ausblenden:
@@ -1194,6 +1253,12 @@
         forControlEvents: UIControlEventValueChanged];
     betButton.frame = CGRectMake(390, 253, 80, 30);
     [self.view addSubview:betButton];
+    
+    //betSlider actions:
+    [betSlider addTarget:self action:@selector(dragBegan:withEvent:) forControlEvents: UIControlEventTouchDown];
+    [betSlider addTarget:self action:@selector(dragMoving:withEvent:) forControlEvents: UIControlEventTouchDragInside];
+    [betSlider addTarget:self action:@selector(dragMoving: withEvent:) forControlEvents:UIControlEventTouchDragOutside];
+    [betSlider addTarget:self action:@selector(dragEnded:withEvent:) forControlEvents: UIControlEventTouchUpInside | UIControlEventTouchUpOutside];
     
     foldButton = [[UISegmentedControl alloc] initWithItems:[NSArray arrayWithObject:@"Fold"]];
 	foldButton.segmentedControlStyle = UISegmentedControlStyleBar;
@@ -1790,6 +1855,14 @@
         player5NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player5NameLabel.text, @"Won!"];
         player5NameLabel.textColor = [UIColor greenColor];
     }
+    NSString* soundFilePath = [[NSBundle mainBundle] pathForResource:@"winner" ofType:@"wav"];
+    winnerSoundPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:soundFilePath] error:nil];
+    winnerSoundPlayer.delegate = self;
+    winnerSoundPlayer.volume = 0.2;
+    [winnerSoundPlayer prepareToPlay];
+    BOOL ok = [winnerSoundPlayer play];
+    NSLog(@"ok: %@", ok ? @"Y" : @"N");
+    
     winnersCup.hidden = NO;
     winnersCup.image = [UIImage imageNamed:@"Pokal.png"];
     [self.view bringSubviewToFront:winnersCup];
