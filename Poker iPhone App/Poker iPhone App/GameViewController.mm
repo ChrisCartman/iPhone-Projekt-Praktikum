@@ -14,6 +14,12 @@
 
 @implementation GameViewController
 
+
+@synthesize player1Box;
+@synthesize player2Box;
+@synthesize player3Box;
+@synthesize player4Box;
+@synthesize player5Box;
 @synthesize cardDeckImage;
 
 @synthesize player1CardOne;
@@ -1324,21 +1330,17 @@
     
     // Outlets für Player1
     
-    player1NameLabel = [[UILabel alloc]initWithFrame:CGRectMake(222, 183, 40, 20)];
-    if (appDelegate.playerProfile != nil) {
-        player1NameLabel.text = [NSString stringWithFormat:@"%@",appDelegate.playerProfile.playerName];
-    }
-    else {
-        player1NameLabel.text = @"Nathan";
-    }
+    player1Box = [[UIImageView alloc]initWithFrame:CGRectMake(215, 180, 55, 80)];
+    [self.view addSubview:player1Box];
+    [player1Box setImage:[UIImage imageNamed: @"boxblack.png"]];
+    
+    player1NameLabel = [[UILabel alloc]initWithFrame:CGRectMake(224, 183, 40, 20)];
+    player1NameLabel.text = @"Nathan";
+    player1NameLabel.textColor = [UIColor whiteColor];
     [self.view addSubview:player1NameLabel];
     player1NameLabel.backgroundColor = [UIColor clearColor];
-    player1NameLabel.font = [UIFont fontWithName:@"System" size: 13.0];
-    effectLabel1 = [[UILabel alloc] initWithFrame:CGRectMake(222,183,120,20)];
-    effectLabel1.alpha = 0.0;
-    [self.view addSubview:effectLabel1];
-    effectLabel1.backgroundColor = [UIColor blackColor];
-    effectLabel1.font = [UIFont fontWithName:@"System" size:13.0];
+    player1NameLabel.font = [UIFont fontWithName:@"System" size:13.0];
+    player1NameLabel.font = [UIFont boldSystemFontOfSize:11];
     
     player1ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(222, 203, 40, 40)];
     [self.view addSubview:player1ProfilePictureImage];
@@ -1368,11 +1370,13 @@
     [self.view bringSubviewToFront:cardsButton];
     
     
-    player1ChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(222, 245, 50, 20)];
+    player1ChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(229, 240, 50, 20)];
     player1ChipsLabel.text = @"Chips";
+    player1ChipsLabel.textColor = [UIColor whiteColor];
     [self.view addSubview:player1ChipsLabel];
     player1ChipsLabel.backgroundColor = [UIColor clearColor];
-    player1ChipsLabel.font = [UIFont fontWithName:@"System" size: 13.0];
+    player1ChipsLabel.font = [UIFont fontWithName:@"System" size: 9.0];
+    player1ChipsLabel.font = [UIFont boldSystemFontOfSize:11];
     
     player1AlreadyBetChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(265, 183, 40, 20)];
     player1AlreadyBetChipsLabel.text = @"Text";
@@ -1388,11 +1392,19 @@
     
     // Outlets für Player2
     
-    player2NameLabel = [[UILabel alloc]initWithFrame:CGRectMake(17, 87, 40, 20)];
-    player2NameLabel.text = @"Eric C.";
+    player2Box = [[UIImageView alloc]initWithFrame:CGRectMake(8, 84, 55, 80)];
+    [self.view addSubview:player2Box];
+    [player2Box setImage:[UIImage imageNamed: @"boxblack.png"]];
+    
+    
+    player2NameLabel = [[UILabel alloc]initWithFrame:CGRectMake(23, 87, 40, 20)];
+    player2NameLabel.text = @"Text";
     [self.view addSubview:player2NameLabel];
+    player2NameLabel.textColor = [UIColor whiteColor];
     player2NameLabel.backgroundColor = [UIColor clearColor];
     player2NameLabel.font = [UIFont fontWithName:@"System" size: 13.0];
+    player2NameLabel.font = [UIFont boldSystemFontOfSize:11];
+
     effectLabel2 = [[UILabel alloc] initWithFrame:CGRectMake(17,87,120,20)];
     effectLabel2.alpha = 0.0;
     [self.view addSubview:effectLabel2];
@@ -1409,10 +1421,14 @@
     player2CardTwo = [[UIImageView alloc]initWithFrame:CGRectMake(38, 107, 32, 44)];
     [self.view addSubview:player2CardTwo];
     
-    player2ChipsLabel = [[UILabel alloc] initWithFrame:CGRectMake(17, 150, 40, 20)];
+    player2ChipsLabel = [[UILabel alloc] initWithFrame:CGRectMake(22, 147, 40, 20)];
     player2ChipsLabel.font = [UIFont fontWithName:@"System" size:13.0];
+    player2ChipsLabel.textColor = [UIColor whiteColor];
+
     player2ChipsLabel.backgroundColor = [UIColor clearColor];
     [self.view addSubview:player2ChipsLabel];
+    player2ChipsLabel.font = [UIFont boldSystemFontOfSize:11];
+
 
     player2AlreadyBetChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(65, 107, 40, 20)];
     player2AlreadyBetChipsLabel.text = @"Text";
@@ -1430,11 +1446,17 @@
         
         //Player3 Outlets
         
-        player3NameLabel = [[UILabel alloc]initWithFrame:CGRectMake(121, 2, 40, 20)];
-        player3NameLabel.text = @"Stan M.";
+        player3Box = [[UIImageView alloc]initWithFrame:CGRectMake(113, 2, 55, 80)];
+        [self.view addSubview:player3Box];
+        [player3Box setImage:[UIImage imageNamed: @"boxblack.png"]];
+        
+        player3NameLabel = [[UILabel alloc]initWithFrame:CGRectMake(125, 2, 40, 20)];
+        player3NameLabel.text = @"Text";
         [self.view addSubview:player3NameLabel];
+        player3NameLabel.textColor = [UIColor whiteColor];
         player3NameLabel.backgroundColor = [UIColor clearColor];
         player3NameLabel.font = [UIFont fontWithName:@"System" size: 13.0];
+        player3NameLabel.font = [UIFont boldSystemFontOfSize:11];
         effectLabel3 = [[UILabel alloc] initWithFrame:CGRectMake(121,2,120,20)];
         effectLabel3.alpha = 0.0;
         [self.view addSubview:effectLabel3];
@@ -1451,11 +1473,13 @@
         player3CardTwo = [[UIImageView alloc]initWithFrame:CGRectMake(142, 28, 32, 44)];
         [self.view addSubview:player3CardTwo];
         
-        player3ChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(121, 65, 50, 20)];
+        player3ChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(127, 65, 50, 20)];
         player3ChipsLabel.text = @"Chips";
         [self.view addSubview:player3ChipsLabel];
+        player3ChipsLabel.textColor = [UIColor whiteColor];
         player3ChipsLabel.backgroundColor = [UIColor clearColor];
         player3ChipsLabel.font = [UIFont fontWithName:@"System" size: 13.0];
+        player3ChipsLabel.font = [UIFont boldSystemFontOfSize:11];
         
         player3AlreadyBetChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(173, 65, 40, 20)];
         player3AlreadyBetChipsLabel.text = @"Text";
@@ -1473,11 +1497,17 @@
             
             //Player4 Outlets
             
-            player4NameLabel = [[UILabel alloc]initWithFrame:CGRectMake(313, 2, 40, 20)];
-            player4NameLabel.text = @"Kyle B.";
+            player4Box = [[UIImageView alloc]initWithFrame:CGRectMake(304, 2, 55, 80)];
+            [self.view addSubview:player4Box];
+            [player4Box setImage:[UIImage imageNamed: @"boxblack.png"]];
+            
+            player4NameLabel = [[UILabel alloc]initWithFrame:CGRectMake(318, 2, 40, 20)];
+            player4NameLabel.text = @"Text";
             [self.view addSubview:player4NameLabel];
             player4NameLabel.backgroundColor = [UIColor clearColor];
+            player4NameLabel.textColor = [UIColor whiteColor];
             player4NameLabel.font = [UIFont fontWithName:@"System" size: 13.0];
+            player4NameLabel.font = [UIFont boldSystemFontOfSize:11];
             effectLabel4 = [[UILabel alloc] initWithFrame:CGRectMake(313,2,120,20)];
             effectLabel4.alpha = 0.0;
             [self.view addSubview:effectLabel4];
@@ -1494,11 +1524,13 @@
             player4CardTwo = [[UIImageView alloc]initWithFrame:CGRectMake(334, 28, 32, 44)];
             [self.view addSubview:player4CardTwo];
             
-            player4ChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(313, 65, 50, 20)];
+            player4ChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(318, 65, 50, 20)];
             player4ChipsLabel.text = @"Chips";
             [self.view addSubview:player4ChipsLabel];
+            player4ChipsLabel.textColor = [UIColor whiteColor];
             player4ChipsLabel.backgroundColor = [UIColor clearColor];
             player4ChipsLabel.font = [UIFont fontWithName:@"System" size: 13.0];
+            player4ChipsLabel.font = [UIFont boldSystemFontOfSize:11];
             
             player4AlreadyBetChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(261, 65, 40, 20)];
             player4AlreadyBetChipsLabel.text = @"Text";
@@ -1516,16 +1548,23 @@
                 
                 //Player5 Outlets
                 
-                player5NameLabel = [[UILabel alloc]initWithFrame:CGRectMake(427, 87, 40, 20)];
-                player5NameLabel.text = @"Kenny M.";
+                player5Box = [[UIImageView alloc]initWithFrame:CGRectMake(418, 84, 55, 80)];
+                [self.view addSubview:player5Box];
+                [player5Box setImage:[UIImage imageNamed: @"boxblack.png"]];
+                
+                player5NameLabel = [[UILabel alloc]initWithFrame:CGRectMake(431, 87, 40, 20)];
+                player5NameLabel.text = @"Text";
                 [self.view addSubview:player5NameLabel];
                 player5NameLabel.backgroundColor = [UIColor clearColor];
+                player5NameLabel.textColor = [UIColor whiteColor];
                 player5NameLabel.font = [UIFont fontWithName:@"System" size: 13.0];
+                player5NameLabel.font = [UIFont boldSystemFontOfSize:11];
                 effectLabel5 = [[UILabel alloc] initWithFrame:CGRectMake(427,87,120,20)];
                 effectLabel5.alpha = 0.0;
                 [self.view addSubview:effectLabel5];
                 effectLabel5.backgroundColor = [UIColor blackColor];
                 effectLabel5.font = [UIFont fontWithName:@"System" size:13.0];
+
                 
                 player5ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(427, 107, 40, 40)];
                 [self.view addSubview:player5ProfilePictureImage];
@@ -1538,10 +1577,13 @@
                 [self.view addSubview:player5CardTwo];
                 
                 player5ChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(427, 149, 50, 20)];
+                player5ChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(433, 147, 50, 20)];
                 player5ChipsLabel.text = @"Chips";
                 [self.view addSubview:player5ChipsLabel];
+                player5ChipsLabel.textColor = [UIColor whiteColor];
                 player5ChipsLabel.backgroundColor = [UIColor clearColor];
                 player5ChipsLabel.font = [UIFont fontWithName:@"System" size: 13.0];
+                player5ChipsLabel.font = [UIFont boldSystemFontOfSize:11];
                 
                 player5AlreadyBetChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(385, 107, 40, 20)];
                 player5AlreadyBetChipsLabel.text = @"Text";
