@@ -18,6 +18,11 @@
 {
     BOOL paused;
 }
+@property(nonatomic, retain) IBOutlet UIImageView*player1Box;
+@property(nonatomic, retain) IBOutlet UIImageView*player2Box;
+@property(nonatomic, retain) IBOutlet UIImageView*player3Box;
+@property(nonatomic, retain) IBOutlet UIImageView*player4Box;
+@property(nonatomic, retain) IBOutlet UIImageView*player5Box;
 
 @property (nonatomic, retain) UIImageView* cardDeckImage;
 
