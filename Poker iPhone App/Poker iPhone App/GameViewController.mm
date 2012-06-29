@@ -1253,13 +1253,13 @@
     //Karten vergrößern
     [self.view bringSubviewToFront:player1CardOne];
     [self.view bringSubviewToFront:player1CardTwo];
-    CGRect flopCardThreeDestinationFrame = CGRectMake(flopCardThreeImage.frame.origin.x - 4, flopCardThreeImage.frame.origin.y - 11, 40, 55);
-    CGRect flopCardTwoDestinationFrame = CGRectMake(flopCardTwoImage.frame.origin.x - 12, flopCardTwoImage.frame.origin.y - 11, 40, 55);
-    CGRect flopCardOneDestinationFrame = CGRectMake(flopCardOneImage.frame.origin.x - 20, flopCardOneImage.frame.origin.y - 11, 40, 55);
-    CGRect turnCardDestinationFrame = CGRectMake(turnCardImage.frame.origin.x + 4, turnCardImage.frame.origin.y - 11, 40, 55);
-    CGRect riverCardDestinationFrame = CGRectMake(riverCardImage.frame.origin.x + 12, riverCardImage.frame.origin.y - 11, 40, 55);
-    CGRect destinationFrame1 = CGRectMake(player1CardOne.frame.origin.x - 8, player1CardOne.frame.origin.y - 11, 40, 55);
-    CGRect destinationFrame2 = CGRectMake(player1CardTwo.frame.origin.x, player1CardTwo.frame.origin.y - 11, 40, 55);
+    CGRect flopCardThreeDestinationFrame = CGRectMake(flopCardThreeImage.frame.origin.x - 4, flopCardThreeImage.frame.origin.y - 6, 40, 55);
+    CGRect flopCardTwoDestinationFrame = CGRectMake(flopCardTwoImage.frame.origin.x - 12, flopCardTwoImage.frame.origin.y - 6, 40, 55);
+    CGRect flopCardOneDestinationFrame = CGRectMake(flopCardOneImage.frame.origin.x - 20, flopCardOneImage.frame.origin.y - 6, 40, 55);
+    CGRect turnCardDestinationFrame = CGRectMake(turnCardImage.frame.origin.x + 4, turnCardImage.frame.origin.y - 6, 40, 55);
+    CGRect riverCardDestinationFrame = CGRectMake(riverCardImage.frame.origin.x + 12, riverCardImage.frame.origin.y - 6, 40, 55);
+    CGRect destinationFrame1 = CGRectMake(player1CardOne.frame.origin.x - 8, player1CardOne.frame.origin.y - 6, 40, 55);
+    CGRect destinationFrame2 = CGRectMake(player1CardTwo.frame.origin.x, player1CardTwo.frame.origin.y - 6, 40, 55);
     [self.view bringSubviewToFront:flopCardTwoImage];
     [self.view bringSubviewToFront:flopCardOneImage];
     [self.view bringSubviewToFront:flopCardThreeImage];
