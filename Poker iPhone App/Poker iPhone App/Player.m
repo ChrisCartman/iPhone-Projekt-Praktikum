@@ -38,6 +38,9 @@
 @synthesize paused;
 @synthesize createdTimerDuringPause;
 @synthesize throwsCardsAway;
+@synthesize showDownCard1Frame;
+@synthesize showDownCard2Frame;
+@synthesize playerProfile;
 
 
 - (id)init
@@ -209,7 +212,7 @@
             [self check];
         }
     }
-    else if (n==9 || n==8) {
+    else if (n==11 || n==12) {
         if (pokerGame.highestBet >= self.chips) {
             [self call];
         }

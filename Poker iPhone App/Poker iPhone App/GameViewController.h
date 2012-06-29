@@ -104,6 +104,14 @@
 @property(nonatomic, strong) AVAudioPlayer* countdownSoundPlayer;
 @property(nonatomic, strong) AVAudioPlayer* winnerSoundPlayer;
 
+@property (nonatomic, strong) UILabel* player1FoldFadeLabel;
+@property (nonatomic, strong) UILabel* player2FoldFadeLabel;
+@property (nonatomic, strong) UILabel* player3FoldFadeLabel;
+@property (nonatomic, strong) UILabel* player4FoldFadeLabel;
+@property (nonatomic, strong) UILabel* player5FoldFadeLabel;
+
+@property (nonatomic, strong) IBOutlet UIButton* sliderSensibilityButton;
+
 @property (nonatomic, strong) IBOutlet UIImageView* winnersCup;
 
 - (void) setUpGraphics;
@@ -122,9 +130,11 @@
 - (void) changePlayerOutlets_lost: (Player* ) aPlayer;
 - (void) changePlayerOutlets_won: (Player* ) aPlayer;
 
+
 - (IBAction) changeBetSliderValue:(id)sender;
 - (IBAction) betButtonPressed:(id)sender;
 - (IBAction) foldButtonPressed:(id)sender;
+- (IBAction) betSliderValueChanged:(id)sender;
 
 
 - (void) showAnimationAtTheEndOfMoveOfPlayer: (Player* ) aPlayer;
@@ -152,10 +162,14 @@
 
 - (void) showAnimationWhenPlayerWonGame;
 
+- (void) resetAnimatedOutlets;
+
+
 
 - (IBAction)cardsTouchDown:(id)sender;
 - (IBAction)cardsTouchUp:(id)sender;
 - (IBAction)showCardsButtonClicked:(id)sender;
 - (IBAction)throwCardsAwayButtonClicked:(id)sender;
+- (IBAction)changeSliderSensibility:(id)sender;
 
 @end

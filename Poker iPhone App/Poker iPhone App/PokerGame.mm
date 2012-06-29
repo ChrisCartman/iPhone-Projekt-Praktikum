@@ -263,6 +263,31 @@
             temporaryPlayer.playerOnLeftSide = (Player* ) [allPlayers objectAtIndex:(i+1)];
             temporaryPlayer.playerOnRightSide = (Player* ) [allPlayers objectAtIndex:(i-1)];
         }
+        if (i==0) {
+            temporaryPlayer.showDownCard1Frame = CGRectMake(209,201,32,44);
+            temporaryPlayer.showDownCard2Frame = CGRectMake(243, 201, 32, 44);
+        }
+        else if (i==1) {
+            temporaryPlayer.showDownCard1Frame = CGRectMake(4, 105, 32, 44);
+            temporaryPlayer.showDownCard2Frame = CGRectMake(38, 105, 32, 44);
+        }
+        else if (i==2) {
+            temporaryPlayer.showDownCard1Frame = CGRectMake(108, 20, 32, 44);
+            temporaryPlayer.showDownCard2Frame = CGRectMake(142, 20, 32, 44);
+        }
+        else if (i==3) {
+            temporaryPlayer.showDownCard1Frame = CGRectMake(300, 20, 32, 44);
+            temporaryPlayer.showDownCard2Frame = CGRectMake(334, 20, 32, 44);
+        }
+        else if (i==4) {
+            temporaryPlayer.showDownCard1Frame = CGRectMake(414, 105, 32, 44);
+            temporaryPlayer.showDownCard2Frame = CGRectMake(448, 105, 32, 44);
+        }
+        /*player1ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(222, 203, 40, 40)];
+        player2ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(17, 107, 40, 40)];
+        player3ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(121, 22, 40, 40)];
+        player4ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(313, 22, 40, 40)];
+        player5ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(427, 107, 40, 40)];*/
         temporaryPlayer.dealer = NO;
         temporaryPlayer.smallBlind = NO;
         temporaryPlayer.bigBlind = NO;
@@ -448,7 +473,7 @@
             firstInRound = firstInRound.nextPlayerInRound;
         }
     }
-    aPlayer.alreadyBetChips = 0;
+    //aPlayer.alreadyBetChips = 0;
     aPlayer.previousPlayerInRound.nextPlayerInRound = aPlayer.nextPlayerInRound;
     aPlayer.nextPlayerInRound.previousPlayerInRound = aPlayer.previousPlayerInRound;
     [remainingPlayersInRound removeObject:aPlayer];
@@ -660,6 +685,8 @@
     [self distributeChipsOnPots];
     for (Player* aPlayer in self.remainingPlayersInRound) {
         aPlayer.playerState = INACTIVE;
+    }
+    for (Player* aPlayer in allPlayers) {
         aPlayer.alreadyBetChips = 0;
     }
     highestBet = 0;

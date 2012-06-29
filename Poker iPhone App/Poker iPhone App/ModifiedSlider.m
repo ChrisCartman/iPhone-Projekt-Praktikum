@@ -12,16 +12,20 @@
 
 @synthesize sensibility;
 @synthesize currentBigBlind;
-@synthesize startDragPoint;
-@synthesize startDragValue;
+@synthesize dollars;
+@synthesize cents;
+@synthesize currentChips;
 @synthesize internValue;
+@synthesize currentHighestBet;
+@synthesize currentAlreadyBetChips;
+@synthesize lastCentValue;
 
 - (id)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
     if (self) {
         // Initialization code
-        self.sensibility = MEDIUM_SENSIBILITY;
+        self.sensibility = NO_SENSIBILITY;
     }
     return self;
 }
@@ -31,61 +35,75 @@
     self.currentBigBlind = bigBlind;
 }
 
-- (float) roundSliderValue
+- (void) getBetAmountNoSensibility
 {
-    float currentValue = internValue;
+    float currentValue = self.value;
     //keine Sensibilitätsunterscheidung bei all in
     if (currentValue == self.maximumValue) {
-        return currentValue;
+        self.internValue = currentValue;
+        self.dollars = (int) self.internValue;
+        self.cents = self.internValue - self.dollars;
     }
     //falls man zum big blind setzen all in gehen muss: bei mehr als der Hälfte all in
     else if (currentValue < currentBigBlind && self.maximumValue < currentBigBlind) {
         if (currentValue >= (self.maximumValue + self.minimumValue) / 2.0) {
-            return self.maximumValue;
+            self.internValue = self.maximumValue;
+            self.dollars = (int) self.internValue;
+            self.cents = self.internValue - self.dollars;
         }
         else {
-            return self.minimumValue;
+            self.internValue = self.minimumValue;
+            self.dollars = (int) self.internValue;
+            self.cents = self.internValue - self.dollars;
         }
     }
     else if (currentValue < currentBigBlind) {
         if (currentValue >= (currentBigBlind + self.minimumValue) / 2.0) {
-            return currentBigBlind;
+            self.internValue = self.currentBigBlind;
+            self.dollars = (int) self.internValue;
+            self.cents = self.internValue - self.dollars;
         }
         else {
-            return self.minimumValue;
+            self.internValue = self.minimumValue;
+            self.dollars = (int) self.internValue;
+            self.cents = self.internValue - self.dollars;
+        }
+    }
+    else if (currentValue < self.minimumValue + currentBigBlind / 2.0) {
+        self.dollars = self.currentBigBlind;
+        if (self.lastCentValue != self.cents) {
+            self.cents = self.lastCentValue;
+        }
+    }
+    else if (currentValue >= self.minimumValue + currentBigBlind / 2.0 && currentValue <= self.minimumValue + currentBigBlind) {
+        self.dollars = (int) self.minimumValue + currentBigBlind;
+        if (self.lastCentValue != self.cents) {
+            self.cents = self.lastCentValue;
         }
     }
     else {
-        if (self.sensibility == STRONG_SENSIBILITY) {
-            return internValue;
-        }
-        else if (self.sensibility == MEDIUM_SENSIBILITY) {
-            float decimalsOnly = (float) self.value - (int) self.value;
-            if (decimalsOnly==0.0) {
-                return internValue;
-            }
-            else if (decimalsOnly>=0.5) {
-                return (int) (internValue + 1);
-            }
-            else {
-                return (int) internValue;
-            }
-        }
-        else if (self.sensibility == NO_SENSIBILITY) {
-            int counter = 0;
-            while (counter*currentBigBlind <= self.value) {
-                counter++;
-            }
-            if (counter*currentBigBlind - self.value >= currentBigBlind / 2.0) {
-                return counter*currentBigBlind;
-            }
-            else {
-                return (counter-1)*currentBigBlind;
-            }
+        self.dollars = (int) currentValue;
+        if (self.lastCentValue != self.cents) {
+            self.cents = self.lastCentValue;
         }
     }
-    return 0.0;
 }
+
+- (void)getBetAmountStrongSensibility
+{
+    float currentValue = self.value;
+    self.cents = (float) (((int) (currentValue * 100)) / 100.0);
+    self.lastCentValue = self.cents;
+}
+
+- (float) getSliderValue
+{
+    if (!(self.dollars + self.cents == self.internValue)) {
+        self.internValue = self.dollars + self.cents;
+    }
+    return self.internValue;
+}
+
 
 /*
 // Only override drawRect: if you perform custom drawing.
