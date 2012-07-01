@@ -2064,22 +2064,27 @@
 {
     if ([aPlayer.identification isEqualToString:@"player1"]) {
        // player1NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player1NameLabel.text, @"Lost!"];
+        player1ChipsLabel.textColor = [UIColor redColor];
         player1NameLabel.textColor = [UIColor redColor];
     }
     else if ([aPlayer.identification isEqualToString:@"player2"]) {
      //   player2NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player2NameLabel.text, @"Lost!"];
+        player2ChipsLabel.textColor = [UIColor redColor];
         player2NameLabel.textColor = [UIColor redColor];
     }
     else if ([aPlayer.identification isEqualToString:@"player3"]) {
        // player3NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player3NameLabel.text, @"Lost!"];
+        player3ChipsLabel.textColor = [UIColor redColor];
         player3NameLabel.textColor = [UIColor redColor];
     }    
     else if ([aPlayer.identification isEqualToString:@"player4"]) {
        // player4NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player4NameLabel.text, @"Lost!"];
+        player4ChipsLabel.textColor = [UIColor redColor];
         player4NameLabel.textColor = [UIColor redColor];
     }    
     else if ([aPlayer.identification isEqualToString:@"player5"]) {
        // player5NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player5NameLabel.text, @"Lost!"];
+        player5ChipsLabel.textColor = [UIColor redColor];
         player5NameLabel.textColor = [UIColor redColor];
     }
 }
@@ -2088,22 +2093,27 @@
 {
     if ([aPlayer.identification isEqualToString:@"player1"]) {
     //    player1NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player1NameLabel.text, @"Won!"];
+        player1ChipsLabel.textColor = [UIColor greenColor];
         player1NameLabel.textColor = [UIColor greenColor];
     }
     else if ([aPlayer.identification isEqualToString:@"player2"]) {
     //    player2NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player2NameLabel.text, @"Won!"];
+        player2ChipsLabel.textColor = [UIColor greenColor];
         player2NameLabel.textColor = [UIColor greenColor];
     }
     else if ([aPlayer.identification isEqualToString:@"player3"]) {
     //    player3NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player3NameLabel.text, @"Won!"];
+        player3ChipsLabel.textColor = [UIColor greenColor];
         player3NameLabel.textColor = [UIColor greenColor];
     }    
     else if ([aPlayer.identification isEqualToString:@"player4"]) {
     //    player4NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player4NameLabel.text, @"Won!"];
+        player4ChipsLabel.textColor = [UIColor greenColor];
         player4NameLabel.textColor = [UIColor greenColor];
     }    
     else if ([aPlayer.identification isEqualToString:@"player5"]) {
     //    player5NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player5NameLabel.text, @"Won!"];
+        player5ChipsLabel.textColor = [UIColor greenColor];
         player5NameLabel.textColor = [UIColor greenColor];
     }
     NSString* soundFilePath = [[NSBundle mainBundle] pathForResource:@"winner" ofType:@"wav"];

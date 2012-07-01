@@ -249,7 +249,7 @@
     for (int i=0; i<maxPlayers; i++) {
         Player* temporaryPlayer = (Player* ) [allPlayers objectAtIndex:i];
         temporaryPlayer.identification = [NSString stringWithFormat:@"player%i",i+1];
-        temporaryPlayer.chips = gameSettings.startChips - i*10;
+        temporaryPlayer.chips = gameSettings.startChips;
         if (i==0) {
             temporaryPlayer.isYou = YES;
             temporaryPlayer.playerOnRightSide = (Player* ) [allPlayers objectAtIndex:(maxPlayers - 1)];
