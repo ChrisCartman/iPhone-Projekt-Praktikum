@@ -299,7 +299,7 @@
         [player3 addObserver:self forKeyPath:@"alreadyBetChips" options:0 context:nil];
         [player3 addObserver:self forKeyPath:@"chips" options:0 context:nil];
         [player3 addObserver:self forKeyPath:@"playerState" options:0 context:nil];
-        [player3 addObserver:self forKeyPath:@"hasSidePot2" options:0 context:nil];
+        [player3 addObserver:self forKeyPath:@"hasSidePot" options:0 context:nil];
         [player3 addObserver:self forKeyPath:@"showsCards" options:0 context:nil];
         [player3 addObserver:self forKeyPath:@"throwsCardsAway" options:0 context:nil];
         [player3 addObserver:self forKeyPath:@"mayShowCards" options:0 context:nil];
@@ -699,25 +699,27 @@
 - (void) changePlayerOutlets_sidePot:(Player *)aPlayer
 {
     if (aPlayer.hasSidePot == YES) {
-        if ([aPlayer.identification isEqualToString:@"player1"]) {
-            sidePotLabel1.hidden = NO;
-            sidePotLabel1.text = [[[NSNumber numberWithFloat:aPlayer.sidePot.chipsInPot] stringValue]   stringByAppendingString:@"$ (SP)"];
-        }
-        else if ([aPlayer.identification isEqualToString:@"player2"]) {
-            sidePotLabel2.hidden = NO;
-            sidePotLabel2.text = [[[NSNumber numberWithFloat:aPlayer.sidePot.chipsInPot] stringValue] stringByAppendingString:@"$ (SP)"];
-        }
-        else if ([aPlayer.identification isEqualToString:@"player3"]) {
-            sidePotLabel3.hidden = NO;
-            sidePotLabel3.text = [[[NSNumber numberWithFloat:aPlayer.sidePot.chipsInPot] stringValue] stringByAppendingString:@"$ (SP)"];
-        }
-        else if ([aPlayer.identification isEqualToString:@"player4"]) {
-            sidePotLabel4.hidden = NO;
-            sidePotLabel4.text = [[[NSNumber numberWithFloat:aPlayer.sidePot.chipsInPot] stringValue] stringByAppendingString:@"$ (SP)"];
-        }
-        else if ([aPlayer.identification isEqualToString:@"player5"]) {
-            sidePotLabel5.hidden = NO;
-            sidePotLabel5.text = [[[NSNumber numberWithFloat:aPlayer.sidePot.chipsInPot] stringValue] stringByAppendingString:@"$ (SP)"];
+        if (aPlayer.sidePot.chipsInPot != 0) {
+            if ([aPlayer.identification isEqualToString:@"player1"]) {
+                sidePotLabel1.hidden = NO;
+                sidePotLabel1.text = [[[NSNumber numberWithFloat:aPlayer.sidePot.chipsInPot] stringValue]   stringByAppendingString:@"$"];
+            }
+            else if ([aPlayer.identification isEqualToString:@"player2"]) {
+                sidePotLabel2.hidden = NO;
+                sidePotLabel2.text = [[[NSNumber numberWithFloat:aPlayer.sidePot.chipsInPot] stringValue] stringByAppendingString:@"$"];
+            }
+            else if ([aPlayer.identification isEqualToString:@"player3"]) {
+                sidePotLabel3.hidden = NO;
+                sidePotLabel3.text = [[[NSNumber numberWithFloat:aPlayer.sidePot.chipsInPot] stringValue] stringByAppendingString:@"$"];
+            }
+            else if ([aPlayer.identification isEqualToString:@"player4"]) {
+                sidePotLabel4.hidden = NO;
+                sidePotLabel4.text = [[[NSNumber numberWithFloat:aPlayer.sidePot.chipsInPot] stringValue] stringByAppendingString:@"$"];
+            }
+            else if ([aPlayer.identification isEqualToString:@"player5"]) {
+                sidePotLabel5.hidden = NO;
+                sidePotLabel5.text = [[[NSNumber numberWithFloat:aPlayer.sidePot.chipsInPot] stringValue] stringByAppendingString:@"$"];
+            }
         }
     }
     else {
@@ -1408,7 +1410,6 @@
     [player1Box setImage:[UIImage imageNamed: @"boxblack.png"]];
     
     player1NameLabel = [[UILabel alloc]initWithFrame:CGRectMake(215, 183, 55, 20)];
-    player1NameLabel.text = appDelegate.playerProfile.playerName;
     player1NameLabel.textAlignment = UITextAlignmentCenter;
     player1NameLabel.textColor = [UIColor whiteColor];
     [self.view addSubview:player1NameLabel];
@@ -1419,9 +1420,11 @@
     player1ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(222, 203, 40, 40)];
     [self.view addSubview:player1ProfilePictureImage];
     if (appDelegate.playerProfile != nil) {
+        player1NameLabel.text = appDelegate.playerProfile.playerName;
         [player1ProfilePictureImage setImage:appDelegate.playerProfile.playerImage];
     }
     else {
+        player1NameLabel.text = @"Nathan";
         [player1ProfilePictureImage setImage:[UIImage imageNamed:@"Nathan.PNG"]];
     }
     player1FoldFadeLabel = [[UILabel alloc] initWithFrame:player1ProfilePictureImage.frame];
@@ -1745,7 +1748,7 @@
                 sidePotLabel5.font = [UIFont fontWithName:@"System" size: 13.0];
                 sidePotLabel5.font = [UIFont boldSystemFontOfSize:11];
                 sidePotLabel5.textColor = [UIColor orangeColor];
-                sidePotLabel4.hidden = YES;
+                sidePotLabel5.hidden = YES;
                 
             }
         }
@@ -2060,23 +2063,23 @@
 - (void) changePlayerOutlets_lost:(Player *)aPlayer
 {
     if ([aPlayer.identification isEqualToString:@"player1"]) {
-        player1NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player1NameLabel.text, @"Lost!"];
+       // player1NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player1NameLabel.text, @"Lost!"];
         player1NameLabel.textColor = [UIColor redColor];
     }
     else if ([aPlayer.identification isEqualToString:@"player2"]) {
-        player2NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player2NameLabel.text, @"Lost!"];
+     //   player2NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player2NameLabel.text, @"Lost!"];
         player2NameLabel.textColor = [UIColor redColor];
     }
     else if ([aPlayer.identification isEqualToString:@"player3"]) {
-        player3NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player3NameLabel.text, @"Lost!"];
+       // player3NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player3NameLabel.text, @"Lost!"];
         player3NameLabel.textColor = [UIColor redColor];
     }    
     else if ([aPlayer.identification isEqualToString:@"player4"]) {
-        player4NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player4NameLabel.text, @"Lost!"];
+       // player4NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player4NameLabel.text, @"Lost!"];
         player4NameLabel.textColor = [UIColor redColor];
     }    
     else if ([aPlayer.identification isEqualToString:@"player5"]) {
-        player5NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player5NameLabel.text, @"Lost!"];
+       // player5NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player5NameLabel.text, @"Lost!"];
         player5NameLabel.textColor = [UIColor redColor];
     }
 }
@@ -2084,23 +2087,23 @@
 - (void) changePlayerOutlets_won:(Player *)aPlayer
 {
     if ([aPlayer.identification isEqualToString:@"player1"]) {
-        player1NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player1NameLabel.text, @"Won!"];
+    //    player1NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player1NameLabel.text, @"Won!"];
         player1NameLabel.textColor = [UIColor greenColor];
     }
     else if ([aPlayer.identification isEqualToString:@"player2"]) {
-        player2NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player2NameLabel.text, @"Won!"];
+    //    player2NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player2NameLabel.text, @"Won!"];
         player2NameLabel.textColor = [UIColor greenColor];
     }
     else if ([aPlayer.identification isEqualToString:@"player3"]) {
-        player3NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player3NameLabel.text, @"Won!"];
+    //    player3NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player3NameLabel.text, @"Won!"];
         player3NameLabel.textColor = [UIColor greenColor];
     }    
     else if ([aPlayer.identification isEqualToString:@"player4"]) {
-        player4NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player4NameLabel.text, @"Won!"];
+    //    player4NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player4NameLabel.text, @"Won!"];
         player4NameLabel.textColor = [UIColor greenColor];
     }    
     else if ([aPlayer.identification isEqualToString:@"player5"]) {
-        player5NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player5NameLabel.text, @"Won!"];
+    //    player5NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player5NameLabel.text, @"Won!"];
         player5NameLabel.textColor = [UIColor greenColor];
     }
     NSString* soundFilePath = [[NSBundle mainBundle] pathForResource:@"winner" ofType:@"wav"];

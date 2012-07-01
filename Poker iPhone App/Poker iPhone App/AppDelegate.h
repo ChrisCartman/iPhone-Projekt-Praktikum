@@ -25,8 +25,8 @@
 
 
 
-- (NSMutableString* ) kartenBezeichnung: (PlayingCard* ) playingCard;
-- (NSMutableString* ) makeStringOutOfValue: (CardValues) cardValues;
+//- (NSMutableString* ) kartenBezeichnung: (PlayingCard* ) playingCard;
+//- (NSMutableString* ) makeStringOutOfValue: (CardValues) cardValues;
 
 
 @end

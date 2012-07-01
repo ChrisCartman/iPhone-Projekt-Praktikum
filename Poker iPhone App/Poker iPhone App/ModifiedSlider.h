@@ -38,6 +38,4 @@
 - (void) getBetAmountStrongSensibility;
 - (float) getSliderValue;
 
-- (float) roundSliderValue;
-
 @end

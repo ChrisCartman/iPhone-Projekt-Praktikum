@@ -49,8 +49,6 @@
 - (void)viewDidLoad
 {  
     [super viewDidLoad];
-  
-    AppDelegate* appDelegate = [[UIApplication sharedApplication] delegate];
     
     if (gameSettings == nil) {
         gameSettings = [[GameSettings alloc] init];

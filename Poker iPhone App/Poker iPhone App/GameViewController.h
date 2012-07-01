@@ -114,8 +114,6 @@
 
 @property (nonatomic, strong) IBOutlet UIImageView* winnersCup;
 
-- (void) setUpGraphics;
-
 - (void) changePlayerOutlets_chips: (Player* ) aPlayer;
 - (void) changePlayerOutlets_alreadyBetChips: (Player* ) aPlayer;
 - (void) changePlayerOutlets_cards: (Player* ) aPlayer;
@@ -134,7 +132,6 @@
 - (IBAction) changeBetSliderValue:(id)sender;
 - (IBAction) betButtonPressed:(id)sender;
 - (IBAction) foldButtonPressed:(id)sender;
-- (IBAction) betSliderValueChanged:(id)sender;
 
 
 - (void) showAnimationAtTheEndOfMoveOfPlayer: (Player* ) aPlayer;
@@ -142,9 +139,10 @@
 - (void) showAnimationWhenCardPopsFromDeck;
 - (void) showAnimationWhenPlayerFolds: (Player* ) aPlayer;
 - (void) showAnimationWhenGameIsPaused;
-- (void) showAnimationWhenPlayer: (Player* ) aPlayer showsCard: (UIImageView* ) card1 andCard: (UIImageView* ) card2;
+- (void) showAnimationWhenPlayer: (Player* ) aPlayer showsCard: (UIImageView* ) card1 andCard: (UIImageView* ) card2 fiveBestCardsAnimated:(BOOL) animated;
 - (void) showAnimationWhenBlindsAreIncreased;
-- (void) showAnimationForFiveBestCardsOfPlayer: (Player* ) aPlayer withCard: (UIImageView* ) card1 andCard: (UIImageView* ) card2 fiveBestCardsAnimated:(BOOL) animated;
+- (void) showAnimationForFiveBestCardsOfPlayer: (Player* ) aPlayer withCard: (UIImageView* ) card1 andCard: (UIImageView* ) card2;
+
 
 - (void) resetTemporaryOutletsAndBadCards;
 - (void) removeTemporaryOutlet:(UIImageView* ) outlet;
@@ -155,14 +153,13 @@
 - (void) showCardsOfPlayer: (Player* ) aPlayer withAnimation: (BOOL) animated;
 - (void) playerThrowsCardsAway: (Player* ) aPlayer;
 
-- (void) pauseOfUnpause;
-
 - (void) pauseRunningTimer: (NSTimer* ) timer creationTime: (NSDate* ) creationTime;
 - (void) unpauseRunningTimer: (NSTimer* ) timer timeToGo: (NSTimeInterval) timeToGo;
 
 - (void) showAnimationWhenPlayerWonGame;
 
 - (void) resetAnimatedOutlets;
+
 
 
 
