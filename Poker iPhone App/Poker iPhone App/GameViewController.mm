@@ -1409,11 +1409,15 @@
     player2ChipsLabel.font = [UIFont boldSystemFontOfSize:11];
 
 
-    player2AlreadyBetChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(65, 107, 40, 20)];
+    player2AlreadyBetChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(65, 147, 40, 20)];
     player2AlreadyBetChipsLabel.text = @"Text";
     [self.view addSubview:player2AlreadyBetChipsLabel];
-    player2AlreadyBetChipsLabel.backgroundColor = [UIColor clearColor];
+    player2AlreadyBetChipsLabel.backgroundColor = [UIColor yellowColor];
     player2AlreadyBetChipsLabel.font = [UIFont fontWithName:@"System" size: 13.0];
+    player2AlreadyBetChipsLabel.textColor = [UIColor whiteColor];
+    player2AlreadyBetChipsLabel.font = [UIFont boldSystemFontOfSize:11];
+
+
     
     sidePotLabel2 = [[UILabel alloc]initWithFrame:CGRectMake(65, 130, 40, 20)];
     sidePotLabel2.text = @"SP";

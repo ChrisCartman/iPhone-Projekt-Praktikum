@@ -36,6 +36,25 @@
     // nicht ideal, aber für Tests geeignet:
     BOOL isYou;
     NSMutableArray* currentlyRunningTimersWithCreationTimes;
+    
+    
+    //Variablen KI
+    
+    int outs;
+    float cardOddsFlop;
+    float cardOddsTurn;
+    float cardOddsRiver;
+    float potOdds;
+    bool cardOddsFlopIsHigher;
+    bool cardOddsTurnIsHigher;
+    bool cardOddsRiverIsHigher;
+    //bool cardOddsIsHigher;
+    float cardOdds;
+    CardValues cardValues;
+    int valueOfHighestPair;
+    bool flushExpectation;
+    bool openStraightExpectation;
+    bool openStraightAtOneEnd;
 }
 
 @property (nonatomic, retain) Hand* hand;
@@ -68,6 +87,20 @@
 //Idee: um das Spiel pausieren zu können, soll es einen Pointer geben, der immer auf den aktuellen Timer zeigt. Sobald Pause gedrückt wird, wie das TimeInterval des Timers auf eine beliebig große Zal gesetzt
 @property (nonatomic, retain) NSMutableArray* currentlyRunningTimersWithCreationTimes;
 
+
+//properties KI
+@property(nonatomic,assign) int outs;
+@property(nonatomic,assign)float cardOdds;
+@property(nonatomic,assign) BOOL cardOddFlopIsHigher;
+@property(nonatomic,assign) BOOL cardOddTurnIsHigher;
+@property(nonatomic,assign) BOOL cardOddRiverIsHigher;
+//@property (nonatomic,assign) bool cardOddsIsHigher;
+@property (nonatomic,retain) Pot *pot;
+@property (nonatomic, assign) CardValues cardValues;
+@property (nonatomic, assign) int valueOfHighestPair;
+
+
+
 - (void) bet: (float) amount asBlind: (BOOL) isBlind;
 - (void) call;
 - (void) fold;
@@ -77,12 +110,25 @@
 - (void) startMove;
 - (void) startCountdown;
 - (void) stopCountdown: (NSTimer* ) timer;
-- (void) makeRandomBet; //Testmethode (später löschen!)
+//- (void) makeRandomBet; //Testmethode (später löschen!)
 - (BOOL) hasBetterCardsThan: (Player* ) aPlayer;
 - (BOOL) hasEqualCardsAs: (Player* ) aPlayer;
 - (void) showCards: (BOOL) required;
 - (void) mayShowCardsNow;
 - (void) resetPlayerForNewRound;
 - (void) changePlayerState: (NSNumber* ) playerStateAsObject;
+
+//Methoden KI
+- (void) handStrength;
+- (BOOL) expectFlush;
+- (BOOL) expectStraight;
+- (BOOL) expectGutshot;
+- (BOOL) expectDoubleGutshot;
+
+- (int)  calculateOuts;
+- (void) calculateCardOdds;
+- (void) calculatePotOdds;
+- (void) compareOdds;
+- (void) makeBet;
 
 @end

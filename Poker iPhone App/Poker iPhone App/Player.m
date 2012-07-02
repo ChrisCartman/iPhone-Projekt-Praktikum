@@ -39,6 +39,17 @@
 @synthesize createdTimerDuringPause;
 @synthesize throwsCardsAway;
 
+//KI
+@synthesize outs;
+@synthesize cardOddFlopIsHigher;
+@synthesize cardOddTurnIsHigher;
+@synthesize cardOddRiverIsHigher;  
+@synthesize pot;
+//@synthesize cardOddsIsHigher;
+@synthesize cardOdds;
+@synthesize cardValues;
+
+
 
 - (id)init
 {
@@ -176,7 +187,7 @@
     [self setCounter:(counter -1)];
     if (isYou == NO) {
         if (self.counter == 19) {
-            [self makeRandomBet];
+            [self makeBet];
         }
     }
     
@@ -198,7 +209,7 @@
 
 // Test-Funktionen: (später löschen)
 
-- (void) makeRandomBet
+/*- (void) makeRandomBet
 {
     int n = (arc4random() % 10);
     if (n==1) {
@@ -225,7 +236,7 @@
             [self check];
         }
     }
-}
+}*/
 
 - (BOOL) hasBetterCardsThan:(Player *)aPlayer
 {
@@ -297,6 +308,244 @@
     PlayerState newPlayerState = [playerStateAsObject intValue];
     self.playerState = newPlayerState;
 }
+
+
+#pragma mark - KI Methoden
+
+- (void) handStrength
+{
+    //Berechne zunächst cardValues
+    [self.hand defineValueOfCardsWithTableCards:pokerGame.cardsOnTable];
+    self.cardValues = self.hand.fiveBestCards.valueOfFiveBestCards;
+    
+    //Beim Paar ermittle den Wert des Paares
+    if (self.cardValues == ONE_PAIR || self.cardValues == TWO_PAIRS) {
+        PlayingCard* playingCard = [self.hand.fiveBestCards.arrayOfFiveBestCards objectAtIndex:0];
+        int valueOfPair = playingCard.value;
+        self.valueOfHighestPair = valueOfPair;
+    }
+    
+    
+    
+}
+
+- (int) calculateOuts{
+    
+    
+    if([self expectFlush]){return 9;};
+    
+    
+}
+
+- (void) calculateCardOdds{
+    
+   
+    
+    //Wahrscheinlichkeiten, seine Karten durch einen Turn, River zu verbessern und die Wahrscheinlichkeit seine Karten nach dem Flop zu verbessern (also Turn oder River)
+    outs = [self calculateOuts];
+    cardOddsFlop = 1-((47-outs)/47 * (46-outs)/46);
+    cardOddsTurn = outs/47;
+    cardOddsRiver = outs/46;
+    
+    
+    
+    //cardOddsIsHigher = (2*outs+1)/100;
+    
+}
+
+- (void) calculatePotOdds{
+    potOdds = pokerGame.highestBet/pot.chipsInPot;
+}
+
+- (BOOL) expectFlush{
+    
+    //Karten Tisch+Hand
+    NSMutableArray* allCards = [[NSMutableArray alloc] initWithArray:self.pokerGame.cardsOnTable.allCards];
+    [allCards addObjectsFromArray:self.hand.cardsOnHand];
+    
+    allCards = [self.hand.cardValuesEvaluator sortCards_Suits:allCards];
+    
+    
+    //Erwartung Flush bei 4 Karten gleicher Farbe
+    if ([allCards count] <5) {return NO;}
+    else {    
+        //erste Karte
+        PlayingCard* currentPlayingCard = (PlayingCard* ) [allCards objectAtIndex:0];
+        SuitType suitTypeCurrentPlayingCard = currentPlayingCard.suitType;
+        int countOfThisSuitType = 1;
+        
+        
+        
+        for (int i=1; i<[allCards count]; i++) {
+            int j = [allCards count] - i; // Anzahl noch nicht gepruefter Elemente
+            
+            if (countOfThisSuitType + j < 4) {
+                return NO;}
+            else {
+                //jeweils nächste Karte
+                PlayingCard* nextPlayingCard = (PlayingCard* ) [allCards objectAtIndex:i];
+                SuitType suitTypeOfNextPlayingCard = nextPlayingCard.suitType;
+                
+                //Vergleich
+                if (suitTypeOfNextPlayingCard == suitTypeCurrentPlayingCard) {
+                    countOfThisSuitType += 1;
+                    
+                    if (countOfThisSuitType==4) {
+                        return YES;
+                        }
+                
+                }}}}}
+
+
+
+- (BOOL) expectOpenStraight{
+    
+    //Karten Tisch+Hand
+    NSMutableArray* allCards = [[NSMutableArray alloc] initWithArray:self.pokerGame.cardsOnTable.allCards];
+    [allCards addObjectsFromArray:self.hand.cardsOnHand];
+    
+    
+    allCards = [self.hand.cardValuesEvaluator sortCards_Values:allCards];
+    
+    //Erwartung openStraight bei vier aufeinander folgenden Karten 
+    
+    //erstes Element im Array:
+    PlayingCard* currentPlayingCard = (PlayingCard* ) [allCards objectAtIndex:0];   
+    int lastValueInStraight = currentPlayingCard.value;
+    int countOfStraightedElements = 1;
+    
+    
+    
+    
+    //Beginne Vergleiche:
+    for (int i=1; i<[allCards count]; i++) {
+        int j = [allCards count] - i; // Anzahl noch nicht gepruefter Elemente
+        if (countOfStraightedElements + j < 4) {
+            return NO;}
+        else {PlayingCard* nextPlayingCard = (PlayingCard* ) [allCards objectAtIndex:i];
+            int nextValueInArray = nextPlayingCard.value;
+            
+            // gleiche können ignoriert werden:
+            if (nextValueInArray == lastValueInStraight) {
+                [allCards removeObjectAtIndex:i];
+                i -= 1;}
+            
+            //aufeinadnerfolgende:
+            else if (nextValueInArray == lastValueInStraight + 1) {
+                lastValueInStraight = nextValueInArray;
+                countOfStraightedElements += 1;}
+            if (countOfStraightedElements==4) {
+                return YES; }
+            //outs = 8
+        }
+        
+    }
+    
+    
+}       
+
+- (BOOL) expectGutshot{
+    
+    
+    //Karten Tisch+Hand
+    NSMutableArray* allCards = [[NSMutableArray alloc] initWithArray:self.pokerGame.cardsOnTable.allCards];
+    [allCards addObjectsFromArray:self.hand.cardsOnHand];
+    
+    //Karten nach Wert sortieren
+    allCards = [self.hand.cardValuesEvaluator sortCards_Values:allCards];
+    
+    //erstes Element im Array
+    PlayingCard *currentPlayingCard = (PlayingCard *) [allCards objectAtIndex:0];
+    int lastValueInStraight = currentPlayingCard.value;
+    int countOfStraightedElements = 1;
+    
+    //Fall 1: fehlende Karte liegt "rechts außen", d.h drei Karten in Folge - Lücke - Karte
+    
+    for (int i=1; i<[allCards count]; i++){
+        PlayingCard* nextPlayingCard = (PlayingCard* ) [allCards objectAtIndex:i];
+        int nextValueInArray = nextPlayingCard.value;
+        
+        if (nextValueInArray == lastValueInStraight + 1){
+            lastValueInStraight = nextValueInArray;
+            countOfStraightedElements += 1;}
+        
+        
+        
+        
+        
+    }
+    
+    
+    
+    
+    
+    
+}
+
+- (BOOL) expectDoubleGutshot{
+    
+}
+
+
+
+
+- (void) compareOdds{
+    if (cardOddsFlop >= potOdds){cardOddsFlopIsHigher =YES;};
+    if (cardOddsTurn >= potOdds){cardOddsTurnIsHigher =YES;};
+    if (cardOddsRiver >= potOdds){cardOddsRiverIsHigher =YES;};
+    //if (cardOdds >= potOdds){cardOddsIsHigher = YES;};
+    
+}
+
+- (void) makeBet{
+    
+    [self calculateCardOdds];
+    [self calculatePotOdds];
+    [self compareOdds];
+    
+
+    [self handStrength];
+    
+    
+    
+    switch (cardValues) {
+        case ONE_PAIR:
+            [self call];
+            break;
+        case TWO_PAIRS:
+            [self call];
+            break;
+        case THREE_OF_A_KIND:
+            [self call];
+            break;
+        case FLUSH:
+            [self call];
+            break;
+        case STRAIGHT:
+            [self call];
+            break;
+        case FULL_HOUSE:
+            [self call];
+            break;
+        case FOUR_OF_A_KIND:
+            [self call];
+            break;
+        default:
+            if(pokerGame.gameState == PRE_FLOP){[self call];}
+            else if (pokerGame.gameState == FLOP && cardOddsFlopIsHigher ==YES){[self call];}
+            else if (pokerGame.gameState == TURN && cardOddsTurnIsHigher == YES){[self call];}
+            else if (pokerGame.gameState == RIVER && cardOddsRiverIsHigher == YES){[self call];}
+            else {[self fold];};
+            break;
+    }
+    
+    
+    
+    
+    
+    
+}
+
 
 
 
