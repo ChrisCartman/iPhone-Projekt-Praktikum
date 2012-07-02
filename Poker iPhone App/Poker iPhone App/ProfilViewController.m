@@ -124,7 +124,7 @@
 - (IBAction)takePicture:(id)sender{
     UIImagePickerController *picker = [[UIImagePickerController alloc]init];
     picker.delegate = self;
-    picker.allowsImageEditing = YES;
+    picker.allowsEditing = YES;
     picker.sourceType = UIImagePickerControllerSourceTypeCamera;
     
     [self presentModalViewController:picker animated:YES];

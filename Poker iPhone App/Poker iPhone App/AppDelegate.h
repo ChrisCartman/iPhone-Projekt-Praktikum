@@ -11,6 +11,8 @@
 #import "PlayingCard.h"
 #import "PlayerProfile.h"
 
+@class GameViewController;
+
 
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>

@@ -110,7 +110,9 @@
 
 @synthesize sliderSensibilityButton;
 
-@synthesize winnersCup;
+@synthesize paused;
+
+@synthesize winnersCrown;
 
 //User-Interaction:
 - (IBAction) changeBetSliderValue:(id)sender
@@ -1395,7 +1397,7 @@
     [self.view addSubview:pauseButton];
     
     betLabel = [[UILabel alloc]initWithFrame:CGRectMake(210, 285, 60, 15)];
-    betLabel.text = [[[NSNumber numberWithFloat:roundNumberOnTwoFigures(betSlider.value)] stringValue] stringByAppendingString:@"$"];
+    betLabel.text = [[[NSNumber numberWithFloat:betSlider.internValue] stringValue] stringByAppendingString:@"$"];
     [self.view addSubview:betLabel];
     betLabel.backgroundColor = [UIColor clearColor];
     betLabel.font = [UIFont fontWithName:@"System" size: 13.0];
@@ -1447,6 +1449,7 @@
     cardsButton.titleLabel.backgroundColor = [UIColor clearColor];
     cardsButton.backgroundColor = [UIColor clearColor];
     [cardsButton addTarget:self action:@selector(cardsTouchUp:) forControlEvents:UIControlEventTouchUpInside];
+    [cardsButton addTarget:self action:@selector(cardsTouchUp:) forControlEvents:UIControlEventTouchUpOutside];
     [cardsButton addTarget:self action:@selector(cardsTouchDown:) forControlEvents:UIControlEventTouchDown];
     [self.view addSubview:cardsButton];
     [self.view bringSubviewToFront:cardsButton];
@@ -2091,32 +2094,38 @@
 
 - (void) changePlayerOutlets_won:(Player *)aPlayer
 {
+    CGRect position;
     if ([aPlayer.identification isEqualToString:@"player1"]) {
     //    player1NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player1NameLabel.text, @"Won!"];
         player1ChipsLabel.textColor = [UIColor greenColor];
         player1NameLabel.textColor = [UIColor greenColor];
+        position = CGRectMake(player1ProfilePictureImage.frame.origin.x, player1ProfilePictureImage.frame.origin.y - 20, 40, 40);
     }
     else if ([aPlayer.identification isEqualToString:@"player2"]) {
     //    player2NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player2NameLabel.text, @"Won!"];
         player2ChipsLabel.textColor = [UIColor greenColor];
         player2NameLabel.textColor = [UIColor greenColor];
+        position = CGRectMake(player2ProfilePictureImage.frame.origin.x, player2ProfilePictureImage.frame.origin.y - 20, 40, 40);
     }
     else if ([aPlayer.identification isEqualToString:@"player3"]) {
     //    player3NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player3NameLabel.text, @"Won!"];
         player3ChipsLabel.textColor = [UIColor greenColor];
         player3NameLabel.textColor = [UIColor greenColor];
+        position = CGRectMake(player3ProfilePictureImage.frame.origin.x, player3ProfilePictureImage.frame.origin.y - 20, 40, 40);
     }    
     else if ([aPlayer.identification isEqualToString:@"player4"]) {
     //    player4NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player4NameLabel.text, @"Won!"];
         player4ChipsLabel.textColor = [UIColor greenColor];
         player4NameLabel.textColor = [UIColor greenColor];
+        position = CGRectMake(player4ProfilePictureImage.frame.origin.x, player4ProfilePictureImage.frame.origin.y - 20, 40, 40);
     }    
     else if ([aPlayer.identification isEqualToString:@"player5"]) {
     //    player5NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player5NameLabel.text, @"Won!"];
         player5ChipsLabel.textColor = [UIColor greenColor];
         player5NameLabel.textColor = [UIColor greenColor];
+        position = CGRectMake(player5ProfilePictureImage.frame.origin.x, player5ProfilePictureImage.frame.origin.y - 20, 40, 40);
     }
-    NSString* soundFilePath = [[NSBundle mainBundle] pathForResource:@"winner" ofType:@"wav"];
+    NSString* soundFilePath = [[NSBundle mainBundle] pathForResource:@"winnersound" ofType:@"mp3"];
     winnerSoundPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:soundFilePath] error:nil];
     winnerSoundPlayer.delegate = self;
     winnerSoundPlayer.volume = 0.2;
@@ -2124,31 +2133,46 @@
     BOOL ok = [winnerSoundPlayer play];
     NSLog(@"ok: %@", ok ? @"Y" : @"N");
     
-    winnersCup.hidden = NO;
-    winnersCup.image = [UIImage imageNamed:@"Pokal.png"];
-    [self.view bringSubviewToFront:winnersCup];
-    [self showAnimationWhenPlayerWonGame];
+    winnersCrown.frame = CGRectMake(240,150,1,1);
+    winnersCrown.hidden = NO;
+    winnersCrown.image = [UIImage imageNamed:@"crown.png"];
+    [self.view bringSubviewToFront:winnersCrown];
+    [self showAnimationWhenPlayerWonGame:position];
 }
 
-- (void) showAnimationWhenPlayerWonGame
+- (void) showAnimationWhenPlayerWonGame: (CGRect) positionOfProfilePicture
 {
-    float destinationX = winnersCup.frame.origin.x + 43;
-    float destinationY = winnersCup.frame.origin.y;
+    CGRect destinationFrame1 = CGRectMake(220, 130, 40, 40);
+    CGRect destinationFrame2 = positionOfProfilePicture;
+    
+    [UIView animateWithDuration:6.0 animations:^{
+        winnersCrown.frame = destinationFrame1;
+    }
+                     completion:^(BOOL finished) {
+                         [UIView animateWithDuration:0.3 delay:1.5 options:nil animations:^{
+                             winnersCrown.frame = destinationFrame2;
+                         }completion:nil];
+                     }];
+    
+    /*
+    float destinationX = winnersCrown.frame.origin.x + 43;
+    float destinationY = winnersCrown.frame.origin.y;
     float destinationWidth = 10.0;
     float destinationHeight = 96;
-    CGRect startFrame = winnersCup.frame;
+    CGRect startFrame = winnersCrown.frame;
     CGRect destinationFrame = CGRectMake(destinationX, destinationY, destinationWidth, destinationHeight);
     [UIView animateWithDuration:1.5 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
-        winnersCup.frame = destinationFrame;
+        winnersCrown.frame = destinationFrame;
     }
                      completion:^(BOOL finished) {
                          [UIView animateWithDuration:1.5 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
-                             winnersCup.frame = startFrame;
+                             winnersCrown.frame = startFrame;
                          }
                                           completion:^(BOOL finished) {
                                               [self showAnimationWhenPlayerWonGame];
                                           }];
                           }];
+     */
 }
 
 
