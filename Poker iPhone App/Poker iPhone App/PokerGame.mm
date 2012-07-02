@@ -344,26 +344,32 @@
         [aPlayer resetPlayerForNewRound];
     }
     
-    dealer = dealer.playerOnLeftSide;
-    if (maxPlayers==2) {
-        dealer.smallBlind = YES;
-        dealer.playerOnLeftSide.bigBlind = YES;
+    //falls nur noch ein Spieler im Spiel ist: Spiel beenden:
+    if ([allPlayers count] == 1) {
+        [self endGame];
     }
     else {
-        dealer.playerOnLeftSide.smallBlind = YES;
-        dealer.playerOnLeftSide.playerOnLeftSide.bigBlind = YES;
+        dealer = dealer.playerOnLeftSide;
+        if (maxPlayers==2) {
+            dealer.smallBlind = YES;
+            dealer.playerOnLeftSide.bigBlind = YES;
+        }
+        else {
+            dealer.playerOnLeftSide.smallBlind = YES;
+            dealer.playerOnLeftSide.playerOnLeftSide.bigBlind = YES;
+        }
+        // Kartendeck mischen
+        [cardDeck shuffle];
+        // Karten ausgeben
+        [self dealOut];
+        //player inaktiv setzen:
+    
+        //Startspieler festlegen:
+        firstInRound = dealer.playerOnLeftSide; //das ist der Smallblind
+    
+        //Blinds kassieren
+        [self takeBlinds];
     }
-    // Kartendeck mischen
-    [cardDeck shuffle];
-    // Karten ausgeben
-    [self dealOut];
-    //player inaktiv setzen:
-    
-    //Startspieler festlegen:
-    firstInRound = dealer.playerOnLeftSide; //das ist der Smallblind
-    
-    //Blinds kassieren
-    [self takeBlinds];
 }
 
 - (void) takeBlinds
@@ -855,10 +861,10 @@
             aPlayer.playerOnLeftSide.playerOnRightSide = aPlayer.playerOnRightSide;
         }
     }
-    if ([allPlayers count] == 1) { //nur noch ein Spieler übrig? => Spiel vorbei
+    /*if ([allPlayers count] == 1) { //nur noch ein Spieler übrig? => Spiel vorbei
         [self endGame];
     }
-    else {
+    else {*/
         //Rundenzahl erhöhen:
         self.roundsPlayed += 1;
         //Wenn nötig: Blinds erhöhen
@@ -867,8 +873,10 @@
         }
         //alles für neue Runde resetten:
         [self prepareNewRound];
+    if ([allPlayers count] > 1) {
         [self performSelector:@selector(startBetRound) withObject:nil afterDelay:3.0];
     }
+    //}
 }
 
 - (void) endGame

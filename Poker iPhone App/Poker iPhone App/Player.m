@@ -204,7 +204,7 @@
 - (void) makeRandomBet
 {
     int n = (arc4random() % 10);
-    if (n==11) {// (n==9 || n==8) {
+    if (n==11) { //(n==9 || n==8) {
         if (pokerGame.highestBet - alreadyBetChips > 0) {
             [self fold];
         }

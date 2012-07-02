@@ -67,7 +67,9 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-          
+    if (self.playerProfile == nil) {
+        playerProfile = [[PlayerProfile alloc] initWithPlayerName:@"Nathan" playerImage:[UIImage imageNamed:@"Nathan.PNG"]];
+    }
     
   
     

@@ -106,6 +106,8 @@
 		D0F7E40A15875F420068FBD5 /* Pot.m in Sources */ = {isa = PBXBuildFile; fileRef = D0F7E40915875F420068FBD5 /* Pot.m */; };
 		D0FA5F55156C133B00C89B82 /* ProfilViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0FA5F54156C133B00C89B82 /* ProfilViewController.m */; };
 		D0FD428B159CBF590005BD6F /* startbild.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = D0FD428A159CBF590005BD6F /* startbild.jpeg */; };
+		D0FFCFF815A1C83000D49C07 /* StartViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0FFCFF715A1C83000D49C07 /* StartViewController.m */; };
+		D0FFCFFB15A1CFC600D49C07 /* crown.png in Resources */ = {isa = PBXBuildFile; fileRef = D0FFCFFA15A1CFC600D49C07 /* crown.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -239,6 +241,9 @@
 		D0FA5F53156C133A00C89B82 /* ProfilViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProfilViewController.h; sourceTree = "<group>"; };
 		D0FA5F54156C133B00C89B82 /* ProfilViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProfilViewController.m; sourceTree = "<group>"; };
 		D0FD428A159CBF590005BD6F /* startbild.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = startbild.jpeg; sourceTree = "<group>"; };
+		D0FFCFF615A1C83000D49C07 /* StartViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StartViewController.h; sourceTree = "<group>"; };
+		D0FFCFF715A1C83000D49C07 /* StartViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StartViewController.m; sourceTree = "<group>"; };
+		D0FFCFFA15A1CFC600D49C07 /* crown.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = crown.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -408,6 +413,7 @@
 				D06F5A8B15602FC400519DAF /* Nathan.PNG */,
 				CEBB847B157D618200841279 /* Table.png */,
 				CEBB847E157D672A00841279 /* 2-herz.png */,
+				D0FFCFFA15A1CFC600D49C07 /* crown.png */,
 			);
 			name = "Sonstige Bilder";
 			sourceTree = "<group>";
@@ -415,6 +421,8 @@
 		D0FDDF7F1592184300325BB2 /* ViewController */ = {
 			isa = PBXGroup;
 			children = (
+				D0FFCFF615A1C83000D49C07 /* StartViewController.h */,
+				D0FFCFF715A1C83000D49C07 /* StartViewController.m */,
 				CEE23231157EA5FD00018491 /* GameViewController.mm */,
 				CEE23230157EA5FD00018491 /* GameViewController.h */,
 				CE7C20CC156D62AD00AEAE67 /* SinglePlayerViewController.m */,
@@ -610,6 +618,7 @@
 				D00EB429159B4E4E009BCC7C /* winner.wav in Resources */,
 				CEE481F3159C7ECC00E2E258 /* boxblack.png in Resources */,
 				D0FD428B159CBF590005BD6F /* startbild.jpeg in Resources */,
+				D0FFCFFB15A1CFC600D49C07 /* crown.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -643,6 +652,7 @@
 				D0F692BC158F4C7E0065420F /* SidePot.m in Sources */,
 				D00EB41E159B0A7E009BCC7C /* PlayerProfile.m in Sources */,
 				D00EB42C159B73D7009BCC7C /* ModifiedSlider.m in Sources */,
+				D0FFCFF815A1C83000D49C07 /* StartViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

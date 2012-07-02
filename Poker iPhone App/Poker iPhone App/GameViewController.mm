@@ -280,7 +280,7 @@
     [player1 addObserver:self forKeyPath:@"counter" options:0 context:nil];
     // jeder Spieler wird mit seinen Outlets verknüpft
     Player* player2 = [[Player alloc] init];
-    player2.playerProfile = [[PlayerProfile alloc] initWithPlayerName:@"Eric" playerImage:[UIImage imageNamed:@"Cartman.png"]];
+    player2.playerProfile = [[PlayerProfile alloc] initWithPlayerName:@"Eric" playerImage:[UIImage imageNamed:@"Cartman.PNG"]];
     [pokerGame addPlayer:player2];
     [player2 addObserver:self forKeyPath:@"alreadyBetChips" options:0 context:nil];
     [player2 addObserver:self forKeyPath:@"chips" options:0 context:nil];
@@ -295,7 +295,7 @@
     if (pokerGame.gameSettings.anzahlKI > 1) {
         Player* player3 = [[Player alloc] init];
         [pokerGame addPlayer:player3];
-        player3.playerProfile = [[PlayerProfile alloc] initWithPlayerName:@"Stan" playerImage:[UIImage imageNamed:@"Stan.png"]];
+        player3.playerProfile = [[PlayerProfile alloc] initWithPlayerName:@"Stan" playerImage:[UIImage imageNamed:@"Stan.PNG"]];
         [player3 addObserver:self forKeyPath:@"alreadyBetChips" options:0 context:nil];
         [player3 addObserver:self forKeyPath:@"chips" options:0 context:nil];
         [player3 addObserver:self forKeyPath:@"playerState" options:0 context:nil];
@@ -309,7 +309,7 @@
     if (pokerGame.gameSettings.anzahlKI > 2) {
         Player* player4 = [[Player alloc] init];
         [pokerGame addPlayer:player4];
-        player4.playerProfile = [[PlayerProfile alloc] initWithPlayerName:@"Kyle" playerImage:[UIImage imageNamed:@"Kyle.png"]];
+        player4.playerProfile = [[PlayerProfile alloc] initWithPlayerName:@"Kyle" playerImage:[UIImage imageNamed:@"Kyle.PNG"]];
         [player4 addObserver:self forKeyPath:@"alreadyBetChips" options:0 context:nil];
         [player4 addObserver:self forKeyPath:@"chips" options:0 context:nil];
         [player4 addObserver:self forKeyPath:@"playerState" options:0 context:nil];
@@ -323,7 +323,7 @@
     if (pokerGame.gameSettings.anzahlKI > 3) {
         Player* player5 = [[Player alloc] init];
         [pokerGame addPlayer:player5];
-        player5.playerProfile = [[PlayerProfile alloc] initWithPlayerName:@"Kenny" playerImage:[UIImage imageNamed:@"Kenny.png"]];
+        player5.playerProfile = [[PlayerProfile alloc] initWithPlayerName:@"Kenny" playerImage:[UIImage imageNamed:@"Kenny.PNG"]];
         [player5 addObserver:self forKeyPath:@"alreadyBetChips" options:0 context:nil];
         [player5 addObserver:self forKeyPath:@"chips" options:0 context:nil];
         [player5 addObserver:self forKeyPath:@"playerState" options:0 context:nil];
@@ -1514,7 +1514,7 @@
     
     player2ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(17, 107, 40, 40)];
     [self.view addSubview:player2ProfilePictureImage];
-    [player2ProfilePictureImage setImage:[UIImage imageNamed: @"Cartman.png"]];
+    [player2ProfilePictureImage setImage:[UIImage imageNamed: @"Cartman.PNG"]];
     player2FoldFadeLabel = [[UILabel alloc] initWithFrame:player2ProfilePictureImage.frame];
     player2FoldFadeLabel.text = @"";
     player2FoldFadeLabel.alpha = 0.0;
@@ -1580,7 +1580,7 @@
         
         player3ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(121, 22, 40, 40)];
         [self.view addSubview:player3ProfilePictureImage];
-        [player3ProfilePictureImage setImage:[UIImage imageNamed: @"Stan.png"]];
+        [player3ProfilePictureImage setImage:[UIImage imageNamed: @"Stan.PNG"]];
         player3FoldFadeLabel = [[UILabel alloc] initWithFrame:player3ProfilePictureImage.frame];
         player3FoldFadeLabel.text = @"";
         player3FoldFadeLabel.alpha = 0.0;
@@ -1645,7 +1645,7 @@
             
             player4ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(313, 22, 40, 40)];
             [self.view addSubview:player4ProfilePictureImage];
-            [player4ProfilePictureImage setImage:[UIImage imageNamed: @"Kyle.png"]];
+            [player4ProfilePictureImage setImage:[UIImage imageNamed: @"Kyle.PNG"]];
             player4FoldFadeLabel = [[UILabel alloc] initWithFrame:player4ProfilePictureImage.frame];
             player4FoldFadeLabel.text = @"";
             player4FoldFadeLabel.alpha = 0.0;
@@ -1711,7 +1711,7 @@
                 
                 player5ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(427, 107, 40, 40)];
                 [self.view addSubview:player5ProfilePictureImage];
-                [player5ProfilePictureImage setImage:[UIImage imageNamed: @"Kenny.png"]];
+                [player5ProfilePictureImage setImage:[UIImage imageNamed: @"Kenny.PNG"]];
                 player5FoldFadeLabel = [[UILabel alloc] initWithFrame:player5ProfilePictureImage.frame];
                 player5FoldFadeLabel.text = @"";
                 player5FoldFadeLabel.alpha = 0.0;
@@ -1843,7 +1843,7 @@
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
-    return (interfaceOrientation == UIInterfaceOrientationLandscapeRight);
+    return (interfaceOrientation == UIInterfaceOrientationLandscapeRight || interfaceOrientation == UIInterfaceOrientationLandscapeLeft);
 }
 
 - (void) fadeOutLabel: (UILabel* ) effectLabel duration: (float) secs option: (UIViewAnimationOptions) option

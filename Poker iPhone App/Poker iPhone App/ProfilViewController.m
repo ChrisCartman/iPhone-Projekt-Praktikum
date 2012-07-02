@@ -33,6 +33,10 @@
 {  
     [super viewDidLoad];
     
+    AppDelegate* appDelegate = (AppDelegate* ) [[UIApplication sharedApplication] delegate];
+    imageView.image = appDelegate.playerProfile.playerImage;
+    playerNameTextField.text = appDelegate.playerProfile.playerName;
+    
     
     
 }
@@ -152,6 +156,11 @@
     appDelegate.playerProfile = self.playerProfile;
 }
 
+
+- (IBAction)textFieldDoneEditing:(id)sender
+{
+    [sender resignFirstResponder];
+}
 
 
 @end
