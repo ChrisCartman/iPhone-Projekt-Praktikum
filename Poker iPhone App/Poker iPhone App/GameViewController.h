@@ -17,6 +17,7 @@
 @interface GameViewController : UIViewController <UITableViewDelegate, UITableViewDataSource, AVAudioPlayerDelegate>
 {
     BOOL paused;
+    Player* you;
 }
 @property(nonatomic, retain) IBOutlet UIImageView*player1Box;
 @property(nonatomic, retain) IBOutlet UIImageView*player2Box;
@@ -116,6 +117,8 @@
 
 @property (nonatomic, strong) IBOutlet UIImageView* winnersCrown;
 
+@property (nonatomic, strong) Player* you;
+
 - (void) changePlayerOutlets_chips: (Player* ) aPlayer;
 - (void) changePlayerOutlets_alreadyBetChips: (Player* ) aPlayer;
 - (void) changePlayerOutlets_cards: (Player* ) aPlayer;
@@ -163,6 +166,8 @@
 - (void) resetAnimatedOutlets;
 
 - (void) pauseOrUnpause;
+
+- (void) setUpGraphics;
 
 
 
