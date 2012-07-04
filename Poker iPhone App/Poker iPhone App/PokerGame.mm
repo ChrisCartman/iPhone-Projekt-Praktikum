@@ -37,25 +37,29 @@
 @synthesize blindsTimer;
 @synthesize blindsCountdown;
 @synthesize exactlyTwoPlayersAllIn;
+@synthesize yourNumber;
 
 - (void) dealOut
 {
     Player* currentPlayer = dealer;
-    NSLog(@"%@", dealer.identification);
-    int yourNumber;     //benötigt zur Identifizierung der Spieler mit ihren Outlets
+    //int yourNumber = maxPlayers+1;     //benötigt zur Identifizierung der Spieler mit ihren Outlets, Initialisierung mit sonst nicht erreichbaren Wert
     int numberOfPlayer;
     //finde heraus, der wievielte Spieler in der Reihe man selbst ist (der sitzt vorne)
     int counter = 1;
     int shift;
-    
-    while (counter <= maxPlayers) {
-        currentPlayer = currentPlayer.playerOnLeftSide;
-        if (currentPlayer.isYou) {
-            yourNumber = counter;
-            break;
+    if (yourNumber == 6) {
+        while (counter <= maxPlayers) {
+            currentPlayer = currentPlayer.playerOnLeftSide;
+            if (currentPlayer.isYou) {
+                yourNumber = counter;
+                break;
+            }
+            counter++;
         }
-        counter++;
     }
+    
+    
+    
     shift = yourNumber - 1;
     numberOfPlayer = maxPlayers;
     counter = 0;
@@ -82,6 +86,16 @@
         }
         else {
             cardNumber = 1;
+        }
+        //vielleicht sind einige Spieler schon nicht mehr im Spiel?
+        while (![currentPlayer.identification isEqualToString:[NSString stringWithFormat:@"player%i",correctNumber]]) {
+            NSLog(@"%@",currentPlayer.identification);
+            if (correctNumber==5) {
+                correctNumber = 1;
+            }
+            else {
+                correctNumber++;
+            }
         }
         NSString* popsFor = [NSString stringWithFormat:@"player%i_%i",correctNumber,cardNumber];
             
@@ -219,6 +233,7 @@
     mainPot = [[MainPot alloc] init];
     self.roundsPlayed = 0;
     self.exactlyTwoPlayersAllIn = NO;
+    self.yourNumber = 6;
     return self;
 }
 
@@ -245,17 +260,32 @@
         [allPlayers exchangeObjectAtIndex:i withObjectAtIndex:n];
     }
     
-    //Spieler-Reihenfolge auch an Spieler übergeben:
+    int yourIndex;
+    for (Player* anyPlayer in allPlayers) {
+        if (anyPlayer.isYou) {
+            yourIndex = [allPlayers indexOfObject:anyPlayer];
+            break;
+        }
+    }
+    
     for (int i=0; i<maxPlayers; i++) {
-        Player* temporaryPlayer = (Player* ) [allPlayers objectAtIndex:i];
-        temporaryPlayer.identification = [NSString stringWithFormat:@"player%i",i+1];
-        temporaryPlayer.chips = gameSettings.startChips;
-        if (i==0) {
-            temporaryPlayer.isYou = YES;
+        int position = i - yourIndex;
+        if (position < 0) {
+            position = maxPlayers + position;
+        }
+        Player* temporaryPlayer = (Player* ) [allPlayers objectAtIndex:position];
+        temporaryPlayer.identification = [NSString stringWithFormat:@"player%i",position+1];
+        if (position != 0) {
+            temporaryPlayer.chips = gameSettings.startChips;
+        }
+        else {
+            temporaryPlayer.chips = 700;
+        }
+        if (position==0) {
             temporaryPlayer.playerOnRightSide = (Player* ) [allPlayers objectAtIndex:(maxPlayers - 1)];
             temporaryPlayer.playerOnLeftSide = (Player* ) [allPlayers objectAtIndex:1];
         }
-        else if (i==maxPlayers-1) {
+        else if (position==maxPlayers-1) {
             temporaryPlayer.playerOnRightSide = (Player* ) [allPlayers objectAtIndex:(maxPlayers - 2)];
             temporaryPlayer.playerOnLeftSide = (Player* ) [allPlayers objectAtIndex:0];
         }
@@ -263,35 +293,37 @@
             temporaryPlayer.playerOnLeftSide = (Player* ) [allPlayers objectAtIndex:(i+1)];
             temporaryPlayer.playerOnRightSide = (Player* ) [allPlayers objectAtIndex:(i-1)];
         }
-        if (i==0) {
+        if (position==0) {
             temporaryPlayer.showDownCard1Frame = CGRectMake(209,201,32,44);
             temporaryPlayer.showDownCard2Frame = CGRectMake(243, 201, 32, 44);
         }
-        else if (i==1) {
+        else if (position==1) {
             temporaryPlayer.showDownCard1Frame = CGRectMake(4, 105, 32, 44);
             temporaryPlayer.showDownCard2Frame = CGRectMake(38, 105, 32, 44);
         }
-        else if (i==2) {
+        else if (position==2) {
             temporaryPlayer.showDownCard1Frame = CGRectMake(108, 20, 32, 44);
             temporaryPlayer.showDownCard2Frame = CGRectMake(142, 20, 32, 44);
         }
-        else if (i==3) {
+        else if (position==3) {
             temporaryPlayer.showDownCard1Frame = CGRectMake(300, 20, 32, 44);
             temporaryPlayer.showDownCard2Frame = CGRectMake(334, 20, 32, 44);
         }
-        else if (i==4) {
+        else if (position==4) {
             temporaryPlayer.showDownCard1Frame = CGRectMake(414, 105, 32, 44);
             temporaryPlayer.showDownCard2Frame = CGRectMake(448, 105, 32, 44);
         }
         /*player1ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(222, 203, 40, 40)];
-        player2ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(17, 107, 40, 40)];
-        player3ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(121, 22, 40, 40)];
-        player4ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(313, 22, 40, 40)];
-        player5ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(427, 107, 40, 40)];*/
+         player2ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(17, 107, 40, 40)];
+         player3ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(121, 22, 40, 40)];
+         player4ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(313, 22, 40, 40)];
+         player5ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(427, 107, 40, 40)];*/
         temporaryPlayer.dealer = NO;
         temporaryPlayer.smallBlind = NO;
         temporaryPlayer.bigBlind = NO;
+
     }
+    
     
     //Vorbereitungen für die erste Runde:
     for (Player* aPlayer in allPlayers) {
@@ -344,26 +376,32 @@
         [aPlayer resetPlayerForNewRound];
     }
     
-    dealer = dealer.playerOnLeftSide;
-    if (maxPlayers==2) {
-        dealer.smallBlind = YES;
-        dealer.playerOnLeftSide.bigBlind = YES;
+    //falls nur noch ein Spieler im Spiel ist: Spiel beenden:
+    if ([allPlayers count] == 1) {
+        [self endGame];
     }
     else {
-        dealer.playerOnLeftSide.smallBlind = YES;
-        dealer.playerOnLeftSide.playerOnLeftSide.bigBlind = YES;
+        dealer = dealer.playerOnLeftSide;
+        if (maxPlayers==2) {
+            dealer.smallBlind = YES;
+            dealer.playerOnLeftSide.bigBlind = YES;
+        }
+        else {
+            dealer.playerOnLeftSide.smallBlind = YES;
+            dealer.playerOnLeftSide.playerOnLeftSide.bigBlind = YES;
+        }
+        // Kartendeck mischen
+        [cardDeck shuffle];
+        // Karten ausgeben
+        [self dealOut];
+        //player inaktiv setzen:
+    
+        //Startspieler festlegen:
+        firstInRound = dealer.playerOnLeftSide; //das ist der Smallblind
+    
+        //Blinds kassieren
+        [self takeBlinds];
     }
-    // Kartendeck mischen
-    [cardDeck shuffle];
-    // Karten ausgeben
-    [self dealOut];
-    //player inaktiv setzen:
-    
-    //Startspieler festlegen:
-    firstInRound = dealer.playerOnLeftSide; //das ist der Smallblind
-    
-    //Blinds kassieren
-    [self takeBlinds];
 }
 
 - (void) takeBlinds
@@ -553,54 +591,47 @@
 
 - (void) endMoveOfPlayer:(Player *)aPlayer
 {
+    NSLog(@"%@",playerWhoBetMost.identification);
     if (aPlayer.playerState != FOLDED) {
         aPlayer.playerState = INACTIVE;
     }
+    BOOL betRoundShouldBeEnded = NO;
     //Sonderfall preflop: playerWhoBetMost ist BigBlind => der darf nochmal ziehen
     if ([remainingPlayersInRound count] > 1) {
         if (gameState == PRE_FLOP && highestBet == 2*smallBlind) {
-            while (activePlayer.nextPlayerInRound.isAllIn && activePlayer != playerWhoBetMost) {
-                activePlayer = activePlayer.nextPlayerInRound;
-            }
-            if (activePlayer == aPlayer) { // obige Schleife null mal durchlaufen: 
-                if (aPlayer != playerWhoBetMost) {
-                    activePlayer = aPlayer.nextPlayerInRound;
-                    activePlayer.playerState = ACTIVE;
-                }
-                else {
-                    [self endBetRound];
+            if (activePlayer != playerWhoBetMost) {
+                while (activePlayer.nextPlayerInRound.isAllIn) {
+                    activePlayer = activePlayer.nextPlayerInRound;
+                    if (activePlayer == playerWhoBetMost) {
+                        betRoundShouldBeEnded = YES;
+                        break;
+                    }
                 }
             }
             else {
-                if (activePlayer != playerWhoBetMost) {
-                    activePlayer.playerState = ACTIVE;
-                }
-                else {
-                    [self endBetRound];
-                }
+                betRoundShouldBeEnded = YES;
             }
         }
         else {
-            while (activePlayer.nextPlayerInRound.isAllIn && activePlayer.nextPlayerInRound != playerWhoBetMost) {
-                activePlayer = activePlayer.nextPlayerInRound;
-            }
-            if (activePlayer == aPlayer) { //obige Schleife null mal durchlaufen
-                if (activePlayer.nextPlayerInRound != playerWhoBetMost) {
+            if (activePlayer.nextPlayerInRound != playerWhoBetMost) {
+                while (activePlayer.nextPlayerInRound.isAllIn) {
                     activePlayer = activePlayer.nextPlayerInRound;
-                    activePlayer.playerState = ACTIVE;
-                }
-                else {
-                    [self endBetRound];
+                    if (activePlayer.nextPlayerInRound == playerWhoBetMost) {
+                        betRoundShouldBeEnded = YES;
+                        break;
+                    }
                 }
             }
             else {
-                if (activePlayer != playerWhoBetMost) {
-                    activePlayer.playerState = ACTIVE;
-                }
-                else {
-                    [self endBetRound];
-                }
+                betRoundShouldBeEnded = YES;
             }
+        }
+        if (betRoundShouldBeEnded) {
+            [self endBetRound];
+        }
+        else {
+            activePlayer = activePlayer.nextPlayerInRound;
+            activePlayer.playerState = ACTIVE;
         }
     }
     else {
@@ -855,10 +886,10 @@
             aPlayer.playerOnLeftSide.playerOnRightSide = aPlayer.playerOnRightSide;
         }
     }
-    if ([allPlayers count] == 1) { //nur noch ein Spieler übrig? => Spiel vorbei
+    /*if ([allPlayers count] == 1) { //nur noch ein Spieler übrig? => Spiel vorbei
         [self endGame];
     }
-    else {
+    else {*/
         //Rundenzahl erhöhen:
         self.roundsPlayed += 1;
         //Wenn nötig: Blinds erhöhen
@@ -867,8 +898,10 @@
         }
         //alles für neue Runde resetten:
         [self prepareNewRound];
+    if ([allPlayers count] > 1) {
         [self performSelector:@selector(startBetRound) withObject:nil afterDelay:3.0];
     }
+    //}
 }
 
 - (void) endGame

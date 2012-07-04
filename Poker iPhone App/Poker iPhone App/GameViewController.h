@@ -10,13 +10,14 @@
 #import <AVFoundation/AVFoundation.h>
 #import <CoreFoundation/CoreFoundation.h>
 #import "PokerGame.h"
-#include "Functions.h"
+//#include "Functions.h"
 #import "AppDelegate.h"
 #import "ModifiedSlider.h"
 
 @interface GameViewController : UIViewController <UITableViewDelegate, UITableViewDataSource, AVAudioPlayerDelegate>
 {
     BOOL paused;
+    Player* you;
 }
 @property(nonatomic, retain) IBOutlet UIImageView*player1Box;
 @property(nonatomic, retain) IBOutlet UIImageView*player2Box;
@@ -110,9 +111,13 @@
 @property (nonatomic, strong) UILabel* player4FoldFadeLabel;
 @property (nonatomic, strong) UILabel* player5FoldFadeLabel;
 
+@property (nonatomic, assign) BOOL paused;
+
 @property (nonatomic, strong) IBOutlet UIButton* sliderSensibilityButton;
 
-@property (nonatomic, strong) IBOutlet UIImageView* winnersCup;
+@property (nonatomic, strong) IBOutlet UIImageView* winnersCrown;
+
+@property (nonatomic, strong) Player* you;
 
 - (void) changePlayerOutlets_chips: (Player* ) aPlayer;
 - (void) changePlayerOutlets_alreadyBetChips: (Player* ) aPlayer;
@@ -156,9 +161,13 @@
 - (void) pauseRunningTimer: (NSTimer* ) timer creationTime: (NSDate* ) creationTime;
 - (void) unpauseRunningTimer: (NSTimer* ) timer timeToGo: (NSTimeInterval) timeToGo;
 
-- (void) showAnimationWhenPlayerWonGame;
+- (void) showAnimationWhenPlayerWonGame: (CGRect) positionOfProfilePicture;
 
 - (void) resetAnimatedOutlets;
+
+- (void) pauseOrUnpause;
+
+- (void) setUpGraphics;
 
 
 

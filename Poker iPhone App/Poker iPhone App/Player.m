@@ -107,7 +107,7 @@
 - (void) call
 {
     [self stopCountdown:countdownTimer];
-    if (self.chips > pokerGame.highestBet) {
+    if (self.chips + self.alreadyBetChips > pokerGame.highestBet) {
         [pokerGame takeCallFromPlayer:self];
     }
     else {
@@ -219,7 +219,7 @@
 /*- (void) makeRandomBet
 {
     int n = (arc4random() % 10);
-    if (n==11) {// (n==9 || n==8) {
+    if (n==11) { //(n==9 || n==8) {
         if (pokerGame.highestBet - alreadyBetChips > 0) {
             [self fold];
         }
@@ -227,8 +227,8 @@
             [self check];
         }
     }
-    else if (n==13 || n==12) {
-        if (pokerGame.highestBet >= self.chips) {
+    else if ([self.identification isEqualToString:@"player2"]) { //(n==7 || n==6) {
+        if (pokerGame.highestBet >= self.chips + self.alreadyBetChips) {
             [self call];
         }
         else {

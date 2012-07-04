@@ -98,6 +98,7 @@
 		D069C23F158532CD0026170E /* 14_4.png in Resources */ = {isa = PBXBuildFile; fileRef = D069C20B158532CD0026170E /* 14_4.png */; };
 		D06A421C15650A170062D6F1 /* FiveBestCards.m in Sources */ = {isa = PBXBuildFile; fileRef = D06A421B15650A170062D6F1 /* FiveBestCards.m */; };
 		D06F5A8C15602FC400519DAF /* Nathan.PNG in Resources */ = {isa = PBXBuildFile; fileRef = D06F5A8B15602FC400519DAF /* Nathan.PNG */; };
+		D092D08D15A1F3C500507C4B /* icon.png in Resources */ = {isa = PBXBuildFile; fileRef = D092D08C15A1F3C500507C4B /* icon.png */; };
 		D0A6887D1587FFDF007ED89B /* MainPot.m in Sources */ = {isa = PBXBuildFile; fileRef = D0A6887C1587FFDF007ED89B /* MainPot.m */; };
 		D0CC52231563C8B400BF5DC3 /* Player.m in Sources */ = {isa = PBXBuildFile; fileRef = D0CC52221563C8B400BF5DC3 /* Player.m */; };
 		D0CC52271563C8E300BF5DC3 /* PokerGame.mm in Sources */ = {isa = PBXBuildFile; fileRef = D0CC52261563C8E300BF5DC3 /* PokerGame.mm */; };
@@ -106,6 +107,9 @@
 		D0F7E40A15875F420068FBD5 /* Pot.m in Sources */ = {isa = PBXBuildFile; fileRef = D0F7E40915875F420068FBD5 /* Pot.m */; };
 		D0FA5F55156C133B00C89B82 /* ProfilViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0FA5F54156C133B00C89B82 /* ProfilViewController.m */; };
 		D0FD428B159CBF590005BD6F /* startbild.jpeg in Resources */ = {isa = PBXBuildFile; fileRef = D0FD428A159CBF590005BD6F /* startbild.jpeg */; };
+		D0FFCFF815A1C83000D49C07 /* StartViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D0FFCFF715A1C83000D49C07 /* StartViewController.m */; };
+		D0FFCFFB15A1CFC600D49C07 /* crown.png in Resources */ = {isa = PBXBuildFile; fileRef = D0FFCFFA15A1CFC600D49C07 /* crown.png */; };
+		D0FFCFFD15A1D8FE00D49C07 /* winnersound.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = D0FFCFFC15A1D8FE00D49C07 /* winnersound.mp3 */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -222,6 +226,7 @@
 		D06A421A15650A170062D6F1 /* FiveBestCards.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FiveBestCards.h; sourceTree = "<group>"; };
 		D06A421B15650A170062D6F1 /* FiveBestCards.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FiveBestCards.m; sourceTree = "<group>"; };
 		D06F5A8B15602FC400519DAF /* Nathan.PNG */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Nathan.PNG; sourceTree = "<group>"; };
+		D092D08C15A1F3C500507C4B /* icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon.png; sourceTree = "<group>"; };
 		D0A6887B1587FFDF007ED89B /* MainPot.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainPot.h; sourceTree = "<group>"; };
 		D0A6887C1587FFDF007ED89B /* MainPot.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainPot.m; sourceTree = "<group>"; };
 		D0CC52211563C8B400BF5DC3 /* Player.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Player.h; sourceTree = "<group>"; };
@@ -239,6 +244,10 @@
 		D0FA5F53156C133A00C89B82 /* ProfilViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ProfilViewController.h; sourceTree = "<group>"; };
 		D0FA5F54156C133B00C89B82 /* ProfilViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ProfilViewController.m; sourceTree = "<group>"; };
 		D0FD428A159CBF590005BD6F /* startbild.jpeg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = startbild.jpeg; sourceTree = "<group>"; };
+		D0FFCFF615A1C83000D49C07 /* StartViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StartViewController.h; sourceTree = "<group>"; };
+		D0FFCFF715A1C83000D49C07 /* StartViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StartViewController.m; sourceTree = "<group>"; };
+		D0FFCFFA15A1CFC600D49C07 /* crown.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = crown.png; sourceTree = "<group>"; };
+		D0FFCFFC15A1D8FE00D49C07 /* winnersound.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; name = winnersound.mp3; path = "Poker iPhone App/winnersound.mp3"; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -317,6 +326,7 @@
 		D0121E0A15938AAE005D54B3 /* Sounds */ = {
 			isa = PBXGroup;
 			children = (
+				D0FFCFFC15A1D8FE00D49C07 /* winnersound.mp3 */,
 				D00EB428159B4E4E009BCC7C /* winner.wav */,
 				D0121E0B15938AAE005D54B3 /* cards1.wav */,
 				D0121E0C15938AAE005D54B3 /* check.wav */,
@@ -402,12 +412,14 @@
 		D0FDDF7D1592182C00325BB2 /* Sonstige Bilder */ = {
 			isa = PBXGroup;
 			children = (
+				D092D08C15A1F3C500507C4B /* icon.png */,
 				D0FD428A159CBF590005BD6F /* startbild.jpeg */,
 				D00EB420159B1A92009BCC7C /* Pokal.png */,
 				CEE481F2159C7ECC00E2E258 /* boxblack.png */,
 				D06F5A8B15602FC400519DAF /* Nathan.PNG */,
 				CEBB847B157D618200841279 /* Table.png */,
 				CEBB847E157D672A00841279 /* 2-herz.png */,
+				D0FFCFFA15A1CFC600D49C07 /* crown.png */,
 			);
 			name = "Sonstige Bilder";
 			sourceTree = "<group>";
@@ -415,6 +427,8 @@
 		D0FDDF7F1592184300325BB2 /* ViewController */ = {
 			isa = PBXGroup;
 			children = (
+				D0FFCFF615A1C83000D49C07 /* StartViewController.h */,
+				D0FFCFF715A1C83000D49C07 /* StartViewController.m */,
 				CEE23231157EA5FD00018491 /* GameViewController.mm */,
 				CEE23230157EA5FD00018491 /* GameViewController.h */,
 				CE7C20CC156D62AD00AEAE67 /* SinglePlayerViewController.m */,
@@ -610,6 +624,9 @@
 				D00EB429159B4E4E009BCC7C /* winner.wav in Resources */,
 				CEE481F3159C7ECC00E2E258 /* boxblack.png in Resources */,
 				D0FD428B159CBF590005BD6F /* startbild.jpeg in Resources */,
+				D0FFCFFB15A1CFC600D49C07 /* crown.png in Resources */,
+				D0FFCFFD15A1D8FE00D49C07 /* winnersound.mp3 in Resources */,
+				D092D08D15A1F3C500507C4B /* icon.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -643,6 +660,7 @@
 				D0F692BC158F4C7E0065420F /* SidePot.m in Sources */,
 				D00EB41E159B0A7E009BCC7C /* PlayerProfile.m in Sources */,
 				D00EB42C159B73D7009BCC7C /* ModifiedSlider.m in Sources */,
+				D0FFCFF815A1C83000D49C07 /* StartViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

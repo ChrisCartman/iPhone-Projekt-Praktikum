@@ -33,6 +33,10 @@
 {  
     [super viewDidLoad];
     
+    AppDelegate* appDelegate = (AppDelegate* ) [[UIApplication sharedApplication] delegate];
+    imageView.image = appDelegate.playerProfile.playerImage;
+    playerNameTextField.text = appDelegate.playerProfile.playerName;
+    
     
     
 }
@@ -120,7 +124,7 @@
 - (IBAction)takePicture:(id)sender{
     UIImagePickerController *picker = [[UIImagePickerController alloc]init];
     picker.delegate = self;
-    picker.allowsImageEditing = YES;
+    picker.allowsEditing = YES;
     picker.sourceType = UIImagePickerControllerSourceTypeCamera;
     
     [self presentModalViewController:picker animated:YES];
@@ -158,6 +162,11 @@
       
 }
 
+
+- (IBAction)textFieldDoneEditing:(id)sender
+{
+    [sender resignFirstResponder];
+}
 
 
 @end

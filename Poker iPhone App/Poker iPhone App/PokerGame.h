@@ -61,9 +61,12 @@
 
 @property (nonatomic, retain) NSTimer* blindsTimer;
 @property (nonatomic, assign) int blindsCountdown;
+@property (nonatomic, strong) Player* you;
 
 //Idee: um das Spiel pausieren zu können, soll es einen Pointer geben, der immer auf den aktuellen Timer zeigt. Sobald Pause gedrückt wird, wie das TimeInterval des Timers auf eine beliebig große Zal gesetzt
 @property (nonatomic, retain) NSMutableArray* currentlyRunningTimersWithCreationTimes;
+
+@property (nonatomic, assign) int yourNumber;
 
 
 
