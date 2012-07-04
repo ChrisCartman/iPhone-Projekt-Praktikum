@@ -443,10 +443,31 @@
     
     allCards = [self.hand.cardValuesEvaluator sortCards_Suits:allCards];
     
-    
-    //Erwartung Flush bei 4 Karten gleicher Farbe
-    if ([allCards count] <5) {return NO;}
-    else {    
+    //zum Testen:
+//    NSMutableArray *allCards = [[NSMutableArray alloc]init];
+//    PlayingCard *card1 = [[PlayingCard alloc]init];
+//    PlayingCard *card2 = [[PlayingCard alloc]init];
+//    PlayingCard *card3 = [[PlayingCard alloc]init];
+//    PlayingCard *card4 = [[PlayingCard alloc]init];
+//    PlayingCard *card5 = [[PlayingCard alloc]init];
+//    
+//    card1.value = 2;
+//    card1.suitType = DIAMONDS;
+//    card2.value = 5;
+//    card1.suitType = HEARTS;
+//    card3.value = 6;
+//    card3.suitType = HEARTS;
+//    card4.value = 7;
+//    card4.suitType = HEARTS;
+//    card5.value = 8;
+//    card5.suitType = HEARTS;
+//    
+//    [allCards addObject: card1];
+//    [allCards addObject: card2];
+//    [allCards addObject: card3];
+//    [allCards addObject: card4];
+//    [allCards addObject: card5];
+
         //erste Karte
         PlayingCard* currentPlayingCard = (PlayingCard* ) [allCards objectAtIndex:0];
         SuitType suitTypeCurrentPlayingCard = currentPlayingCard.suitType;
@@ -455,6 +476,9 @@
         
         
         for (int i=1; i<[allCards count]; i++) {
+            if (countOfThisSuitType==4) {
+                return YES;
+            }
             int j = [allCards count] - i; // Anzahl noch nicht gepruefter Elemente
             
             if (countOfThisSuitType + j < 4) {
@@ -464,16 +488,21 @@
                 PlayingCard* nextPlayingCard = (PlayingCard* ) [allCards objectAtIndex:i];
                 SuitType suitTypeOfNextPlayingCard = nextPlayingCard.suitType;
                 
-                //Vergleich
+                //wenn die Karten gleiche Farbe haben, erhöhe Zähler
                 if (suitTypeOfNextPlayingCard == suitTypeCurrentPlayingCard) {
-                    countOfThisSuitType += 1;
+                    countOfThisSuitType += 1;}
+            }       
+        
+        };    
+            
+        
+        
+        return NO;
                     
-                    if (countOfThisSuitType==4) {
-                        return YES;
-                        }
                 
-                }}}}}
-
+        
+        
+}
 
 
 - (BOOL) expectOpenStraight{
@@ -485,6 +514,33 @@
     
     allCards = [self.hand.cardValuesEvaluator sortCards_Values:allCards];
     
+    
+    //zum Testen:
+//    NSMutableArray *allCards = [[NSMutableArray alloc]init];
+//    PlayingCard *card1 = [[PlayingCard alloc]init];
+//    PlayingCard *card2 = [[PlayingCard alloc]init];
+//    PlayingCard *card3 = [[PlayingCard alloc]init];
+//    PlayingCard *card4 = [[PlayingCard alloc]init];
+//    PlayingCard *card5 = [[PlayingCard alloc]init];
+//    
+//    card1.value = 2;
+//    card1.suitType = HEARTS;
+//    card2.value = 5;
+//    card1.suitType = DIAMONDS;
+//    card3.value = 6;
+//    card3.suitType = HEARTS;
+//    card4.value = 7;
+//    card4.suitType = HEARTS;
+//    card5.value = 8;
+//    card5.suitType = HEARTS;
+//    
+//    [allCards addObject: card1];
+//    [allCards addObject: card2];
+//    [allCards addObject: card3];
+//    [allCards addObject: card4];
+//    [allCards addObject: card5];
+
+    
     //Erwartung openStraight bei vier aufeinander folgenden Karten 
     
     //erstes Element im Array:
@@ -495,9 +551,11 @@
     
     
     for (int i=1; i<[allCards count]; i++) {
+        
+        if (countOfStraightedElements==4) {
+            return YES;
+        };
         //Die nächsten Karten werden ebenfalls einem Objekt zugewiesen und erhalten eine Value Variable
-    
-            
             PlayingCard* nextPlayingCard = (PlayingCard* ) [allCards objectAtIndex:i];
             int nextValueInArray = nextPlayingCard.value;
             
@@ -513,24 +571,32 @@
             i -= 1;
             }
             //wenn die nächste Karte weiter als +1 weg liegt, muss die aktuelle und alle vorherigen gelöscht werden
-            else {  for (int j=0; j<=i; j++){
-                    [allCards removeObjectAtIndex:j];
+            else {  for (int j=0; j<i; j++){
+                    [allCards removeObjectAtIndex:0];
+                    }
+                PlayingCard *newFirstPlayingCard = (PlayingCard*) [allCards objectAtIndex:0];
+                lastValueInStraight = newFirstPlayingCard.value;
+                countOfStraightedElements =1;
                 i -= 1;
-                lastValueInStraight = nextValueInArray;
-                countOfStraightedElements =1;}
-                
-                
             }
-    }
+    };
         
-            
-    //Bei vier aufeinanderfolgenden Karten wird yes zurückgegeben
+    
+    //Bei vier aufeinanderfolgenden Karten wird yes zurückgegeben    
     if (countOfStraightedElements==4) {
                 return YES;
-    } else {return NO;};
+    } 
+    else {return NO;};
     
+}    
     
-}       
+       
+
+
+
+
+
+
 
 
 - (BOOL) expectGutshot{}
@@ -539,7 +605,11 @@
 
 - (BOOL) expectFlushAndGutshot{}
 
-- (BOOL) expectFlushAndOpenStraight{}
+- (BOOL) expectFlushAndOpenStraight{
+    
+    
+
+}
 
 
 
@@ -571,7 +641,8 @@
         else if([self expectPair]){return 6;}
         else if([self expectGutshot]){return 4;}
         else if([self expectThreeOfAKind]){return 2;}
-   
+        
+    return 0;
     
     
     
