@@ -142,13 +142,20 @@
 
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender{
     if (self.playerProfile == nil) {
-        playerProfile = [[PlayerProfile alloc] init];
+        playerProfile = [[PlayerProfile alloc] initWithPlayerName:playerNameTextField.text playerImage:imageView.image];
     }
-    playerProfile.playerImage = imageView.image;
-    playerProfile.playerName = playerNameTextField.text;
+    else {
+        playerProfile.playerName = playerNameTextField.text;
+        playerProfile.playerImage = imageView.image;
+    }
     AppDelegate* appDelegate = (AppDelegate* ) [[UIApplication sharedApplication] delegate];
     appDelegate.playerProfile = self.playerProfile;
-    NSLog(@"%@", appDelegate.playerProfile.playerName);
+}
+
+- (IBAction)textFieldDoneEditing:(id)sender
+{ [sender resignFirstResponder];
+    
+      
 }
 
 

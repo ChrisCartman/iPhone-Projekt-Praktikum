@@ -102,80 +102,107 @@
 @synthesize playerCountdownLabel;
 @synthesize countdownSoundPlayer;
 
+@synthesize player1FoldFadeLabel;
+@synthesize player2FoldFadeLabel;
+@synthesize player3FoldFadeLabel;
+@synthesize player4FoldFadeLabel;
+@synthesize player5FoldFadeLabel;
+
+@synthesize sliderSensibilityButton;
+
 @synthesize winnersCup;
 
 //User-Interaction:
 - (IBAction) changeBetSliderValue:(id)sender
 {
-
-}
-
-- (void)dragBegan:(UIControl *)c withEvent:ev {
-    UITouch *touch = [[ev allTouches] anyObject];
-    CGPoint touchPoint = [touch locationInView:self.view];
-    betSlider.startDragPoint = touchPoint;
-    betSlider.startDragValue = betSlider.value;
-}
-
-- (void)dragMoving:(UIControl *)c withEvent:ev {
-    UITouch* touch = [[ev allTouches] anyObject];
-    CGPoint touchPoint = [touch locationInView:self.view];
-    if (touchPoint.y < 50) {
-        betSlider.sensibility = STRONG_SENSIBILITY;
-    }
-    else if (touchPoint.y < 150) {
-        betSlider.sensibility = MEDIUM_SENSIBILITY;
+    if (betSlider.sensibility == NO_SENSIBILITY) {
+        [betSlider getBetAmountNoSensibility];
     }
     else {
-        betSlider.sensibility = NO_SENSIBILITY;
+        [betSlider getBetAmountStrongSensibility];
     }
-    if (touchPoint.x >= betSlider.frame.origin.x && touchPoint.x <= betSlider.frame.origin.x + betSlider.frame.size.width) {
-        if (touchPoint.x > betSlider.startDragPoint.x) {
-            betSlider.internValue = betSlider.startDragValue + (touchPoint.x - betSlider.startDragPoint.x) / betSlider.frame.size.width * betSlider.maximumValue * (touchPoint.y / betSlider.startDragPoint.y);  
-            betSlider.value = betSlider.internValue;
-        }
-        else {
-            betSlider.internValue = betSlider.startDragValue - (- touchPoint.x + betSlider.startDragPoint.x) / betSlider.frame.size.width * betSlider.maximumValue * touchPoint.y / betSlider.startDragPoint.y;    
-            betSlider.value = betSlider.internValue;
-        }
-        betLabel.text = [[[NSNumber numberWithFloat:roundNumberOnTwoFigures([betSlider roundSliderValue])] stringValue] stringByAppendingString:@"$"];
-        if (betSlider.value == 0) {
+    betLabel.text = [[[NSNumber numberWithFloat:[betSlider getSliderValue]] stringValue] stringByAppendingString:@"$"];
+    if (betSlider.value == 0) {
         // betButton.titleLabel.text = @"Check";
-            [betButton setTitle:@"Check" forSegmentAtIndex:0];    }
-        else if (betSlider.value == betSlider.minimumValue && betSlider.value != 0) {
+        [betButton setTitle:@"Check" forSegmentAtIndex:0];    }
+    else if (betSlider.value == betSlider.minimumValue && betSlider.value != 0) {
         //betButton.titleLabel.text = @"Call";
-            [betButton setTitle:@"Call" forSegmentAtIndex:0]; 
-        }
-        else if (betSlider.value == betSlider.maximumValue) {
-        //betButton.titleLabel.text = @"All in";
-            [betButton setTitle:@"All in" forSegmentAtIndex:0]; 
-        }
-        else {
-            // betButton.titleLabel.text = @"Bet";
-            [betButton setTitle:@"Bet" forSegmentAtIndex:0]; 
-        }
+        [betButton setTitle:@"Call" forSegmentAtIndex:0]; 
     }
-
+    else if (betSlider.value == betSlider.maximumValue) {
+        //betButton.titleLabel.text = @"All in";
+        [betButton setTitle:@"All in" forSegmentAtIndex:0]; 
+    }
+    else {
+        // betButton.titleLabel.text = @"Bet";
+        [betButton setTitle:@"Bet" forSegmentAtIndex:0]; 
+    }
 }
 
-- (void)dragEnded:(UIControl *)c withEvent:ev {
-    betSlider.value = [betSlider roundSliderValue];
+- (IBAction)changeSliderSensibility:(id)sender
+{
+    if (betSlider.sensibility == NO_SENSIBILITY) {
+        if (betSlider.dollars >= betSlider.minimumValue + betSlider.currentBigBlind) {
+            sliderSensibilityButton.hidden = YES;
+            betSlider.sensibility = STRONG_SENSIBILITY;
+            [UIView animateWithDuration:0.3 animations:^{
+                betSlider.frame = CGRectMake(158, 262, 203, 23);
+            }
+                             completion:^(BOOL finished) {
+            if (finished) {
+                if (betSlider.currentChips - betSlider.dollars >= 1.0) {
+                    betSlider.maximumValue = 1.0;
+                }
+                else {
+                    betSlider.maximumValue = betSlider.currentChips - betSlider.dollars;
+                }
+                betSlider.minimumValue = 0.0;
+                betSlider.value = betSlider.cents;
+                sliderSensibilityButton.frame = CGRectMake(128, 257, 30, 30);
+                [sliderSensibilityButton setTitle:@"<<" forState:UIControlStateNormal];
+                sliderSensibilityButton.hidden = NO;
+            }
+                             }];
+        }
+    }
+    else if (betSlider.sensibility == STRONG_SENSIBILITY) {
+        sliderSensibilityButton.hidden = YES;
+        betSlider.sensibility = NO_SENSIBILITY;
+        [UIView animateWithDuration:0.3 animations:^{
+            betSlider.frame = CGRectMake(128,262,203,23);
+        }
+                         completion:^(BOOL finished) {
+                             if (finished) {
+                                 if (pokerGame.highestBet - betSlider.currentAlreadyBetChips >= betSlider.currentChips) {
+                                     betSlider.minimumValue = betSlider.currentChips;
+                                 }
+                                 else {
+                                     betSlider.minimumValue = pokerGame.highestBet - betSlider.currentAlreadyBetChips;
+                                 }
+                                 betSlider.maximumValue = betSlider.currentChips;
+                                 betSlider.value = betSlider.dollars;
+                                 sliderSensibilityButton.frame = CGRectMake(337,257,30,30);
+                                [sliderSensibilityButton setTitle:@">>" forState:UIControlStateNormal];
+                                 sliderSensibilityButton.hidden = NO;
+                             }
+                         }];
+    }
 }
 
 - (IBAction) betButtonPressed:(id)sender
 {
     Player* aPlayer = pokerGame.activePlayer;
-    if (betSlider.value == 0) {
+    if (betSlider.internValue == 0) {
         [aPlayer check];
     }
-    else if (betSlider.value == betSlider.minimumValue) {
+    else if (betSlider.internValue == betSlider.minimumValue) {
         [aPlayer call];
     }
-    else if (betSlider.value == betSlider.maximumValue) {
-        [aPlayer allIn:roundNumberOnTwoFigures(betSlider.value) asBlind:NO];
+    else if (betSlider.internValue == betSlider.maximumValue) {
+        [aPlayer allIn:(aPlayer.alreadyBetChips+betSlider.internValue) asBlind:NO];
     }
     else {
-        [aPlayer bet:roundNumberOnTwoFigures(betSlider.value) asBlind:NO];
+        [aPlayer bet:(aPlayer.alreadyBetChips+betSlider.internValue) asBlind:NO];
     }
 }
 
@@ -238,7 +265,9 @@
 - (void) setUpPlayers
 {
     //Spieler erstellen:
+    AppDelegate* appDelegate = (AppDelegate* ) [[UIApplication sharedApplication] delegate];
     Player* player1 = [[Player alloc] init];
+    player1.playerProfile = appDelegate.playerProfile;
     [pokerGame addPlayer:player1];
     [player1 addObserver:self forKeyPath:@"alreadyBetChips" options:0 context:nil];
     [player1 addObserver:self forKeyPath:@"chips" options:0 context:nil];
@@ -251,6 +280,7 @@
     [player1 addObserver:self forKeyPath:@"counter" options:0 context:nil];
     // jeder Spieler wird mit seinen Outlets verknüpft
     Player* player2 = [[Player alloc] init];
+    player2.playerProfile = [[PlayerProfile alloc] initWithPlayerName:@"Eric" playerImage:[UIImage imageNamed:@"Cartman.png"]];
     [pokerGame addPlayer:player2];
     [player2 addObserver:self forKeyPath:@"alreadyBetChips" options:0 context:nil];
     [player2 addObserver:self forKeyPath:@"chips" options:0 context:nil];
@@ -261,13 +291,15 @@
     [player2 addObserver:self forKeyPath:@"mayShowCards" options:0 context:nil];
     [player2 addObserver:self forKeyPath:@"createdTimerDuringPause" options:0 context:nil];;
     [player2 addObserver:self forKeyPath:@"counter" options:0 context:nil];
+    
     if (pokerGame.gameSettings.anzahlKI > 1) {
         Player* player3 = [[Player alloc] init];
         [pokerGame addPlayer:player3];
+        player3.playerProfile = [[PlayerProfile alloc] initWithPlayerName:@"Stan" playerImage:[UIImage imageNamed:@"Stan.png"]];
         [player3 addObserver:self forKeyPath:@"alreadyBetChips" options:0 context:nil];
         [player3 addObserver:self forKeyPath:@"chips" options:0 context:nil];
         [player3 addObserver:self forKeyPath:@"playerState" options:0 context:nil];
-        [player3 addObserver:self forKeyPath:@"hasSidePot2" options:0 context:nil];
+        [player3 addObserver:self forKeyPath:@"hasSidePot" options:0 context:nil];
         [player3 addObserver:self forKeyPath:@"showsCards" options:0 context:nil];
         [player3 addObserver:self forKeyPath:@"throwsCardsAway" options:0 context:nil];
         [player3 addObserver:self forKeyPath:@"mayShowCards" options:0 context:nil];
@@ -277,6 +309,7 @@
     if (pokerGame.gameSettings.anzahlKI > 2) {
         Player* player4 = [[Player alloc] init];
         [pokerGame addPlayer:player4];
+        player4.playerProfile = [[PlayerProfile alloc] initWithPlayerName:@"Kyle" playerImage:[UIImage imageNamed:@"Kyle.png"]];
         [player4 addObserver:self forKeyPath:@"alreadyBetChips" options:0 context:nil];
         [player4 addObserver:self forKeyPath:@"chips" options:0 context:nil];
         [player4 addObserver:self forKeyPath:@"playerState" options:0 context:nil];
@@ -290,6 +323,7 @@
     if (pokerGame.gameSettings.anzahlKI > 3) {
         Player* player5 = [[Player alloc] init];
         [pokerGame addPlayer:player5];
+        player5.playerProfile = [[PlayerProfile alloc] initWithPlayerName:@"Kenny" playerImage:[UIImage imageNamed:@"Kenny.png"]];
         [player5 addObserver:self forKeyPath:@"alreadyBetChips" options:0 context:nil];
         [player5 addObserver:self forKeyPath:@"chips" options:0 context:nil];
         [player5 addObserver:self forKeyPath:@"playerState" options:0 context:nil];
@@ -442,9 +476,9 @@
                 }
             }
             else {
-                player2CardOne.image = [UIImage imageNamed:@"back.png"];
+                player2CardOne.image = [[aPlayer.hand.cardsOnHand objectAtIndex:0] playingCardImage];
                 if ([aPlayer.hand.cardsOnHand count] > 1) {
-                    player2CardTwo.image = [UIImage imageNamed:@"back.png"];
+                    player2CardTwo.image = [[aPlayer.hand.cardsOnHand objectAtIndex:1] playingCardImage];
                 }
             }
         }
@@ -462,9 +496,9 @@
                 }
             }
             else {
-                player3CardOne.image = [UIImage imageNamed:@"back.png"];
+                player3CardOne.image = [[aPlayer.hand.cardsOnHand objectAtIndex:0] playingCardImage];
                 if ([aPlayer.hand.cardsOnHand count] > 1) {
-                    player3CardTwo.image = [UIImage imageNamed:@"back.png"];
+                    player3CardTwo.image = [[aPlayer.hand.cardsOnHand objectAtIndex:1] playingCardImage];
                 }
             }
         }
@@ -483,9 +517,9 @@
                 }
             }
             else {
-                player4CardOne.image = [UIImage imageNamed:@"back.png"];
+                player4CardOne.image = [[aPlayer.hand.cardsOnHand objectAtIndex:0] playingCardImage];
                 if ([aPlayer.hand.cardsOnHand count] > 1) {
-                    player4CardTwo.image = [UIImage imageNamed:@"back.png"];
+                    player4CardTwo.image = [[aPlayer.hand.cardsOnHand objectAtIndex:1] playingCardImage];
                 }
             }
         }
@@ -503,9 +537,9 @@
                 }
             }
             else {
-                player5CardOne.image = [UIImage imageNamed:@"back.png"];
+                player5CardOne.image = [[aPlayer.hand.cardsOnHand objectAtIndex:0] playingCardImage];
                 if ([aPlayer.hand.cardsOnHand count] > 1) {
-                    player5CardTwo.image = [UIImage imageNamed:@"back.png"];
+                    player5CardTwo.image = [[aPlayer.hand.cardsOnHand objectAtIndex:1] playingCardImage];
                 }
             }
         }
@@ -520,14 +554,29 @@
         betLabel.hidden = NO;
         betButton.hidden = NO;
         foldButton.hidden = NO;
+        sliderSensibilityButton.frame = CGRectMake(337,257,30,30);
+        betSlider.frame = CGRectMake(128,262,203,23);
+        [sliderSensibilityButton setTitle:@">>" forState:UIControlStateNormal];
         betSlider.hidden = NO;
+        sliderSensibilityButton.hidden = NO;
         [betSlider setUpWithCurrentBigBlind:2*pokerGame.smallBlind];
+        betSlider.currentChips = aPlayer.chips;
+        betSlider.currentAlreadyBetChips = aPlayer.alreadyBetChips;
+        betSlider.currentHighestBet = pokerGame.highestBet;
+        betSlider.sensibility = NO_SENSIBILITY;
         if (pokerGame.highestBet - aPlayer.alreadyBetChips >= aPlayer.chips) {
             betSlider.minimumValue = aPlayer.chips;
+            betSlider.internValue = aPlayer.chips;
+            betSlider.dollars = (int) betSlider.internValue;
+            betSlider.cents = betSlider.internValue - betSlider.dollars;
         }
         else {
             betSlider.minimumValue = pokerGame.highestBet - aPlayer.alreadyBetChips;
+            betSlider.internValue = betSlider.minimumValue;
+            betSlider.dollars = (int) betSlider.internValue;
+            betSlider.cents = betSlider.internValue - betSlider.dollars;
         }
+        betSlider.lastCentValue = betSlider.cents;
         betSlider.maximumValue = aPlayer.chips;
         betSlider.value = betSlider.minimumValue;
         betLabel.text = [[[NSNumber numberWithFloat:betSlider.value] stringValue] stringByAppendingString:@"$"];
@@ -568,6 +617,7 @@
         betButton.hidden = YES;
         foldButton.hidden = YES;
         betSlider.hidden = YES;
+        sliderSensibilityButton.hidden = YES;
     }
 }
 
@@ -615,28 +665,61 @@
     }
 }
 
+- (void) resetAnimatedOutlets
+{
+    player2CardOne.frame = CGRectMake(66, 84, 24, 33);
+    player2CardTwo.frame = CGRectMake(82, 84, 24, 33);
+    player3CardOne.frame = CGRectMake(171, 62, 24, 33);
+    player3CardTwo.frame = CGRectMake(187, 62, 24, 33);
+    player4CardOne.frame = CGRectMake(263, 62, 24, 33);
+    player4CardTwo.frame = CGRectMake(279, 62, 24, 33);
+    player5CardOne.frame = CGRectMake(377, 84, 24, 33);
+    player5CardTwo.frame = CGRectMake(393, 84, 24, 33);
+    player1CardOne.frame = CGRectMake(270, 205, 32, 44);
+    player1CardTwo.frame = CGRectMake(310, 205, 32, 44);
+    player1FoldFadeLabel.alpha = 0.0;
+    player2FoldFadeLabel.alpha = 0.0;
+    player3FoldFadeLabel.alpha = 0.0;
+    player4FoldFadeLabel.alpha = 0.0;
+    player5FoldFadeLabel.alpha = 0.0;
+    player1NameLabel.alpha = 1.0;
+    player2NameLabel.alpha = 1.0;
+    player3NameLabel.alpha = 1.0;
+    player4NameLabel.alpha = 1.0;
+    player5NameLabel.alpha = 1.0;
+    player1ChipsLabel.alpha = 1.0;
+    player2ChipsLabel.alpha = 1.0;
+    player3ChipsLabel.alpha = 1.0;
+    player4ChipsLabel.alpha = 1.0;
+    player5ChipsLabel.alpha = 1.0;
+    
+    
+}
+
 - (void) changePlayerOutlets_sidePot:(Player *)aPlayer
 {
     if (aPlayer.hasSidePot == YES) {
-        if ([aPlayer.identification isEqualToString:@"player1"]) {
-            sidePotLabel1.hidden = NO;
-            sidePotLabel1.text = [[[NSNumber numberWithFloat:aPlayer.sidePot.chipsInPot] stringValue]   stringByAppendingString:@"$ (SP)"];
-        }
-        else if ([aPlayer.identification isEqualToString:@"player2"]) {
-            sidePotLabel2.hidden = NO;
-            sidePotLabel2.text = [[[NSNumber numberWithFloat:aPlayer.sidePot.chipsInPot] stringValue] stringByAppendingString:@"$ (SP)"];
-        }
-        else if ([aPlayer.identification isEqualToString:@"player3"]) {
-            sidePotLabel3.hidden = NO;
-            sidePotLabel3.text = [[[NSNumber numberWithFloat:aPlayer.sidePot.chipsInPot] stringValue] stringByAppendingString:@"$ (SP)"];
-        }
-        else if ([aPlayer.identification isEqualToString:@"player4"]) {
-            sidePotLabel4.hidden = NO;
-            sidePotLabel4.text = [[[NSNumber numberWithFloat:aPlayer.sidePot.chipsInPot] stringValue] stringByAppendingString:@"$ (SP)"];
-        }
-        else if ([aPlayer.identification isEqualToString:@"player5"]) {
-            sidePotLabel5.hidden = NO;
-            sidePotLabel5.text = [[[NSNumber numberWithFloat:aPlayer.sidePot.chipsInPot] stringValue] stringByAppendingString:@"$ (SP)"];
+        if (aPlayer.sidePot.chipsInPot != 0) {
+            if ([aPlayer.identification isEqualToString:@"player1"]) {
+                sidePotLabel1.hidden = NO;
+                sidePotLabel1.text = [[[NSNumber numberWithFloat:aPlayer.sidePot.chipsInPot] stringValue]   stringByAppendingString:@"$"];
+            }
+            else if ([aPlayer.identification isEqualToString:@"player2"]) {
+                sidePotLabel2.hidden = NO;
+                sidePotLabel2.text = [[[NSNumber numberWithFloat:aPlayer.sidePot.chipsInPot] stringValue] stringByAppendingString:@"$"];
+            }
+            else if ([aPlayer.identification isEqualToString:@"player3"]) {
+                sidePotLabel3.hidden = NO;
+                sidePotLabel3.text = [[[NSNumber numberWithFloat:aPlayer.sidePot.chipsInPot] stringValue] stringByAppendingString:@"$"];
+            }
+            else if ([aPlayer.identification isEqualToString:@"player4"]) {
+                sidePotLabel4.hidden = NO;
+                sidePotLabel4.text = [[[NSNumber numberWithFloat:aPlayer.sidePot.chipsInPot] stringValue] stringByAppendingString:@"$"];
+            }
+            else if ([aPlayer.identification isEqualToString:@"player5"]) {
+                sidePotLabel5.hidden = NO;
+                sidePotLabel5.text = [[[NSNumber numberWithFloat:aPlayer.sidePot.chipsInPot] stringValue] stringByAppendingString:@"$"];
+            }
         }
     }
     else {
@@ -669,13 +752,13 @@
     }
     if (aPlayer.playerState == CHECKED) {
         effectLabel.text = @"Check!";
-        effectLabel.textColor = [UIColor greenColor];
+        effectLabel.textColor = [UIColor colorWithRed:33.0/255.0 green:164.0/255.0 blue:40.0/255.0 alpha:1.0];
         soundFilePath = [[NSBundle mainBundle] pathForResource:@"check" ofType:@"wav"];
 
     }
     else if (aPlayer.playerState == CALLED) {
         effectLabel.text = @"Call!";
-        effectLabel.textColor = [UIColor greenColor];
+        effectLabel.textColor = [UIColor colorWithRed:33.0/255.0 green:164.0/255.0 blue:40.0/255.0 alpha:1.0];
         soundFilePath = [[NSBundle mainBundle] pathForResource:@"money" ofType:@"wav"];
     }
     else if (aPlayer.playerState == RAISED) {
@@ -735,27 +818,29 @@
         effectLabel.textColor = [UIColor redColor];
     }
     else {
-        effectLabel.textColor = [UIColor greenColor];
+        effectLabel.textColor = [UIColor colorWithRed:33.0/255.0 green:164.0/255.0 blue:40.0/255.0 alpha:1.0];
     }
     effectLabel.alpha = 1.0;
-    [self fadeOutLabel:effectLabel duration:2.0 option:nil];    
+    [self fadeOutLabel:effectLabel duration:4.0 option:nil];    
 }
 
 - (void) showAnimationWhenPlayer: (Player* ) aPlayer showsCard:(UIImageView *)card1 andCard:(UIImageView *)card2 fiveBestCardsAnimated:(BOOL) animated
 {
-    CGRect startFrame1;
-    CGRect destinationFrame1;
-    CGRect startFrame2;
-    CGRect destinationFrame2;
+    
+    
+    CGRect destinationFrame1_1;
+    CGRect destinationFrame1_2;
+    CGRect destinationFrame2_1;
+    CGRect destinationFrame2_2;
     if (!aPlayer.isYou) {
-        destinationFrame1 = CGRectMake(card1.frame.origin.x + 16.0, card1.frame.origin.y, 1, 44);
-        destinationFrame2 = CGRectMake(card2.frame.origin.x + 16.0, card2.frame.origin.y, 1, 44);
-        startFrame1 = card1.frame;
-        startFrame2 = card2.frame;
+        destinationFrame1_1 = CGRectMake(aPlayer.showDownCard1Frame.origin.x+16, aPlayer.showDownCard1Frame.origin.y, 1, 44);
+        destinationFrame2_1 = CGRectMake(aPlayer.showDownCard2Frame.origin.x + 16.0, aPlayer.showDownCard2Frame.origin.y, 1, 44);
+        destinationFrame1_2 = aPlayer.showDownCard1Frame;
+        destinationFrame2_2 = aPlayer.showDownCard2Frame;
     }
     else {
-        destinationFrame1 = CGRectMake(card1.frame.origin.x, card1.frame.origin.y - 15, 32, 44);
-        destinationFrame2 = CGRectMake(card2.frame.origin.x, card2.frame.origin.y - 15, 32, 44);
+        destinationFrame1_1 = CGRectMake(card1.frame.origin.x, card1.frame.origin.y - 15, 32, 44);
+        destinationFrame2_1 = CGRectMake(card2.frame.origin.x, card2.frame.origin.y - 15, 32, 44);
     }
 
     //Sound abspielen:
@@ -767,8 +852,8 @@
     [cardSoundPlayer play];
     
     [UIView animateWithDuration:0.15 animations:^{
-        card1.frame = destinationFrame1;
-        card2.frame = destinationFrame2;
+        card1.frame = destinationFrame1_1;
+        card2.frame = destinationFrame2_1;
     }
     completion:^(BOOL finished) {
             if (finished) {
@@ -776,8 +861,8 @@
                     card1.image = [[aPlayer.hand.cardsOnHand objectAtIndex:0] playingCardImage];
                     card2.image = [[aPlayer.hand.cardsOnHand objectAtIndex:1] playingCardImage];
                     [UIView animateWithDuration:0.15 animations:^{
-                        card1.frame = startFrame1;
-                        card2.frame = startFrame2;
+                        card1.frame = destinationFrame1_2;
+                        card2.frame = destinationFrame2_2;
                     }  completion:^(BOOL finished) {
                         if (finished) {
                             if (animated) {
@@ -1086,8 +1171,7 @@
             }
             if (pokerGame.gameState == SETUP) {
                 [self resetTemporaryOutletsAndBadCards];
-                player1CardOne.frame = CGRectMake(270, 205, 32, 44);
-                player1CardTwo.frame = CGRectMake(310, 205, 32, 44);
+                [self resetAnimatedOutlets];
                 [self resetObservationForSidePots];
             }
         }
@@ -1136,20 +1220,24 @@
 {
     if ([pokerGame.gameSettings.blinds isEqualToString:@"nach Minuten"]) {
         [pokerGame addObserver:self forKeyPath:@"blindsCountdown" options:0 context:nil];
-        blindsCountdownLabel = [[UILabel alloc] initWithFrame:CGRectMake(100, 2, 80, 22)];
-        blindsCountdownLabel.textColor = [UIColor blueColor];
-        blindsCountdownLabel.font = [UIFont fontWithName:@"System" size:14.0];
+        blindsCountdownLabel = [[UILabel alloc] initWithFrame:CGRectMake(79, 8, 35, 20)];
+        blindsCountdownLabel.textAlignment = UITextAlignmentLeft;
+        blindsCountdownLabel.font = [UIFont fontWithName:@"System" size:13.0];
+        blindsCountdownLabel.font = [UIFont boldSystemFontOfSize:13];
+        blindsCountdownLabel.textColor = [UIColor darkGrayColor];
         blindsCountdownLabel.text = @"";
         blindsCountdownLabel.backgroundColor = [UIColor clearColor];
         [self.view addSubview:blindsCountdownLabel];
     }
     
     [pokerGame addObserver:self forKeyPath:@"roundsPlayed" options:0 context:nil];
-    roundsPlayedLabel = [[UILabel alloc] initWithFrame:CGRectMake(45,2,50,22)];
-    roundsPlayedLabel.textColor = [UIColor blueColor];
+    roundsPlayedLabel = [[UILabel alloc] initWithFrame:CGRectMake(41,8,35,20)];
     roundsPlayedLabel.backgroundColor = [UIColor clearColor];
     roundsPlayedLabel.text = @"0";
-    roundsPlayedLabel.font = [UIFont fontWithName:@"System" size:14.0];
+    roundsPlayedLabel.textAlignment = UITextAlignmentLeft;
+    roundsPlayedLabel.font = [UIFont fontWithName:@"System" size:13.0];
+    roundsPlayedLabel.font = [UIFont boldSystemFontOfSize:13];
+    roundsPlayedLabel.textColor = [UIColor darkGrayColor];
     [self.view addSubview:roundsPlayedLabel];
     
     [pokerGame addObserver:self forKeyPath:@"exactlyTwoPlayersAllIn" options:0 context:nil];
@@ -1167,13 +1255,13 @@
     //Karten vergrößern
     [self.view bringSubviewToFront:player1CardOne];
     [self.view bringSubviewToFront:player1CardTwo];
-    CGRect flopCardThreeDestinationFrame = CGRectMake(flopCardThreeImage.frame.origin.x - 16, flopCardThreeImage.frame.origin.y - 44, 64, 88);
-    CGRect flopCardTwoDestinationFrame = CGRectMake(flopCardTwoImage.frame.origin.x - 48, flopCardTwoImage.frame.origin.y - 44, 64, 88);
-    CGRect flopCardOneDestinationFrame = CGRectMake(flopCardOneImage.frame.origin.x - 80, flopCardOneImage.frame.origin.y - 44, 64, 88);
-    CGRect turnCardDestinationFrame = CGRectMake(turnCardImage.frame.origin.x + 16, turnCardImage.frame.origin.y - 44, 64, 88);
-    CGRect riverCardDestinationFrame = CGRectMake(riverCardImage.frame.origin.x + 48, riverCardImage.frame.origin.y - 44, 64, 88);
-    CGRect destinationFrame1 = CGRectMake(player1CardOne.frame.origin.x - 32, player1CardOne.frame.origin.y - 44, 64, 88);
-    CGRect destinationFrame2 = CGRectMake(player1CardTwo.frame.origin.x, player1CardTwo.frame.origin.y - 44, 64, 88);
+    CGRect flopCardThreeDestinationFrame = CGRectMake(flopCardThreeImage.frame.origin.x - 4, flopCardThreeImage.frame.origin.y - 6, 40, 55);
+    CGRect flopCardTwoDestinationFrame = CGRectMake(flopCardTwoImage.frame.origin.x - 12, flopCardTwoImage.frame.origin.y - 6, 40, 55);
+    CGRect flopCardOneDestinationFrame = CGRectMake(flopCardOneImage.frame.origin.x - 20, flopCardOneImage.frame.origin.y - 6, 40, 55);
+    CGRect turnCardDestinationFrame = CGRectMake(turnCardImage.frame.origin.x + 4, turnCardImage.frame.origin.y - 6, 40, 55);
+    CGRect riverCardDestinationFrame = CGRectMake(riverCardImage.frame.origin.x + 12, riverCardImage.frame.origin.y - 6, 40, 55);
+    CGRect destinationFrame1 = CGRectMake(player1CardOne.frame.origin.x - 8, player1CardOne.frame.origin.y - 6, 40, 55);
+    CGRect destinationFrame2 = CGRectMake(player1CardTwo.frame.origin.x, player1CardTwo.frame.origin.y - 6, 40, 55);
     [self.view bringSubviewToFront:flopCardTwoImage];
     [self.view bringSubviewToFront:flopCardOneImage];
     [self.view bringSubviewToFront:flopCardThreeImage];
@@ -1189,7 +1277,6 @@
         riverCardImage.frame = riverCardDestinationFrame;
     }
                      completion:nil];
-    
     //jetzt noch die besten fünf Karten anzeigen:
     Player* aPlayer = [pokerGame.allPlayers objectAtIndex:0]; // das bist du:
     [aPlayer.hand defineValueOfCardsWithTableCards:pokerGame.cardsOnTable];
@@ -1231,7 +1318,7 @@
     //immer benötigte Outlets:
     blindsIncreasedLabel.alpha = 0.0;
     
-    cardDeckImage = [[UIImageView alloc] initWithFrame:CGRectMake(5,22,32,44)];
+    cardDeckImage = [[UIImageView alloc] initWithFrame:CGRectMake(5,8,24,33)];
     cardDeckImage.image = [UIImage imageNamed:@"back.png"];
     [self.view addSubview:cardDeckImage];
         
@@ -1243,13 +1330,25 @@
     pauseTableView.backgroundColor = [UIColor clearColor];
     pauseTableView.hidden = YES;
     pauseTableView.alpha = 0.0;
+    pauseTableView.scrollEnabled = NO;
     
     
-    potLabel = [[UILabel alloc]initWithFrame:CGRectMake(5, 2, 50, 20)];
+    potLabel = [[UILabel alloc]initWithFrame:CGRectMake(5, 44, 55, 20)];
     //player1ChipsLabel.text = @"Text";
     [self.view addSubview:potLabel];
     potLabel.backgroundColor = [UIColor clearColor];
     potLabel.font = [UIFont fontWithName:@"System" size: 13.0];
+    potLabel.font = [UIFont boldSystemFontOfSize:13];
+    potLabel.textColor = [UIColor darkGrayColor];
+    
+    playerCountdownLabel = [[UILabel alloc] initWithFrame:CGRectMake(412, 8, 35, 20)];
+    playerCountdownLabel.text = @"";
+    playerCountdownLabel.textAlignment = UITextAlignmentLeft;
+    playerCountdownLabel.backgroundColor = [UIColor clearColor];
+    playerCountdownLabel.font = [UIFont fontWithName:@"System" size:13];
+    playerCountdownLabel.font = [UIFont boldSystemFontOfSize:13];
+    playerCountdownLabel.textColor = [UIColor darkGrayColor];
+    [self.view addSubview:playerCountdownLabel];
     
     betButton = [[UISegmentedControl alloc] initWithItems:[NSArray arrayWithObject:@"Check"]];
 	betButton.segmentedControlStyle = UISegmentedControlStyleBar;
@@ -1257,14 +1356,8 @@
 	betButton.tintColor = [UIColor darkGrayColor];
     [betButton addTarget:self action:@selector(betButtonPressed:) 
         forControlEvents: UIControlEventValueChanged];
-    betButton.frame = CGRectMake(390, 253, 80, 30);
+    betButton.frame = CGRectMake(395, 262, 80, 30);
     [self.view addSubview:betButton];
-    
-    //betSlider actions:
-    [betSlider addTarget:self action:@selector(dragBegan:withEvent:) forControlEvents: UIControlEventTouchDown];
-    [betSlider addTarget:self action:@selector(dragMoving:withEvent:) forControlEvents: UIControlEventTouchDragInside];
-    [betSlider addTarget:self action:@selector(dragMoving: withEvent:) forControlEvents:UIControlEventTouchDragOutside];
-    [betSlider addTarget:self action:@selector(dragEnded:withEvent:) forControlEvents: UIControlEventTouchUpInside | UIControlEventTouchUpOutside];
     
     foldButton = [[UISegmentedControl alloc] initWithItems:[NSArray arrayWithObject:@"Fold"]];
 	foldButton.segmentedControlStyle = UISegmentedControlStyleBar;
@@ -1272,7 +1365,7 @@
 	foldButton.tintColor = [UIColor darkGrayColor];
     [foldButton addTarget:self action:@selector(foldButtonPressed:) 
          forControlEvents: UIControlEventValueChanged];
-    foldButton.frame = CGRectMake(10, 253, 80, 30);
+    foldButton.frame = CGRectMake(5, 262, 80, 30);
     [self.view addSubview:foldButton];
     
     throwCardsAwayButton = [[UISegmentedControl alloc] initWithItems:[NSArray arrayWithObject:@"Fold"]];
@@ -1280,7 +1373,7 @@
     throwCardsAwayButton.momentary = YES;
     throwCardsAwayButton.tintColor = [UIColor darkGrayColor];
     [throwCardsAwayButton addTarget:self action:@selector(throwCardsAwayButtonClicked:) forControlEvents:UIControlEventValueChanged];
-    throwCardsAwayButton.frame = CGRectMake(100, 253, 80, 30);
+    throwCardsAwayButton.frame = CGRectMake(100, 262, 80, 30);
     throwCardsAwayButton.hidden = YES;
     [self.view addSubview:throwCardsAwayButton];
     
@@ -1289,7 +1382,7 @@
     showCardsButton.momentary = YES;
     showCardsButton.tintColor = [UIColor darkGrayColor];
     [showCardsButton addTarget:self action:@selector(showCardsButtonClicked:) forControlEvents:UIControlEventValueChanged];
-    showCardsButton.frame = CGRectMake(300, 253, 80, 30);
+    showCardsButton.frame = CGRectMake(300, 262, 80, 30);
     showCardsButton.hidden = YES;
     [self.view addSubview:showCardsButton];
     
@@ -1301,11 +1394,14 @@
     pauseButton.frame = CGRectMake(450,8,25,25);
     [self.view addSubview:pauseButton];
     
-    betLabel = [[UILabel alloc]initWithFrame:CGRectMake(222, 273, 70, 20)];
+    betLabel = [[UILabel alloc]initWithFrame:CGRectMake(210, 285, 60, 15)];
     betLabel.text = [[[NSNumber numberWithFloat:roundNumberOnTwoFigures(betSlider.value)] stringValue] stringByAppendingString:@"$"];
     [self.view addSubview:betLabel];
     betLabel.backgroundColor = [UIColor clearColor];
     betLabel.font = [UIFont fontWithName:@"System" size: 13.0];
+    betLabel.font = [UIFont boldSystemFontOfSize:13];
+    betLabel.textColor = [UIColor darkGrayColor];
+    betLabel.textAlignment = UITextAlignmentCenter;
     
     // Outlets für Player1
     
@@ -1313,8 +1409,8 @@
     [self.view addSubview:player1Box];
     [player1Box setImage:[UIImage imageNamed: @"boxblack.png"]];
     
-    player1NameLabel = [[UILabel alloc]initWithFrame:CGRectMake(224, 183, 40, 20)];
-    player1NameLabel.text = @"Nathan";
+    player1NameLabel = [[UILabel alloc]initWithFrame:CGRectMake(215, 183, 55, 20)];
+    player1NameLabel.textAlignment = UITextAlignmentCenter;
     player1NameLabel.textColor = [UIColor whiteColor];
     [self.view addSubview:player1NameLabel];
     player1NameLabel.backgroundColor = [UIColor clearColor];
@@ -1324,17 +1420,24 @@
     player1ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(222, 203, 40, 40)];
     [self.view addSubview:player1ProfilePictureImage];
     if (appDelegate.playerProfile != nil) {
+        player1NameLabel.text = appDelegate.playerProfile.playerName;
         [player1ProfilePictureImage setImage:appDelegate.playerProfile.playerImage];
     }
     else {
+        player1NameLabel.text = @"Nathan";
         [player1ProfilePictureImage setImage:[UIImage imageNamed:@"Nathan.PNG"]];
     }
+    player1FoldFadeLabel = [[UILabel alloc] initWithFrame:player1ProfilePictureImage.frame];
+    player1FoldFadeLabel.text = @"";
+    player1FoldFadeLabel.alpha = 0.0;
+    player1FoldFadeLabel.backgroundColor = [UIColor darkGrayColor];
+    [self.view addSubview:player1FoldFadeLabel];
     
     player1CardOne = [[UIImageView alloc]initWithFrame:CGRectMake(270, 205, 32, 44)];
     [self.view addSubview:player1CardOne];
 
     
-    player1CardTwo = [[UIImageView alloc]initWithFrame:CGRectMake(310, 205, 32, 44)];
+    player1CardTwo = [[UIImageView alloc]initWithFrame:CGRectMake(306, 205, 32, 44)];
     [self.view addSubview:player1CardTwo];
     
     
@@ -1349,25 +1452,40 @@
     [self.view bringSubviewToFront:cardsButton];
     
     
-    player1ChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(229, 240, 50, 20)];
+    player1ChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(215, 240, 55, 20)];
     player1ChipsLabel.text = @"Chips";
+    player1ChipsLabel.textAlignment = UITextAlignmentCenter;
     player1ChipsLabel.textColor = [UIColor whiteColor];
     [self.view addSubview:player1ChipsLabel];
     player1ChipsLabel.backgroundColor = [UIColor clearColor];
     player1ChipsLabel.font = [UIFont fontWithName:@"System" size: 9.0];
     player1ChipsLabel.font = [UIFont boldSystemFontOfSize:11];
     
-    player1AlreadyBetChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(265, 183, 40, 20)];
-    player1AlreadyBetChipsLabel.text = @"Text";
+    player1AlreadyBetChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(270, 170, 80, 20)];
+    player1AlreadyBetChipsLabel.textAlignment = UITextAlignmentCenter;
     [self.view addSubview:player1AlreadyBetChipsLabel];
     player1AlreadyBetChipsLabel.backgroundColor = [UIColor clearColor];
     player1AlreadyBetChipsLabel.font = [UIFont fontWithName:@"System" size: 13.0];
+    player1AlreadyBetChipsLabel.font = [UIFont boldSystemFontOfSize:11];
+    player1AlreadyBetChipsLabel.textColor = [UIColor whiteColor];
     
-    sidePotLabel1 = [[UILabel alloc]initWithFrame:CGRectMake(180, 183, 40, 20)];
+    sidePotLabel1 = [[UILabel alloc]initWithFrame:player1AlreadyBetChipsLabel.frame];
     sidePotLabel1.text = @"SP";
     [self.view addSubview:sidePotLabel1];
     sidePotLabel1.backgroundColor = [UIColor clearColor];
     sidePotLabel1.font = [UIFont fontWithName:@"System" size: 13.0];
+    sidePotLabel1.font = [UIFont boldSystemFontOfSize:11];
+    sidePotLabel1.textColor = [UIColor orangeColor];
+    sidePotLabel1.hidden = YES;
+    
+    effectLabel1 = [[UILabel alloc] initWithFrame:player1NameLabel.frame];
+    effectLabel1.alpha = 0.0;
+    [self.view addSubview:effectLabel1];
+    effectLabel1.backgroundColor = [UIColor blackColor];
+    effectLabel1.font = [UIFont fontWithName:@"System" size:13.0];
+    effectLabel1.font = [UIFont boldSystemFontOfSize:11];
+    effectLabel1.textAlignment = UITextAlignmentCenter;
+    
     
     // Outlets für Player2
     
@@ -1376,29 +1494,39 @@
     [player2Box setImage:[UIImage imageNamed: @"boxblack.png"]];
     
     
-    player2NameLabel = [[UILabel alloc]initWithFrame:CGRectMake(23, 87, 40, 20)];
-    player2NameLabel.text = @"Text";
+    player2NameLabel = [[UILabel alloc]initWithFrame:CGRectMake(8, 87, 55, 20)];
+    player2NameLabel.text = @"Eric";
+    player2NameLabel.textAlignment = UITextAlignmentCenter;
     [self.view addSubview:player2NameLabel];
     player2NameLabel.textColor = [UIColor whiteColor];
     player2NameLabel.backgroundColor = [UIColor clearColor];
     player2NameLabel.font = [UIFont fontWithName:@"System" size: 13.0];
     player2NameLabel.font = [UIFont boldSystemFontOfSize:11];
 
-    effectLabel2 = [[UILabel alloc] initWithFrame:CGRectMake(17,87,120,20)];
+    effectLabel2 = [[UILabel alloc] initWithFrame:player2NameLabel.frame];
     effectLabel2.alpha = 0.0;
     [self.view addSubview:effectLabel2];
     effectLabel2.backgroundColor = [UIColor blackColor];
     effectLabel2.font = [UIFont fontWithName:@"System" size:13.0];
+    effectLabel2.font = [UIFont fontWithName:@"System" size:13.0];
+    effectLabel2.font = [UIFont boldSystemFontOfSize:11];
+    effectLabel2.textAlignment = UITextAlignmentCenter;
     
     player2ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(17, 107, 40, 40)];
     [self.view addSubview:player2ProfilePictureImage];
     [player2ProfilePictureImage setImage:[UIImage imageNamed: @"Cartman.png"]];
+    player2FoldFadeLabel = [[UILabel alloc] initWithFrame:player2ProfilePictureImage.frame];
+    player2FoldFadeLabel.text = @"";
+    player2FoldFadeLabel.alpha = 0.0;
+    player2FoldFadeLabel.backgroundColor = [UIColor darkGrayColor];
+    [self.view addSubview:player2FoldFadeLabel];
     
-    player2CardOne = [[UIImageView alloc]initWithFrame:CGRectMake(12, 107, 32, 44)];
+    player2CardOne = [[UIImageView alloc]initWithFrame:CGRectMake(66, 84, 24, 33)];
     [self.view addSubview:player2CardOne];
     
-    player2CardTwo = [[UIImageView alloc]initWithFrame:CGRectMake(38, 107, 32, 44)];
+    player2CardTwo = [[UIImageView alloc]initWithFrame:CGRectMake(72, 84, 24, 33)];
     [self.view addSubview:player2CardTwo];
+    
     
     player2ChipsLabel = [[UILabel alloc] initWithFrame:CGRectMake(22, 147, 40, 20)];
     player2ChipsLabel.font = [UIFont fontWithName:@"System" size:13.0];
@@ -1409,21 +1537,28 @@
     player2ChipsLabel.font = [UIFont boldSystemFontOfSize:11];
 
 
+
     player2AlreadyBetChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(65, 147, 40, 20)];
     player2AlreadyBetChipsLabel.text = @"Text";
+    player2AlreadyBetChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(64, 144, 55, 20)];
+    player2AlreadyBetChipsLabel.textAlignment = UITextAlignmentLeft;
     [self.view addSubview:player2AlreadyBetChipsLabel];
-    player2AlreadyBetChipsLabel.backgroundColor = [UIColor yellowColor];
+    player2AlreadyBetChipsLabel.backgroundColor = [UIColor clearColor];
     player2AlreadyBetChipsLabel.font = [UIFont fontWithName:@"System" size: 13.0];
     player2AlreadyBetChipsLabel.textColor = [UIColor whiteColor];
     player2AlreadyBetChipsLabel.font = [UIFont boldSystemFontOfSize:11];
 
 
-    
-    sidePotLabel2 = [[UILabel alloc]initWithFrame:CGRectMake(65, 130, 40, 20)];
+
+
+    sidePotLabel2 = [[UILabel alloc]initWithFrame:player2AlreadyBetChipsLabel.frame];
     sidePotLabel2.text = @"SP";
     [self.view addSubview:sidePotLabel2];
     sidePotLabel2.backgroundColor = [UIColor clearColor];
     sidePotLabel2.font = [UIFont fontWithName:@"System" size: 13.0];
+    sidePotLabel2.font = [UIFont boldSystemFontOfSize:11];
+    sidePotLabel2.textColor = [UIColor orangeColor];
+    sidePotLabel2.hidden = YES;
     
     if (pokerGame.gameSettings.anzahlKI >=2) {
         
@@ -1433,27 +1568,36 @@
         [self.view addSubview:player3Box];
         [player3Box setImage:[UIImage imageNamed: @"boxblack.png"]];
         
-        player3NameLabel = [[UILabel alloc]initWithFrame:CGRectMake(125, 2, 40, 20)];
-        player3NameLabel.text = @"Text";
+        player3NameLabel = [[UILabel alloc]initWithFrame:CGRectMake(113, 2, 55, 20)];
+        player3NameLabel.text = @"Stan";
+        player3NameLabel.textAlignment = UITextAlignmentCenter;
         [self.view addSubview:player3NameLabel];
         player3NameLabel.textColor = [UIColor whiteColor];
         player3NameLabel.backgroundColor = [UIColor clearColor];
         player3NameLabel.font = [UIFont fontWithName:@"System" size: 13.0];
         player3NameLabel.font = [UIFont boldSystemFontOfSize:11];
-        effectLabel3 = [[UILabel alloc] initWithFrame:CGRectMake(121,2,120,20)];
+        effectLabel3 = [[UILabel alloc] initWithFrame:player3NameLabel.frame];
         effectLabel3.alpha = 0.0;
         [self.view addSubview:effectLabel3];
         effectLabel3.backgroundColor = [UIColor blackColor];
         effectLabel3.font = [UIFont fontWithName:@"System" size:13.0];
+        effectLabel3.font = [UIFont fontWithName:@"System" size:13.0];
+        effectLabel3.font = [UIFont boldSystemFontOfSize:11];
+        effectLabel3.textAlignment = UITextAlignmentCenter;
         
         player3ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(121, 22, 40, 40)];
         [self.view addSubview:player3ProfilePictureImage];
         [player3ProfilePictureImage setImage:[UIImage imageNamed: @"Stan.png"]];
+        player3FoldFadeLabel = [[UILabel alloc] initWithFrame:player3ProfilePictureImage.frame];
+        player3FoldFadeLabel.text = @"";
+        player3FoldFadeLabel.alpha = 0.0;
+        player3FoldFadeLabel.backgroundColor = [UIColor darkGrayColor];
+        [self.view addSubview:player3FoldFadeLabel];
         
-        player3CardOne = [[UIImageView alloc]initWithFrame:CGRectMake(116, 28, 32, 44)];
+        player3CardOne = [[UIImageView alloc]initWithFrame:CGRectMake(171, 62, 24, 33)];
         [self.view addSubview:player3CardOne];
         
-        player3CardTwo = [[UIImageView alloc]initWithFrame:CGRectMake(142, 28, 32, 44)];
+        player3CardTwo = [[UIImageView alloc]initWithFrame:CGRectMake(177, 62, 24, 33)];
         [self.view addSubview:player3CardTwo];
         
         player3ChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(127, 65, 50, 20)];
@@ -1464,17 +1608,22 @@
         player3ChipsLabel.font = [UIFont fontWithName:@"System" size: 13.0];
         player3ChipsLabel.font = [UIFont boldSystemFontOfSize:11];
         
-        player3AlreadyBetChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(173, 65, 40, 20)];
-        player3AlreadyBetChipsLabel.text = @"Text";
+        player3AlreadyBetChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(113, 83, 55, 20)];
+        player3AlreadyBetChipsLabel.textAlignment = UITextAlignmentCenter;
         [self.view addSubview:player3AlreadyBetChipsLabel];
         player3AlreadyBetChipsLabel.backgroundColor = [UIColor clearColor];
         player3AlreadyBetChipsLabel.font = [UIFont fontWithName:@"System" size: 13.0];
+        player3AlreadyBetChipsLabel.font = [UIFont boldSystemFontOfSize:11];
+        player3AlreadyBetChipsLabel.textColor = [UIColor whiteColor];
         
-        sidePotLabel3 = [[UILabel alloc]initWithFrame:CGRectMake(70, 65, 40, 20)];
+        sidePotLabel3 = [[UILabel alloc]initWithFrame:player3AlreadyBetChipsLabel.frame];
         sidePotLabel3.text = @"SP";
         [self.view addSubview:sidePotLabel3];
         sidePotLabel3.backgroundColor = [UIColor clearColor];
         sidePotLabel3.font = [UIFont fontWithName:@"System" size: 13.0];
+        sidePotLabel3.font = [UIFont boldSystemFontOfSize:11];
+        sidePotLabel3.textColor = [UIColor orangeColor];
+        sidePotLabel3.hidden = YES;
         
         if (pokerGame.gameSettings.anzahlKI >= 3) {
             
@@ -1484,27 +1633,36 @@
             [self.view addSubview:player4Box];
             [player4Box setImage:[UIImage imageNamed: @"boxblack.png"]];
             
-            player4NameLabel = [[UILabel alloc]initWithFrame:CGRectMake(318, 2, 40, 20)];
-            player4NameLabel.text = @"Text";
+            player4NameLabel = [[UILabel alloc]initWithFrame:CGRectMake(304, 2, 55, 20)];
+            player4NameLabel.text = @"Kyle";
+            player4NameLabel.textAlignment = UITextAlignmentCenter;
             [self.view addSubview:player4NameLabel];
             player4NameLabel.backgroundColor = [UIColor clearColor];
             player4NameLabel.textColor = [UIColor whiteColor];
             player4NameLabel.font = [UIFont fontWithName:@"System" size: 13.0];
             player4NameLabel.font = [UIFont boldSystemFontOfSize:11];
-            effectLabel4 = [[UILabel alloc] initWithFrame:CGRectMake(313,2,120,20)];
+            effectLabel4 = [[UILabel alloc] initWithFrame:player4NameLabel.frame];
             effectLabel4.alpha = 0.0;
             [self.view addSubview:effectLabel4];
             effectLabel4.backgroundColor = [UIColor blackColor];
             effectLabel4.font = [UIFont fontWithName:@"System" size:13.0];
+            effectLabel4.font = [UIFont fontWithName:@"System" size:13.0];
+            effectLabel4.font = [UIFont boldSystemFontOfSize:11];
+            effectLabel4.textAlignment = UITextAlignmentCenter;
             
             player4ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(313, 22, 40, 40)];
             [self.view addSubview:player4ProfilePictureImage];
             [player4ProfilePictureImage setImage:[UIImage imageNamed: @"Kyle.png"]];
+            player4FoldFadeLabel = [[UILabel alloc] initWithFrame:player4ProfilePictureImage.frame];
+            player4FoldFadeLabel.text = @"";
+            player4FoldFadeLabel.alpha = 0.0;
+            player4FoldFadeLabel.backgroundColor = [UIColor darkGrayColor];
+            [self.view addSubview:player4FoldFadeLabel];
             
-            player4CardOne = [[UIImageView alloc]initWithFrame:CGRectMake(308, 28, 32, 44)];
+            player4CardOne = [[UIImageView alloc]initWithFrame:CGRectMake(263, 62, 24, 33)];
             [self.view addSubview:player4CardOne];
             
-            player4CardTwo = [[UIImageView alloc]initWithFrame:CGRectMake(334, 28, 32, 44)];
+            player4CardTwo = [[UIImageView alloc]initWithFrame:CGRectMake(269, 62, 24, 33)];
             [self.view addSubview:player4CardTwo];
             
             player4ChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(318, 65, 50, 20)];
@@ -1515,17 +1673,22 @@
             player4ChipsLabel.font = [UIFont fontWithName:@"System" size: 13.0];
             player4ChipsLabel.font = [UIFont boldSystemFontOfSize:11];
             
-            player4AlreadyBetChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(261, 65, 40, 20)];
-            player4AlreadyBetChipsLabel.text = @"Text";
+            player4AlreadyBetChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(304, 83, 55, 20)];
+            player4AlreadyBetChipsLabel.textAlignment = UITextAlignmentCenter;
             [self.view addSubview:player4AlreadyBetChipsLabel];
             player4AlreadyBetChipsLabel.backgroundColor = [UIColor clearColor];
             player4AlreadyBetChipsLabel.font = [UIFont fontWithName:@"System" size: 13.0];
+            player4AlreadyBetChipsLabel.font = [UIFont boldSystemFontOfSize:11];
+            player4AlreadyBetChipsLabel.textColor = [UIColor whiteColor];
             
-            sidePotLabel4 = [[UILabel alloc]initWithFrame:CGRectMake(363, 65, 40, 20)];
+            sidePotLabel4 = [[UILabel alloc]initWithFrame:player4AlreadyBetChipsLabel.frame];
             sidePotLabel4.text = @"SP";
             [self.view addSubview:sidePotLabel4];
             sidePotLabel4.backgroundColor = [UIColor clearColor];
             sidePotLabel4.font = [UIFont fontWithName:@"System" size: 13.0];
+            sidePotLabel4.font = [UIFont boldSystemFontOfSize:11];
+            sidePotLabel4.textColor = [UIColor orangeColor];
+            sidePotLabel4.hidden = YES;
     
             if (pokerGame.gameSettings.anzahlKI == 4) {
                 
@@ -1535,28 +1698,37 @@
                 [self.view addSubview:player5Box];
                 [player5Box setImage:[UIImage imageNamed: @"boxblack.png"]];
                 
-                player5NameLabel = [[UILabel alloc]initWithFrame:CGRectMake(431, 87, 40, 20)];
-                player5NameLabel.text = @"Text";
+                player5NameLabel = [[UILabel alloc]initWithFrame:CGRectMake(418, 87, 55, 20)];
+                player5NameLabel.text = @"Kenny";
+                player5NameLabel.textAlignment = UITextAlignmentCenter;
                 [self.view addSubview:player5NameLabel];
                 player5NameLabel.backgroundColor = [UIColor clearColor];
                 player5NameLabel.textColor = [UIColor whiteColor];
                 player5NameLabel.font = [UIFont fontWithName:@"System" size: 13.0];
                 player5NameLabel.font = [UIFont boldSystemFontOfSize:11];
-                effectLabel5 = [[UILabel alloc] initWithFrame:CGRectMake(427,87,120,20)];
+                effectLabel5 = [[UILabel alloc] initWithFrame:player5NameLabel.frame];
                 effectLabel5.alpha = 0.0;
                 [self.view addSubview:effectLabel5];
                 effectLabel5.backgroundColor = [UIColor blackColor];
                 effectLabel5.font = [UIFont fontWithName:@"System" size:13.0];
+                effectLabel5.font = [UIFont fontWithName:@"System" size:13.0];
+                effectLabel5.font = [UIFont boldSystemFontOfSize:11];
+                effectLabel5.textAlignment = UITextAlignmentCenter;
 
                 
                 player5ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(427, 107, 40, 40)];
                 [self.view addSubview:player5ProfilePictureImage];
                 [player5ProfilePictureImage setImage:[UIImage imageNamed: @"Kenny.png"]];
+                player5FoldFadeLabel = [[UILabel alloc] initWithFrame:player5ProfilePictureImage.frame];
+                player5FoldFadeLabel.text = @"";
+                player5FoldFadeLabel.alpha = 0.0;
+                player5FoldFadeLabel.backgroundColor = [UIColor darkGrayColor];
+                [self.view addSubview:player5FoldFadeLabel];
                 
-                player5CardOne = [[UIImageView alloc]initWithFrame:CGRectMake(422, 107, 32, 44)];
+                player5CardOne = [[UIImageView alloc]initWithFrame:CGRectMake(377, 84, 24, 33)];
                 [self.view addSubview:player5CardOne];
                 
-                player5CardTwo = [[UIImageView alloc]initWithFrame:CGRectMake(448, 107, 32, 44)];
+                player5CardTwo = [[UIImageView alloc]initWithFrame:CGRectMake(383, 84, 24, 33)];
                 [self.view addSubview:player5CardTwo];
                 
                 player5ChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(427, 149, 50, 20)];
@@ -1568,17 +1740,22 @@
                 player5ChipsLabel.font = [UIFont fontWithName:@"System" size: 13.0];
                 player5ChipsLabel.font = [UIFont boldSystemFontOfSize:11];
                 
-                player5AlreadyBetChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(385, 107, 40, 20)];
-                player5AlreadyBetChipsLabel.text = @"Text";
+                player5AlreadyBetChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(362, 144, 55, 20)];
+                player5AlreadyBetChipsLabel.textAlignment = UITextAlignmentRight;
                 [self.view addSubview:player5AlreadyBetChipsLabel];
                 player5AlreadyBetChipsLabel.backgroundColor = [UIColor clearColor];
                 player5AlreadyBetChipsLabel.font = [UIFont fontWithName:@"System" size: 13.0];
+                player5AlreadyBetChipsLabel.font = [UIFont boldSystemFontOfSize:11];
+                player5AlreadyBetChipsLabel.textColor = [UIColor whiteColor];
                 
-                sidePotLabel5 = [[UILabel alloc]initWithFrame:CGRectMake(380, 149, 50, 20)];
+                sidePotLabel5 = [[UILabel alloc]initWithFrame:player5AlreadyBetChipsLabel.frame];
                 sidePotLabel5.text = @"SP";
                 [self.view addSubview:sidePotLabel5];
                 sidePotLabel5.backgroundColor = [UIColor clearColor];
                 sidePotLabel5.font = [UIFont fontWithName:@"System" size: 13.0];
+                sidePotLabel5.font = [UIFont boldSystemFontOfSize:11];
+                sidePotLabel5.textColor = [UIColor orangeColor];
+                sidePotLabel5.hidden = YES;
                 
             }
         }
@@ -1599,12 +1776,13 @@
 
 - (NSInteger) tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return 2;
+    return 3;
 }
 
 - (NSString* ) tableView: (UITableView* ) tableView titleForHeaderInSection:(NSInteger)section
 {
-    return @"Game Paused";
+    //return @"Game Paused";
+    return @"";
 }
 
 - (UITableViewCell* ) tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -1615,13 +1793,23 @@
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:MyIdentifier];
     }
     if (indexPath.row == 0) {
+        cell.textLabel.text = @"Game Paused";
+    }
+    else if (indexPath.row == 1) {
         cell.textLabel.text = @"Resume";
     }
     else {
         cell.textLabel.text = @"Leave Game";
     }
-    cell.backgroundColor = [UIColor clearColor];
+    cell.backgroundColor = [UIColor darkGrayColor];
     cell.textLabel.font = [UIFont fontWithName:@"System" size:13.0];
+    cell.textLabel.font = [UIFont boldSystemFontOfSize:17];
+    if (indexPath.row > 0) {
+        cell.textLabel.textColor = [UIColor whiteColor];
+    }
+    else {
+        cell.textLabel.textColor = [UIColor redColor];
+    }
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
     cell.textLabel.textAlignment = UITextAlignmentCenter;
     return cell;
@@ -1629,12 +1817,12 @@
 
 - (void) tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (indexPath.row == 0) {
+    if (indexPath.row == 1) {
         paused = NO;
         [self pauseOrUnpause];
         [self showAnimationWhenGameIsPaused];
     }
-    else if (indexPath.row == 1) {
+    else if (indexPath.row == 2) {
         [self performSegueWithIdentifier:@"leaveGame" sender:self];
     }
 }
@@ -1709,8 +1897,8 @@
 - (void) changeGameOutlets_blindsCountdown
 {
     if (pokerGame.blindsCountdown >= 10.0) {
-        if (blindsCountdownLabel.textColor = [UIColor redColor]) {
-            blindsCountdownLabel.textColor = [UIColor blueColor];
+        if (blindsCountdownLabel.textColor == [UIColor redColor]) {
+            blindsCountdownLabel.textColor = [UIColor darkGrayColor];
         }
     }
     else {
@@ -1730,26 +1918,50 @@
     CGRect destinationFrame = cardDeckImage.frame;
     CGRect startFrame1;
     CGRect startFrame2;
+    UILabel* foldFadeLabel;
+    UILabel* nameLabel;
+    UILabel* chipsLabel;
     if ([aPlayer.identification isEqualToString:@"player1"]) {
         startFrame1 = player1CardOne.frame;
         startFrame2 = player1CardTwo.frame;
+        foldFadeLabel = player1FoldFadeLabel;
+        nameLabel = player1NameLabel;
+        chipsLabel = player1ChipsLabel;
     }
     else if ([aPlayer.identification isEqualToString:@"player2"]) {
         startFrame1 = player2CardOne.frame;
         startFrame2 = player2CardTwo.frame;
+        foldFadeLabel = player2FoldFadeLabel;
+        nameLabel = player2NameLabel;
+        chipsLabel = player2ChipsLabel;
     }
     else if ([aPlayer.identification isEqualToString:@"player3"]) {
         startFrame1 = player3CardOne.frame;
         startFrame2 = player3CardTwo.frame;
+        foldFadeLabel = player3FoldFadeLabel;
+        nameLabel = player3NameLabel;
+        chipsLabel = player3ChipsLabel;
     }    
     else if ([aPlayer.identification isEqualToString:@"player4"]) {
         startFrame1 = player4CardOne.frame;
         startFrame2 = player4CardTwo.frame;
+        foldFadeLabel = player4FoldFadeLabel;
+        nameLabel = player4NameLabel;
+        chipsLabel = player4ChipsLabel;
     }    
     else if ([aPlayer.identification isEqualToString:@"player5"]) {
         startFrame1 = player5CardOne.frame;
         startFrame2 = player5CardTwo.frame;
+        foldFadeLabel = player5FoldFadeLabel;
+        nameLabel = player5NameLabel;
+        chipsLabel = player5ChipsLabel;
     }
+    [UIView animateWithDuration:0.5 animations:^{
+        foldFadeLabel.alpha = 0.7;
+        nameLabel.alpha = 0.3;
+        chipsLabel.alpha = 0.3;
+    } completion:nil];
+    
     [self movePlayingCardFromFrame:startFrame1 toDestinationFrame:destinationFrame duration:0.2 option:nil];
     [self movePlayingCardFromFrame:startFrame2 toDestinationFrame:destinationFrame duration:0.2 option:nil];
 }
@@ -1837,7 +2049,7 @@
 {
     if (aPlayer.counter > 3) {
         if (self.playerCountdownLabel.textColor == [UIColor redColor]) {
-            self.playerCountdownLabel.textColor = [UIColor blueColor];
+            self.playerCountdownLabel.textColor = [UIColor darkGrayColor];
         }
     }
     else {
@@ -1858,23 +2070,28 @@
 - (void) changePlayerOutlets_lost:(Player *)aPlayer
 {
     if ([aPlayer.identification isEqualToString:@"player1"]) {
-        player1NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player1NameLabel.text, @"Lost!"];
+       // player1NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player1NameLabel.text, @"Lost!"];
+        player1ChipsLabel.textColor = [UIColor redColor];
         player1NameLabel.textColor = [UIColor redColor];
     }
     else if ([aPlayer.identification isEqualToString:@"player2"]) {
-        player2NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player2NameLabel.text, @"Lost!"];
+     //   player2NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player2NameLabel.text, @"Lost!"];
+        player2ChipsLabel.textColor = [UIColor redColor];
         player2NameLabel.textColor = [UIColor redColor];
     }
     else if ([aPlayer.identification isEqualToString:@"player3"]) {
-        player3NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player3NameLabel.text, @"Lost!"];
+       // player3NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player3NameLabel.text, @"Lost!"];
+        player3ChipsLabel.textColor = [UIColor redColor];
         player3NameLabel.textColor = [UIColor redColor];
     }    
     else if ([aPlayer.identification isEqualToString:@"player4"]) {
-        player4NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player4NameLabel.text, @"Lost!"];
+       // player4NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player4NameLabel.text, @"Lost!"];
+        player4ChipsLabel.textColor = [UIColor redColor];
         player4NameLabel.textColor = [UIColor redColor];
     }    
     else if ([aPlayer.identification isEqualToString:@"player5"]) {
-        player5NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player5NameLabel.text, @"Lost!"];
+       // player5NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player5NameLabel.text, @"Lost!"];
+        player5ChipsLabel.textColor = [UIColor redColor];
         player5NameLabel.textColor = [UIColor redColor];
     }
 }
@@ -1882,23 +2099,28 @@
 - (void) changePlayerOutlets_won:(Player *)aPlayer
 {
     if ([aPlayer.identification isEqualToString:@"player1"]) {
-        player1NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player1NameLabel.text, @"Won!"];
+    //    player1NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player1NameLabel.text, @"Won!"];
+        player1ChipsLabel.textColor = [UIColor greenColor];
         player1NameLabel.textColor = [UIColor greenColor];
     }
     else if ([aPlayer.identification isEqualToString:@"player2"]) {
-        player2NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player2NameLabel.text, @"Won!"];
+    //    player2NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player2NameLabel.text, @"Won!"];
+        player2ChipsLabel.textColor = [UIColor greenColor];
         player2NameLabel.textColor = [UIColor greenColor];
     }
     else if ([aPlayer.identification isEqualToString:@"player3"]) {
-        player3NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player3NameLabel.text, @"Won!"];
+    //    player3NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player3NameLabel.text, @"Won!"];
+        player3ChipsLabel.textColor = [UIColor greenColor];
         player3NameLabel.textColor = [UIColor greenColor];
     }    
     else if ([aPlayer.identification isEqualToString:@"player4"]) {
-        player4NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player4NameLabel.text, @"Won!"];
+    //    player4NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player4NameLabel.text, @"Won!"];
+        player4ChipsLabel.textColor = [UIColor greenColor];
         player4NameLabel.textColor = [UIColor greenColor];
     }    
     else if ([aPlayer.identification isEqualToString:@"player5"]) {
-        player5NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player5NameLabel.text, @"Won!"];
+    //    player5NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player5NameLabel.text, @"Won!"];
+        player5ChipsLabel.textColor = [UIColor greenColor];
         player5NameLabel.textColor = [UIColor greenColor];
     }
     NSString* soundFilePath = [[NSBundle mainBundle] pathForResource:@"winner" ofType:@"wav"];

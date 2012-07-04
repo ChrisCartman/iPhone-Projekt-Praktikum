@@ -18,5 +18,6 @@
 @property (nonatomic, retain) UIImage* playerImage;
 
 - (id) initWithPlayerProfile: (PlayerProfile* ) profile;
+- (id) initWithPlayerName: (NSString* ) aPlayerName playerImage:(UIImage* ) aPlayerImage;
 
 @end

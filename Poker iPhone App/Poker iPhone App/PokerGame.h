@@ -75,12 +75,8 @@
 - (void) prepareGame;
 - (void) addPlayer: (Player* ) aPlayer;
 - (void) increaseBlinds;
-- (void) startNewRound;
-- (void) activateNextPlayer;
 - (void) dealOut;
 - (void) prepareNewRound;
-- (Player* ) defineWinnersOfRound;
-- (Player* ) defineWinnerOfGame;
 - (void) endBetRound;
 - (void) endRound;
 - (void) endGame;
@@ -88,7 +84,6 @@
 - (void) showTurn;
 - (void) showRiver;
 - (void) endMoveOfPlayer: (Player* ) aPlayer; //Startet außerdem den Zug des nächsten Spielers, bzw. beendet die Bet-Round
-- (NSMutableArray* ) sortPlayers_BestCardsFirst;
 - (void) takeBlinds;
 - (void) startBetRound;
 - (void) changeGameState;
@@ -103,7 +98,6 @@
 - (void) distributeChipsOnPots;
 - (void) sortPlayersWhoAreAllIn;
 - (void) startShowDown;
-- (void) showCardsOfPlayer: (Player* ) aPlayer;
 - (void) showDownTimerFires: (NSTimer* ) aTimer;
 - (void) showDownForPlayer: (Player* ) aPlayer;
 - (void) resetGameForNewRound;

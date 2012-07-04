@@ -104,9 +104,15 @@
 @property(nonatomic, strong) AVAudioPlayer* countdownSoundPlayer;
 @property(nonatomic, strong) AVAudioPlayer* winnerSoundPlayer;
 
-@property (nonatomic, strong) IBOutlet UIImageView* winnersCup;
+@property (nonatomic, strong) UILabel* player1FoldFadeLabel;
+@property (nonatomic, strong) UILabel* player2FoldFadeLabel;
+@property (nonatomic, strong) UILabel* player3FoldFadeLabel;
+@property (nonatomic, strong) UILabel* player4FoldFadeLabel;
+@property (nonatomic, strong) UILabel* player5FoldFadeLabel;
 
-- (void) setUpGraphics;
+@property (nonatomic, strong) IBOutlet UIButton* sliderSensibilityButton;
+
+@property (nonatomic, strong) IBOutlet UIImageView* winnersCup;
 
 - (void) changePlayerOutlets_chips: (Player* ) aPlayer;
 - (void) changePlayerOutlets_alreadyBetChips: (Player* ) aPlayer;
@@ -122,6 +128,7 @@
 - (void) changePlayerOutlets_lost: (Player* ) aPlayer;
 - (void) changePlayerOutlets_won: (Player* ) aPlayer;
 
+
 - (IBAction) changeBetSliderValue:(id)sender;
 - (IBAction) betButtonPressed:(id)sender;
 - (IBAction) foldButtonPressed:(id)sender;
@@ -132,9 +139,10 @@
 - (void) showAnimationWhenCardPopsFromDeck;
 - (void) showAnimationWhenPlayerFolds: (Player* ) aPlayer;
 - (void) showAnimationWhenGameIsPaused;
-- (void) showAnimationWhenPlayer: (Player* ) aPlayer showsCard: (UIImageView* ) card1 andCard: (UIImageView* ) card2;
+- (void) showAnimationWhenPlayer: (Player* ) aPlayer showsCard: (UIImageView* ) card1 andCard: (UIImageView* ) card2 fiveBestCardsAnimated:(BOOL) animated;
 - (void) showAnimationWhenBlindsAreIncreased;
-- (void) showAnimationForFiveBestCardsOfPlayer: (Player* ) aPlayer withCard: (UIImageView* ) card1 andCard: (UIImageView* ) card2 fiveBestCardsAnimated:(BOOL) animated;
+- (void) showAnimationForFiveBestCardsOfPlayer: (Player* ) aPlayer withCard: (UIImageView* ) card1 andCard: (UIImageView* ) card2;
+
 
 - (void) resetTemporaryOutletsAndBadCards;
 - (void) removeTemporaryOutlet:(UIImageView* ) outlet;
@@ -145,17 +153,20 @@
 - (void) showCardsOfPlayer: (Player* ) aPlayer withAnimation: (BOOL) animated;
 - (void) playerThrowsCardsAway: (Player* ) aPlayer;
 
-- (void) pauseOfUnpause;
-
 - (void) pauseRunningTimer: (NSTimer* ) timer creationTime: (NSDate* ) creationTime;
 - (void) unpauseRunningTimer: (NSTimer* ) timer timeToGo: (NSTimeInterval) timeToGo;
 
 - (void) showAnimationWhenPlayerWonGame;
+
+- (void) resetAnimatedOutlets;
+
+
 
 
 - (IBAction)cardsTouchDown:(id)sender;
 - (IBAction)cardsTouchUp:(id)sender;
 - (IBAction)showCardsButtonClicked:(id)sender;
 - (IBAction)throwCardsAwayButtonClicked:(id)sender;
+- (IBAction)changeSliderSensibility:(id)sender;
 
 @end

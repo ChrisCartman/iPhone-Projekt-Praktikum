@@ -33,6 +33,7 @@
 
 - (IBAction)selectPicture;
 - (IBAction)takePicture:(id)sender;
+- (IBAction)textFieldDoneEditing:(id)sender;
 
 
 @end

@@ -22,4 +22,13 @@
     return self;
 }
 
+- (id) initWithPlayerName:(NSString *)aPlayerName playerImage:(UIImage *) aPlayerImage
+{
+    if (self = [super init]) {
+        self.playerName = aPlayerName;
+        self.playerImage = aPlayerImage;
+    }
+    return self;
+}
+
 @end

@@ -146,7 +146,7 @@
 - (void) flopTimerFired:(NSTimer *)aTimer
 {
     NSString* popsFor = [aTimer.userInfo objectAtIndex:0];
-    NSNumber* numberI = [aTimer.userInfo objectAtIndex:1];
+    //NSNumber* numberI = [aTimer.userInfo objectAtIndex:1];
     PlayingCard* newPlayingCard = [cardDeck popFor:popsFor];
     [cardsOnTable.flop addObject:newPlayingCard];
     [cardsOnTable.allCards addObject:newPlayingCard];
@@ -263,6 +263,31 @@
             temporaryPlayer.playerOnLeftSide = (Player* ) [allPlayers objectAtIndex:(i+1)];
             temporaryPlayer.playerOnRightSide = (Player* ) [allPlayers objectAtIndex:(i-1)];
         }
+        if (i==0) {
+            temporaryPlayer.showDownCard1Frame = CGRectMake(209,201,32,44);
+            temporaryPlayer.showDownCard2Frame = CGRectMake(243, 201, 32, 44);
+        }
+        else if (i==1) {
+            temporaryPlayer.showDownCard1Frame = CGRectMake(4, 105, 32, 44);
+            temporaryPlayer.showDownCard2Frame = CGRectMake(38, 105, 32, 44);
+        }
+        else if (i==2) {
+            temporaryPlayer.showDownCard1Frame = CGRectMake(108, 20, 32, 44);
+            temporaryPlayer.showDownCard2Frame = CGRectMake(142, 20, 32, 44);
+        }
+        else if (i==3) {
+            temporaryPlayer.showDownCard1Frame = CGRectMake(300, 20, 32, 44);
+            temporaryPlayer.showDownCard2Frame = CGRectMake(334, 20, 32, 44);
+        }
+        else if (i==4) {
+            temporaryPlayer.showDownCard1Frame = CGRectMake(414, 105, 32, 44);
+            temporaryPlayer.showDownCard2Frame = CGRectMake(448, 105, 32, 44);
+        }
+        /*player1ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(222, 203, 40, 40)];
+        player2ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(17, 107, 40, 40)];
+        player3ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(121, 22, 40, 40)];
+        player4ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(313, 22, 40, 40)];
+        player5ProfilePictureImage = [[UIImageView alloc]initWithFrame:CGRectMake(427, 107, 40, 40)];*/
         temporaryPlayer.dealer = NO;
         temporaryPlayer.smallBlind = NO;
         temporaryPlayer.bigBlind = NO;
@@ -448,7 +473,7 @@
             firstInRound = firstInRound.nextPlayerInRound;
         }
     }
-    aPlayer.alreadyBetChips = 0;
+    //aPlayer.alreadyBetChips = 0;
     aPlayer.previousPlayerInRound.nextPlayerInRound = aPlayer.nextPlayerInRound;
     aPlayer.nextPlayerInRound.previousPlayerInRound = aPlayer.previousPlayerInRound;
     [remainingPlayersInRound removeObject:aPlayer];
@@ -596,27 +621,58 @@
 - (NSMutableArray* ) sharePotAmongWinners:(NSMutableArray *)winners
 {
     float divider = [winners count];
+    for (Player* winner in winners) {
+        NSLog(@"%@", winner.identification);
+    }
+    NSMutableArray* winnersCopy = [NSMutableArray arrayWithArray:winners];
+    NSMutableArray* playersWhoAreAllInCopy = [NSMutableArray arrayWithArray:playersWhoAreAllIn];
     /* Vorgehensweise:
      - Die Sidepots aller Spieler die nicht zu den Gewinnern gehören werden in den nächst größeren Sidepot geschüttet
      - Gewinner mit Sidepot kriegen ihren Anteil aus dem Sidepot zurück
      - danach wird der mainPot an die verbleibenden Gewinner oder denjenigen mit den nächstbesten Karten vergeben
      */
-    for (int i=0; i<[playersWhoAreAllIn count]; i++) {
-        Player* playerWithSidePot = [playersWhoAreAllIn objectAtIndex:i];
-        if (![winners containsObject:playerWithSidePot]) {
-            if (i!=([playersWhoAreAllIn count] - 1)) {
-                Player* playerWithNextBiggerSidePot = [playersWhoAreAllIn objectAtIndex:(i+1)];
-                playerWithNextBiggerSidePot.sidePot.chipsInPot += playerWithSidePot.sidePot.chipsInPot;
-                playerWithSidePot.sidePot.chipsInPot = 0;
+    while (true) {
+        if ([playersWhoAreAllIn count] == 0) {
+            break;
+        }
+        while (true) {
+            if ([playersWhoAreAllIn count] == 0) {
+                break;
+            }
+            Player* playerWithSidePot = [playersWhoAreAllIn objectAtIndex:0];
+            if (![winners containsObject:playerWithSidePot]) {
+                if ([playersWhoAreAllIn count] != 1) {
+                    Player* playerWithNextBiggerSidePot = [playersWhoAreAllIn objectAtIndex:1];
+                    playerWithNextBiggerSidePot.sidePot.chipsInPot += playerWithSidePot.sidePot.chipsInPot;
+                    playerWithSidePot.sidePot.chipsInPot = 0;
+                }
+                else {
+                    self.mainPot.chipsInPot += playerWithSidePot.sidePot.chipsInPot;
+                    playerWithSidePot.sidePot.chipsInPot = 0;
+                }
+                [playersWhoAreAllIn removeObjectAtIndex:0];
             }
             else {
-                self.mainPot.chipsInPot += playerWithSidePot.sidePot.chipsInPot;
+                for (Player* winner in winners) {
+                    int numberAsIntTimesHundred = playerWithSidePot.sidePot.chipsInPot / divider * 100;
+                    float roundedNumber = numberAsIntTimesHundred / 100.0;
+                    winner.chips += roundedNumber;
+                }
+                self.mainPot.allChipsInAllPots -= playerWithSidePot.sidePot.chipsInPot;
                 playerWithSidePot.sidePot.chipsInPot = 0;
+                [playersWhoAreAllIn removeObjectAtIndex:0];
+                divider -= 1;
+                [winners removeObject:playerWithSidePot];
+                if ([winners count] == 0) {
+                    //alle Gewinner schon gefunden, also kann die Schleife abgebrochen werden:
+                    [playersWhoAreAllIn removeAllObjects];
+                }
+                break;
             }
         }
     }
     //das Array playersWhoAreAllIn wird geleert und mit den Gewinnern gefüllt, die all in sind
-    [playersWhoAreAllIn removeAllObjects];
+    /*[playersWhoAreAllIn removeAllObjects];
     for (Player* winner in winners) {
         if (winner.hasSidePot == YES) {
             [playersWhoAreAllIn addObject:winner];
@@ -637,7 +693,7 @@
         divider -= 1;
         playerWithSidePot.sidePot.chipsInPot = 0;
         [winners removeObject:playerWithSidePot];
-    }
+    }*/
     
     //falls auch Player ohne sidePot unter den Gewinnern sind, bekommen diese den mainPot
     if ([winners count] != 0) {
@@ -650,8 +706,11 @@
         self.mainPot.chipsInPot = 0;
     }
     
+    //ersetze winners und playersWhoAreAllin durch ihre Kopien:
+    winners = winnersCopy;
+    playersWhoAreAllIn = playersWhoAreAllInCopy;
+    
     //gib jetzt alle Gewinner zurück (dies ist notwendig falls nochmals Gewinner bestimmt werden müssen, wenn der Pot noch nicht leer ist.
-    [winners addObjectsFromArray:playersWhoAreAllIn];
     return winners;
 }
 
@@ -660,6 +719,8 @@
     [self distributeChipsOnPots];
     for (Player* aPlayer in self.remainingPlayersInRound) {
         aPlayer.playerState = INACTIVE;
+    }
+    for (Player* aPlayer in allPlayers) {
         aPlayer.alreadyBetChips = 0;
     }
     highestBet = 0;
@@ -691,11 +752,11 @@
 
 - (void) sortPlayersWhoAreAllIn
 {
-    [playersWhoAreAllIn sortedArrayUsingComparator:^(Player* player1, Player* player2) {
+    self.playersWhoAreAllIn = [NSMutableArray arrayWithArray:[playersWhoAreAllIn sortedArrayUsingComparator:^(Player* player1, Player* player2) {
         if (player1.sidePot.maxChips < player2.sidePot.maxChips) return (NSComparisonResult) NSOrderedAscending;
         else if (player1.sidePot.maxChips > player2.sidePot.maxChips) return (NSComparisonResult) NSOrderedDescending;
         return (NSComparisonResult) NSOrderedSame;
-    }];
+    }]];
 }
 
 - (void) distributeChipsOnPots
@@ -705,6 +766,11 @@
     }
     if ([playersWhoAreAllIn count] != 0) {
         //SidePots der Größe nach sortieren:
+        [self sortPlayersWhoAreAllIn];
+        for (int i=0; i<[playersWhoAreAllIn count]; i++) {
+            Player* aPlayer = [playersWhoAreAllIn objectAtIndex:i];
+            NSLog(@"%f",aPlayer.sidePot.chipsAmountNeededFromEachPlayerToBeFilled);
+        }
         Player* playerWithNextSmallerSidePot = nil;
         for (int i=0; i<[playersWhoAreAllIn count]; i++) {
             Player* aPlayer = (Player* ) [playersWhoAreAllIn objectAtIndex:i];
@@ -718,6 +784,7 @@
             if (playerWithNextSmallerSidePot != nil) {
                 aPlayer.sidePot.chipsAmountNeededFromEachPlayerToBeFilled -= playerWithNextSmallerSidePot.sidePot.chipsAmountNeededFromEachPlayerToBeFilled;
             }
+            NSLog(@"%f",aPlayer.sidePot.chipsAmountNeededFromEachPlayerToBeFilled);
             for (Player* anyPlayer in allPlayers) {
                 if (anyPlayer.alreadyBetChips >= aPlayer.sidePot.chipsAmountNeededFromEachPlayerToBeFilled) {
                     aPlayer.sidePot.chipsInPot += aPlayer.sidePot.chipsAmountNeededFromEachPlayerToBeFilled;
@@ -731,6 +798,9 @@
                 if ([remainingPlayersInRound containsObject:anyPlayer]) {
                     [aPlayer.sidePot.playersWhoPaidInThisPot addObject:anyPlayer];
                 }
+            }
+            if (playerWithNextSmallerSidePot != nil) {
+                aPlayer.sidePot.chipsAmountNeededFromEachPlayerToBeFilled += playerWithNextSmallerSidePot.sidePot.chipsAmountNeededFromEachPlayerToBeFilled;
             }
             aPlayer.sidePot.isFilled = YES;
             playerWithNextSmallerSidePot = aPlayer;
@@ -767,6 +837,7 @@
 {
     //Chips verteilen:
     while (self.mainPot.allChipsInAllPots != 0) {
+        NSLog(@"%f", self.mainPot.allChipsInAllPots);
         NSMutableArray* winners = [[NSMutableArray alloc] initWithArray:(NSMutableArray* )[self defineWinnersOfRound]];
         NSMutableArray* alreadyPaidWinners = [self sharePotAmongWinners:winners];
         for (Player* alreadyPaidWinner in alreadyPaidWinners) {

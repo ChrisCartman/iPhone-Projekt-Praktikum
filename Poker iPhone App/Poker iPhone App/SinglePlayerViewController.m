@@ -49,8 +49,6 @@
 - (void)viewDidLoad
 {  
     [super viewDidLoad];
-  
-    AppDelegate* appDelegate = [[UIApplication sharedApplication] delegate];
     
     if (gameSettings == nil) {
         gameSettings = [[GameSettings alloc] init];
@@ -58,7 +56,7 @@
     
     if (gameSettings.difficulty ==nil) {gameSettings.difficulty = @"schwer";};
     if (gameSettings.blinds ==nil) {gameSettings.blinds = @"nach Runden";};  
-    if (gameSettings.anzahlKI == 0) {gameSettings.anzahlKI = 3;};
+    if (gameSettings.anzahlKI == 0) {gameSettings.anzahlKI = 4;};
     if (gameSettings.startChips == 0) {gameSettings.startChips =1000;};
     if (gameSettings.startBlinds == 0) {gameSettings.startBlinds = 5;};
     if (gameSettings.increaseBlindsAfter == 0) {gameSettings.increaseBlindsAfter = 5;};

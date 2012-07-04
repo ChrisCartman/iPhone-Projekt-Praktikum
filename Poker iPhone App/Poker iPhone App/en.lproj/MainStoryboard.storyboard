@@ -12,7 +12,7 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="WVC-Hz-I4f" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <tableViewController id="mOk-we-591" sceneMemberID="viewController">
                     <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="grouped" separatorStyle="singleLineEtched" rowHeight="44" sectionHeaderHeight="10" sectionFooterHeight="10" id="jbJ-WQ-bS0">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="416"/>
+                        <rect key="frame" x="0.0" y="64" width="320" height="416"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                         <sections>
@@ -65,7 +65,7 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="cre-7Y-ukh" userLabel="First Responder" sceneMemberID="firstResponder"/>
                 <tableViewController id="YdT-om-bbt" sceneMemberID="viewController">
                     <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="grouped" separatorStyle="singleLineEtched" rowHeight="44" sectionHeaderHeight="10" sectionFooterHeight="10" id="ea0-eh-HU7">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="416"/>
+                        <rect key="frame" x="0.0" y="64" width="320" height="416"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                         <sections>
@@ -162,6 +162,10 @@
                         <rect key="frame" x="0.0" y="20" width="320" height="460"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
+                            <imageView multipleTouchEnabled="YES" userInteractionEnabled="NO" contentMode="scaleToFill" image="startbild.jpeg" id="0hn-7a-oSY">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="460"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </imageView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" id="V7c-Pm-Qq8">
                                 <rect key="frame" x="63" y="266" width="195" height="37"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
@@ -234,10 +238,13 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="Bitte gib deinen Benutzernamen ein" minimumFontSize="17" id="tiS-Fd-EvA">
-                                                    <rect key="frame" x="0.0" y="6" width="300" height="31"/>
+                                                    <rect key="frame" x="5" y="6" width="300" height="31"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                                     <textInputTraits key="textInputTraits"/>
+                                                    <connections>
+                                                        <action selector="textFieldDoneEditing:" destination="Cfw-Xg-rfE" eventType="editingDidEndOnExit" id="drm-74-xaP"/>
+                                                    </connections>
                                                 </textField>
                                             </subviews>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
@@ -584,10 +591,9 @@
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" image="Table.png" id="biH-zQ-z9X">
                                 <rect key="frame" x="0.0" y="0.0" width="480" height="300"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                <color key="backgroundColor" cocoaTouchSystemColor="lightTextColor"/>
                             </imageView>
                             <slider hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" minValue="0.0" maxValue="1" id="LVf-eW-Nc2" customClass="ModifiedSlider">
-                                <rect key="frame" x="128" y="258" width="240" height="23"/>
+                                <rect key="frame" x="128" y="262" width="203" height="23"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <connections>
                                     <action selector="changeBetSliderValue:" destination="ce7-xf-JRT" eventType="valueChanged" id="1pl-WT-oPk"/>
@@ -620,19 +626,27 @@
                                 <color key="textColor" red="1" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="10" id="32t-La-KQb">
-                                <rect key="frame" x="386" y="5" width="42" height="21"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" red="0.0" green="0.0" blue="1" alpha="1" colorSpace="calibratedRGB"/>
-                                <nil key="highlightedColor"/>
-                            </label>
                             <imageView hidden="YES" userInteractionEnabled="NO" contentMode="scaleToFill" id="bez-R0-2Sr">
                                 <rect key="frame" x="200" y="102" width="96" height="96"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </imageView>
+                            <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" id="ySa-uq-yZI">
+                                <rect key="frame" x="337" y="257" width="30" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                <state key="normal" title=">>">
+                                    <color key="titleColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <state key="highlighted">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="changeSliderSensibility:" destination="ce7-xf-JRT" eventType="touchUpInside" id="pIW-fc-gcV"/>
+                                </connections>
+                            </button>
                         </subviews>
-                        <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" red="0.95294117647058818" green="0.90196078431372551" blue="0.76078431372549016" alpha="1" colorSpace="calibratedRGB"/>
                         <simulatedOrientationMetrics key="simulatedOrientationMetrics" orientation="landscapeRight"/>
                     </view>
                     <simulatedOrientationMetrics key="simulatedOrientationMetrics" orientation="landscapeRight"/>
@@ -642,8 +656,8 @@
                         <outlet property="flopCardOneImage" destination="rFI-LE-sQS" id="Pez-QC-TMt"/>
                         <outlet property="flopCardThreeImage" destination="wzH-lp-Ip2" id="FJh-ky-NOc"/>
                         <outlet property="flopCardTwoImage" destination="7nH-LE-qO0" id="y0N-g8-HUf"/>
-                        <outlet property="playerCountdownLabel" destination="32t-La-KQb" id="cjZ-Yb-Kbo"/>
                         <outlet property="riverCardImage" destination="Tas-Xv-aAA" id="cv9-av-JhG"/>
+                        <outlet property="sliderSensibilityButton" destination="ySa-uq-yZI" id="FgB-L1-1jb"/>
                         <outlet property="table" destination="biH-zQ-z9X" id="Bjn-pj-wU9"/>
                         <outlet property="turnCardImage" destination="90b-XM-ySa" id="ozj-Nx-1ua"/>
                         <outlet property="winnersCup" destination="bez-R0-2Sr" id="fdV-J6-cqV"/>
@@ -815,6 +829,7 @@
     <resources>
         <image name="Nathan.PNG" width="68" height="69"/>
         <image name="Table.png" width="960" height="640"/>
+        <image name="startbild.jpeg" width="300" height="480"/>
     </resources>
     <classes>
         <class className="AnzahlComputergegnerViewController" superclassName="UITableViewController">
@@ -833,6 +848,7 @@
                 <relationship kind="action" name="cardsTouchDown:"/>
                 <relationship kind="action" name="cardsTouchUp:"/>
                 <relationship kind="action" name="changeBetSliderValue:"/>
+                <relationship kind="action" name="changeSliderSensibility:"/>
                 <relationship kind="action" name="foldButtonPressed:"/>
                 <relationship kind="action" name="showCardsButtonClicked:"/>
                 <relationship kind="action" name="throwCardsAwayButtonClicked:"/>
@@ -851,30 +867,35 @@
                 <relationship kind="outlet" name="pauseButton" candidateClass="UISegmentedControl"/>
                 <relationship kind="outlet" name="pauseLabel" candidateClass="UILabel"/>
                 <relationship kind="outlet" name="player1AlreadyBetChipsLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="player1Box" candidateClass="UIImageView"/>
                 <relationship kind="outlet" name="player1CardOne" candidateClass="UIImageView"/>
                 <relationship kind="outlet" name="player1CardTwo" candidateClass="UIImageView"/>
                 <relationship kind="outlet" name="player1ChipsLabel" candidateClass="UILabel"/>
                 <relationship kind="outlet" name="player1NameLabel" candidateClass="UILabel"/>
                 <relationship kind="outlet" name="player1ProfilePictureImage" candidateClass="UIImageView"/>
                 <relationship kind="outlet" name="player2AlreadyBetChipsLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="player2Box" candidateClass="UIImageView"/>
                 <relationship kind="outlet" name="player2CardOne" candidateClass="UIImageView"/>
                 <relationship kind="outlet" name="player2CardTwo" candidateClass="UIImageView"/>
                 <relationship kind="outlet" name="player2ChipsLabel" candidateClass="UILabel"/>
                 <relationship kind="outlet" name="player2NameLabel" candidateClass="UILabel"/>
                 <relationship kind="outlet" name="player2ProfilePictureImage" candidateClass="UIImageView"/>
                 <relationship kind="outlet" name="player3AlreadyBetChipsLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="player3Box" candidateClass="UIImageView"/>
                 <relationship kind="outlet" name="player3CardOne" candidateClass="UIImageView"/>
                 <relationship kind="outlet" name="player3CardTwo" candidateClass="UIImageView"/>
                 <relationship kind="outlet" name="player3ChipsLabel" candidateClass="UILabel"/>
                 <relationship kind="outlet" name="player3NameLabel" candidateClass="UILabel"/>
                 <relationship kind="outlet" name="player3ProfilePictureImage" candidateClass="UIImageView"/>
                 <relationship kind="outlet" name="player4AlreadyBetChipsLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="player4Box" candidateClass="UIImageView"/>
                 <relationship kind="outlet" name="player4CardOne" candidateClass="UIImageView"/>
                 <relationship kind="outlet" name="player4CardTwo" candidateClass="UIImageView"/>
                 <relationship kind="outlet" name="player4ChipsLabel" candidateClass="UILabel"/>
                 <relationship kind="outlet" name="player4NameLabel" candidateClass="UILabel"/>
                 <relationship kind="outlet" name="player4ProfilePictureImage" candidateClass="UIImageView"/>
                 <relationship kind="outlet" name="player5AlreadyBetChipsLabel" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="player5Box" candidateClass="UIImageView"/>
                 <relationship kind="outlet" name="player5CardOne" candidateClass="UIImageView"/>
                 <relationship kind="outlet" name="player5CardTwo" candidateClass="UIImageView"/>
                 <relationship kind="outlet" name="player5ChipsLabel" candidateClass="UILabel"/>
@@ -890,6 +911,7 @@
                 <relationship kind="outlet" name="sidePotLabel3" candidateClass="UILabel"/>
                 <relationship kind="outlet" name="sidePotLabel4" candidateClass="UILabel"/>
                 <relationship kind="outlet" name="sidePotLabel5" candidateClass="UILabel"/>
+                <relationship kind="outlet" name="sliderSensibilityButton" candidateClass="UIButton"/>
                 <relationship kind="outlet" name="table" candidateClass="UIImageView"/>
                 <relationship kind="outlet" name="throwCardsAwayButton" candidateClass="UISegmentedControl"/>
                 <relationship kind="outlet" name="turnCardImage" candidateClass="UIImageView"/>
@@ -904,6 +926,7 @@
             <relationships>
                 <relationship kind="action" name="selectPicture"/>
                 <relationship kind="action" name="takePicture:"/>
+                <relationship kind="action" name="textFieldDoneEditing:"/>
                 <relationship kind="outlet" name="imageView" candidateClass="UIImageView"/>
                 <relationship kind="outlet" name="playerNameTextField" candidateClass="UITextField"/>
             </relationships>
@@ -930,6 +953,7 @@
         <simulatedScreenMetrics key="destination"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
+        <segue reference="8Kh-mT-FBe"/>
         <segue reference="9Vr-ay-tYG"/>
     </inferredMetricsTieBreakers>
 </document>

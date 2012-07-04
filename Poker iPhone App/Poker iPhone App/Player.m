@@ -38,6 +38,9 @@
 @synthesize paused;
 @synthesize createdTimerDuringPause;
 @synthesize throwsCardsAway;
+@synthesize showDownCard1Frame;
+@synthesize showDownCard2Frame;
+@synthesize playerProfile;
 
 //KI
 @synthesize outs;
@@ -48,6 +51,10 @@
 //@synthesize cardOddsIsHigher;
 @synthesize cardOdds;
 @synthesize cardValues;
+@synthesize valueOfHighestPair;
+@synthesize preFlopDict;
+@synthesize cardPairSuit;
+@synthesize cardPairKey;
 
 
 
@@ -212,7 +219,7 @@
 /*- (void) makeRandomBet
 {
     int n = (arc4random() % 10);
-    if (n==1) {
+    if (n==11) {// (n==9 || n==8) {
         if (pokerGame.highestBet - alreadyBetChips > 0) {
             [self fold];
         }
@@ -220,7 +227,7 @@
             [self check];
         }
     }
-    else if (n==9 || n==8) {
+    else if (n==13 || n==12) {
         if (pokerGame.highestBet >= self.chips) {
             [self call];
         }
@@ -312,50 +319,121 @@
 
 #pragma mark - KI Methoden
 
-- (void) handStrength
-{
-    //Berechne zunächst cardValues
-    [self.hand defineValueOfCardsWithTableCards:pokerGame.cardsOnTable];
-    self.cardValues = self.hand.fiveBestCards.valueOfFiveBestCards;
-    
-    //Beim Paar ermittle den Wert des Paares
-    if (self.cardValues == ONE_PAIR || self.cardValues == TWO_PAIRS) {
-        PlayingCard* playingCard = [self.hand.fiveBestCards.arrayOfFiveBestCards objectAtIndex:0];
-        int valueOfPair = playingCard.value;
-        self.valueOfHighestPair = valueOfPair;
-    }
-    
-    
-    
-}
 
-- (int) calculateOuts{
-    
-    
-    if([self expectFlush]){return 9;};
-    
-    
-}
+- (void) preparePreFlop{
 
-- (void) calculateCardOdds{
+    NSMutableArray* temporaryArray = [[NSMutableArray alloc] init];
+    //k=1 suited, k=2 offsuited
+    
+    for (int k=1; k<=2; k++) {
+       for (int j=2; j<=14; j++) {
+           for (int i=2; i<=14; i++) {
+        [temporaryArray addObject:[NSString stringWithFormat:@"%i_%i_%i",i,j,k]];
+           }
+       }
+   }
+    
+    [temporaryArray addObject:[NSString stringWithFormat:@"1_1_1"]];
+    NSArray* cardPairsArray = [NSArray arrayWithArray:temporaryArray];
+    
+    NSString *one = @"1"; 
+    NSString *two = @"2";
+    NSString *three = @"3";
+    NSString *four = @"4";
+    NSString *five = @"5";
+    NSString *six = @"6";
+    NSString *seven = @"7";
+    NSString *eight = @"8";
+    
     
    
+
+    NSArray *bucketsArray = [NSArray arrayWithObjects: 
+                        //k=1, j=2, i läuft von 2-14
+                        seven, eight, eight, eight, seven, eight, eight, eight, seven,eight, seven, seven, five,
+                        //k=1, j=3
+                        eight, seven, seven, eight, seven, eight, eight, eight, seven, eight, seven, seven, five,
+                        //k=1, j=4
+                        eight, seven, seven, six, seven, eight, eight, eight, seven, eight, seven, seven, five,
+                        //k=1, j=5
+                        eight, eight, six, six, five, seven, eight, eight, seven,eight, seven, seven, five,
+                        //k=1, j=6
+                        seven, seven, seven, five, six, five, six, eight, seven, eight, seven, seven, five,
+                        //k=1, j=7
+                        eight, eight, eight, seven, five, five, five, five, seven, eight, seven, seven, five,
+                        //k=1, j=8
+                        eight, eight, eight, eight, six, five, four, four, five, six, seven, seven, five,
+                        //k=1, j=9
+                        eight, eight, eight, eight, eight, five, four, three, four, four, five, six, five,
+                        //k=1, j=10
+                        seven, seven, seven, seven, seven, seven, five, four, two, three, four, four, three,
+                        //k=1, j=11
+                        eight, eight, eight, eight, eight, eight, six, four, three, one, three, three, two,
+                        //k=1, j=12
+                        seven, seven, seven, seven, seven, seven, seven, five, four, three, one, two, two,
+                        //k=1, j=13
+                        seven, seven, seven, seven, seven, seven, seven, six, four, three, two, one, one,
+                        //k=1, j=14
+                        five, five, five, five, five, five, five, five, three, two, two, one, one,
+                        //k=2, j=2
+                        seven, seven, seven, seven, seven, seven, seven, seven, seven, seven, seven, seven, seven,
+                        //k=2, j=3
+                        seven, seven, seven, seven, seven, seven, seven, seven, seven, seven, seven, seven, seven,
+                        //k=2, j=4
+                        seven, seven, seven, eight, eight, eight, eight, eight, eight, eight, eight, eight, 
+                        //k=2, j=5
+                        seven, seven, eight, six, eight, eight, eight, eight, eight, eight, eight, eight, eight, 
+                        //k=2, j=6
+                        seven, seven, eight, eight, six, eight, eight, eight, eight, eight, eight, eight, eight, 
+                        //k=2, j=7
+                        seven, seven, eight, eight, eight, five, eight, eight, eight, eight, eight, eight, eight,
+                        //k=2, j=8
+                        seven, seven, eight, eight, eight, eight, four, seven, eight, eight, eight, eight, eight,
+                        //k=2, j=9
+                        seven, seven, eight, eight, eight, eight, seven,three, seven, seven, eight, eight, eight, 
+                        //k=2, j=10
+                        seven, seven, eight, eight, eight, eight, eight, seven, two, five, six, six, six,
+                        //k=2, j=11
+                        seven, seven, eight, eight, eight, eight, eight, seven, five, one, five, five, four,
+                        //k=2, j=12
+                        seven, seven, eight, eight, eight, eight, eight, eight, six, five, one, four, three,
+                        //k=2, j=13
+                        seven, seven, eight, eight, eight, eight, eight, eight, eight, six, five, four, one, two,
+                        //k=2, j=14
+                        seven, seven, eight, eight, eight, eight, eight, eight, eight, six, four, three, two, one,nil];
+                        
+            
+    preFlopDict = [NSDictionary dictionaryWithObjects: bucketsArray forKeys: cardPairsArray];
     
-    //Wahrscheinlichkeiten, seine Karten durch einen Turn, River zu verbessern und die Wahrscheinlichkeit seine Karten nach dem Flop zu verbessern (also Turn oder River)
-    outs = [self calculateOuts];
-    cardOddsFlop = 1-((47-outs)/47 * (46-outs)/46);
-    cardOddsTurn = outs/47;
-    cardOddsRiver = outs/46;
     
+     //Der aktuellen Hand soll der Key zugewiesen werden
+    PlayingCard *card1 = [self.hand.cardsOnHand objectAtIndex:0];
+    PlayingCard *card2 = [self.hand.cardsOnHand objectAtIndex:1];
     
+   if (card1.suitType == card2.suitType) {cardPairSuit = 1;} 
+   else {cardPairSuit = 2;};
+    cardPairKey = [NSString stringWithFormat:@"%i_%i_%i", card1.value, card2.value,cardPairSuit];  
     
-    //cardOddsIsHigher = (2*outs+1)/100;
-    
+
+
 }
 
-- (void) calculatePotOdds{
-    potOdds = pokerGame.highestBet/pot.chipsInPot;
+
+
+
+
+- (BOOL) expectPair{
+    
+    if (cardValues == HIGH_CARD){return YES;}
+    else {return NO;};
 }
+
+
+- (BOOL) expectThreeOfAKind{
+    if(cardValues == ONE_PAIR){return YES;}
+    else {return NO;};
+}
+
 
 - (BOOL) expectFlush{
     
@@ -416,102 +494,150 @@
     
     
     
-    
-    //Beginne Vergleiche:
     for (int i=1; i<[allCards count]; i++) {
-        int j = [allCards count] - i; // Anzahl noch nicht gepruefter Elemente
-        if (countOfStraightedElements + j < 4) {
-            return NO;}
-        else {PlayingCard* nextPlayingCard = (PlayingCard* ) [allCards objectAtIndex:i];
+        //Die nächsten Karten werden ebenfalls einem Objekt zugewiesen und erhalten eine Value Variable
+    
+            
+            PlayingCard* nextPlayingCard = (PlayingCard* ) [allCards objectAtIndex:i];
             int nextValueInArray = nextPlayingCard.value;
             
-            // gleiche können ignoriert werden:
-            if (nextValueInArray == lastValueInStraight) {
-                [allCards removeObjectAtIndex:i];
-                i -= 1;}
             
-            //aufeinadnerfolgende:
-            else if (nextValueInArray == lastValueInStraight + 1) {
+            //wenn die nächste Karte nun die richtige aufeinderfolgende ist, bekommt sie die var lastValueinStraight
+            if (nextValueInArray == lastValueInStraight + 1) {
                 lastValueInStraight = nextValueInArray;
-                countOfStraightedElements += 1;}
-            if (countOfStraightedElements==4) {
-                return YES; }
-            //outs = 8
-        }
-        
+                countOfStraightedElements += 1;
+            }
+            // wenn die nächste Karte gleich ist, wird die aktuelle herausgelöscht
+            else if (nextValueInArray == lastValueInStraight) {
+            [allCards removeObjectAtIndex:i];
+            i -= 1;
+            }
+            //wenn die nächste Karte weiter als +1 weg liegt, muss die aktuelle und alle vorherigen gelöscht werden
+            else {  for (int j=0; j<=i; j++){
+                    [allCards removeObjectAtIndex:j];
+                i -= 1;
+                lastValueInStraight = nextValueInArray;
+                countOfStraightedElements =1;}
+                
+                
+            }
     }
+        
+            
+    //Bei vier aufeinanderfolgenden Karten wird yes zurückgegeben
+    if (countOfStraightedElements==4) {
+                return YES;
+    } else {return NO;};
     
     
 }       
 
-- (BOOL) expectGutshot{
+
+- (BOOL) expectGutshot{}
+
+- (BOOL) expectDoubleGutshot{}
+
+- (BOOL) expectFlushAndGutshot{}
+
+- (BOOL) expectFlushAndOpenStraight{}
+
+
+
+- (void) handStrength
+{   
+    //Berechne zunächst cardValues
+    [self.hand defineValueOfCardsWithTableCards:pokerGame.cardsOnTable];
+    self.cardValues = self.hand.fiveBestCards.valueOfFiveBestCards;
     
     
-    //Karten Tisch+Hand
-    NSMutableArray* allCards = [[NSMutableArray alloc] initWithArray:self.pokerGame.cardsOnTable.allCards];
-    [allCards addObjectsFromArray:self.hand.cardsOnHand];
-    
-    //Karten nach Wert sortieren
-    allCards = [self.hand.cardValuesEvaluator sortCards_Values:allCards];
-    
-    //erstes Element im Array
-    PlayingCard *currentPlayingCard = (PlayingCard *) [allCards objectAtIndex:0];
-    int lastValueInStraight = currentPlayingCard.value;
-    int countOfStraightedElements = 1;
-    
-    //Fall 1: fehlende Karte liegt "rechts außen", d.h drei Karten in Folge - Lücke - Karte
-    
-    for (int i=1; i<[allCards count]; i++){
-        PlayingCard* nextPlayingCard = (PlayingCard* ) [allCards objectAtIndex:i];
-        int nextValueInArray = nextPlayingCard.value;
-        
-        if (nextValueInArray == lastValueInStraight + 1){
-            lastValueInStraight = nextValueInArray;
-            countOfStraightedElements += 1;}
-        
-        
-        
-        
-        
+    //Beim Paar ermittle den Wert des Paares
+    if (self.cardValues == ONE_PAIR || self.cardValues == TWO_PAIRS) {
+        PlayingCard* playingCard = [self.hand.fiveBestCards.arrayOfFiveBestCards objectAtIndex:0];
+        int valueOfPair = playingCard.value;
+        self.valueOfHighestPair = valueOfPair;
     }
     
     
     
+}
+
+- (int) calculateOuts{
+    
+    if([self expectFlushAndOpenStraight]){return 15;}
+        else if([self expectFlushAndGutshot]){return 12;}
+        else if([self expectFlush]){return 9;}
+        else if([self expectOpenStraight]){return 8;}
+        else if([self expectDoubleGutshot]){return 8;}
+        else if([self expectPair]){return 6;}
+        else if([self expectGutshot]){return 4;}
+        else if([self expectThreeOfAKind]){return 2;}
+   
     
     
     
 }
 
-- (BOOL) expectDoubleGutshot{
+- (void) calculateCardOdds{
+    
+    
+    
+    //Wahrscheinlichkeiten, seine Karten durch einen Turn, River zu verbessern     
+    
+    outs = [self calculateOuts];
+    cardOddsTurn = outs/47;
+    cardOddsRiver = outs/46;
+    
+    
+    
+    
     
 }
 
 
+
+- (void) calculatePotOdds{
+    potOdds = pokerGame.highestBet/pot.chipsInPot;
+}
 
 
 - (void) compareOdds{
-    if (cardOddsFlop >= potOdds){cardOddsFlopIsHigher =YES;};
+    
     if (cardOddsTurn >= potOdds){cardOddsTurnIsHigher =YES;};
     if (cardOddsRiver >= potOdds){cardOddsRiverIsHigher =YES;};
-    //if (cardOdds >= potOdds){cardOddsIsHigher = YES;};
+   
     
 }
 
 - (void) makeBet{
-    
+    [self preparePreFlop];
     [self calculateCardOdds];
     [self calculatePotOdds];
     [self compareOdds];
-    
-
     [self handStrength];
     
-    
-    
-    switch (cardValues) {
-        case ONE_PAIR:
+    if (pokerGame.gameState == PRE_FLOP){
+        NSString *bucketString = [preFlopDict objectForKey:cardPairKey];
+        int bucket = [bucketString intValue];
+        if (bucket <=3){
+            
+            [self bet:pokerGame.highestBet +10 asBlind:NO];
+        } 
+        else if (bucket >3 && bucket<=7){
             [self call];
-            break;
+        }
+    
+        else if (bucket >7){
+            if (self.alreadyBetChips == pokerGame.highestBet) {
+                [self check];
+            }
+            else {
+                [self fold];
+            }
+        }
+    }
+    
+    else {
+    switch (cardValues) {
         case TWO_PAIRS:
             [self call];
             break;
@@ -531,16 +657,16 @@
             [self call];
             break;
         default:
-            if(pokerGame.gameState == PRE_FLOP){[self call];}
-            else if (pokerGame.gameState == FLOP && cardOddsFlopIsHigher ==YES){[self call];}
-            else if (pokerGame.gameState == TURN && cardOddsTurnIsHigher == YES){[self call];}
+            //if (cardValues==ONE_PAIR && self.valueOfHighestPair>=10){[self call];}else 
+            if (pokerGame.gameState == FLOP &&  cardOddsTurnIsHigher ==YES){[self call];}
+            else if (pokerGame.gameState == TURN &&  cardOddsRiverIsHigher == YES){[self call];}
             else if (pokerGame.gameState == RIVER && cardOddsRiverIsHigher == YES){[self call];}
             else {[self fold];};
             break;
     }
     
     
-    
+    }
     
     
     

@@ -10,6 +10,7 @@
 #import "Hand.h"
 #import "SidePot.h"
 #import "Enum_PlayerState.h"
+#import "PlayerProfile.h"
 
 @class PokerGame;
 
@@ -83,6 +84,9 @@
 @property (nonatomic, assign) BOOL doesNotWinAnything;
 @property (nonatomic, assign) BOOL paused;
 @property (nonatomic, assign) BOOL createdTimerDuringPause;
+@property (nonatomic, assign) CGRect showDownCard1Frame;
+@property (nonatomic, assign) CGRect showDownCard2Frame;
+@property (nonatomic, retain) PlayerProfile* playerProfile;
 
 //Idee: um das Spiel pausieren zu können, soll es einen Pointer geben, der immer auf den aktuellen Timer zeigt. Sobald Pause gedrückt wird, wie das TimeInterval des Timers auf eine beliebig große Zal gesetzt
 @property (nonatomic, retain) NSMutableArray* currentlyRunningTimersWithCreationTimes;
@@ -98,6 +102,10 @@
 @property (nonatomic,retain) Pot *pot;
 @property (nonatomic, assign) CardValues cardValues;
 @property (nonatomic, assign) int valueOfHighestPair;
+@property (nonatomic, retain) NSDictionary *preFlopDict;
+@property (nonatomic, assign) int cardPairSuit;
+@property (nonatomic,retain) NSString *cardPairKey;
+
 
 
 
@@ -119,11 +127,17 @@
 - (void) changePlayerState: (NSNumber* ) playerStateAsObject;
 
 //Methoden KI
+- (void) preparePreFlop;
 - (void) handStrength;
+
+- (BOOL) expectPair;
+- (BOOL) expectThreeOfAKind;
 - (BOOL) expectFlush;
-- (BOOL) expectStraight;
+- (BOOL) expectOpenStraight;
 - (BOOL) expectGutshot;
 - (BOOL) expectDoubleGutshot;
+- (BOOL) expectFlushAndGutshot;
+- (BOOL) expectFlushAndOpenStraight;
 
 - (int)  calculateOuts;
 - (void) calculateCardOdds;

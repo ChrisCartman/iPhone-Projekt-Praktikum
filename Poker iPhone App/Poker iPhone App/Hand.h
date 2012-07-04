@@ -33,8 +33,6 @@
 - (void) addCardToHand: (PlayingCard* ) playingCard;
 - (void) throwHandAway;
 - (void) defineValueOfCardsWithTableCards: (CardsOnTable* ) currentCardsOnTable;
-- (PlayingCard* ) defineKicker: (CardsOnTable* ) currentCardsOnTable;
-- (float) evaluateChanceToWinGame: (CardsOnTable* ) currentCardsOnTable;
 - (void) resetHandForNewRound;
 
 @end
