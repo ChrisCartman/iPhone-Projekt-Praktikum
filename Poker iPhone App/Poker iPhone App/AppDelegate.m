@@ -72,6 +72,15 @@
         playerProfile = [[PlayerProfile alloc] initWithPlayerName:@"Nathan" playerImage:[UIImage imageNamed:@"Nathan.PNG"]];
     }
     
+    Player* aPlayer = [[Player alloc] init];
+    BOOL gutShot = [aPlayer expectDoubleGutshot];
+    if (gutShot) {
+        NSLog(@"true");
+    }
+    else {
+        NSLog(@"false");
+    }
+    
   
     
     

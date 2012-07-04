@@ -163,10 +163,4 @@
 }
 
 
-- (IBAction)textFieldDoneEditing:(id)sender
-{
-    [sender resignFirstResponder];
-}
-
-
 @end

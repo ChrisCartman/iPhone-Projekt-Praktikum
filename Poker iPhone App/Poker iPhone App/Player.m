@@ -475,7 +475,6 @@
                 }}}}}
 
 
-
 - (BOOL) expectOpenStraight{
     
     //Karten Tisch+Hand
@@ -533,13 +532,433 @@
 }       
 
 
-- (BOOL) expectGutshot{}
+- (BOOL) expectGutshot
+{
+    NSMutableArray* allCards = [[NSMutableArray alloc] initWithArray:pokerGame.cardsOnTable.allCards];
+    [allCards addObjectsFromArray:self.hand.cardsOnHand];
+    
+    
+    //zum testen: 
+//    NSMutableArray* allCards = [[NSMutableArray alloc] init];
+//    PlayingCard* card1 = [[PlayingCard alloc] init];
+//    card1.value = 2;
+//    PlayingCard* card2 = [[PlayingCard alloc] init];
+//    card2.value = 5;
+//    PlayingCard* card3 = [[PlayingCard alloc] init];
+//    card3.value = 13;
+//    PlayingCard* card4 = [[PlayingCard alloc] init];
+//    card4.value = 11;    
+//    PlayingCard* card5 = [[PlayingCard alloc] init];
+//    card5.value = 5;
+//    PlayingCard* card6 = [[PlayingCard alloc] init];
+//    card6.value = 6;
+//    
+//    [allCards addObject:card1];
+//    [allCards addObject:card2];
+//    [allCards addObject:card3];
+//    [allCards addObject:card4];
+//    [allCards addObject:card5];
+//    [allCards addObject:card6];
+    
+    //falls ein Ass enthalten ist: füge eine imaginäre Karte mit dem Wert1 hinzu:
+    for (PlayingCard* aPlayingCard in allCards) {
+        if (aPlayingCard.value == 14) {
+            PlayingCard* imaginaryPlayingCard = [[PlayingCard alloc] init];
+            imaginaryPlayingCard.value = 1;    
+            [allCards addObject:imaginaryPlayingCard];
+            break;
+        }
+    }
+    
+    //sortiere das Array
+    allCards = [self.hand.cardValuesEvaluator sortCards_Values:allCards];
+    
+    //Es gibt drei verschiedene Fälle für dieses Problem:
+    /* x: Loch, o: brauchbare Karte:
+     die drei Fälle sind dann: (1) o x o o o, (2) o o x o o, (3) o o o x o */
+    //beginne mit einem Vergleich der ersten beiden Karten im sortierten Array:
+    //Idee: speichere je in einer Variablen, welcher Fall gerade betrachtet wird und in einer wieviele passende Karten schon gefunden wurden: dies sollten idealerweise 4 sein:
+    int gutshotCase = 0; //0 bedeutet keiner der Fälle wird gerade besonders in Betracht gezogen
+    int countOfFittingCards = 1; // eine passende Karte hat man immer
+    
+    PlayingCard* lastPlayingCard = [allCards objectAtIndex:0];
+    int valueOfLastPlayingCard = lastPlayingCard.value;
+    
+    
+    int index = 0;
+    while (countOfFittingCards < 4) {
+        //falls nicht mehr genug Karten übrig sind um einen Gutshotfall zu vervollständigen: NO
+        index++;
+        if ([allCards count] - index + countOfFittingCards < 4) {
+            return NO;
+        }
+        PlayingCard* currentPlayingCard = [allCards objectAtIndex:index];
+        if (currentPlayingCard.value == valueOfLastPlayingCard) {
+            lastPlayingCard = currentPlayingCard;
+            valueOfLastPlayingCard = lastPlayingCard.value;
+            continue;
+        }
+        // noch kein gutshotCase gewählt, d.h. countOfFittingCards == 1:
+        if (gutshotCase == 0) {
+            //Fall (2) oder Fall (3) ?
+            if (currentPlayingCard.value == valueOfLastPlayingCard + 1) {
+                gutshotCase = 2;
+                countOfFittingCards += 1;
+            }
+            // Fall (1) ?
+            else if (currentPlayingCard.value == valueOfLastPlayingCard + 2) {
+                gutshotCase = 1;
+                countOfFittingCards += 1;
+            }
+        }
+        else if (gutshotCase == 1) {
+            if (countOfFittingCards >= 2) {
+                if (currentPlayingCard.value == valueOfLastPlayingCard + 1) {
+                    //weitermachen:
+                    countOfFittingCards += 1;
+                }
+                else if (!(currentPlayingCard.value == valueOfLastPlayingCard + 2)) {
+                    //wieder von vorne anfangen
+                    countOfFittingCards = 1;
+                    gutshotCase = 0;
+                }
+            }
+        }
+        else if (gutshotCase == 2) {
+            if (countOfFittingCards == 2) {
+                if (currentPlayingCard.value == valueOfLastPlayingCard + 1) {
+                    //switch zu Fall (3)
+                    countOfFittingCards += 1;
+                    gutshotCase = 3;
+                }
+                else if (currentPlayingCard.value = valueOfLastPlayingCard + 2) {
+                    //weitermachen
+                    countOfFittingCards += 1;
+                }
+                else {
+                    //wieder von vorne anfangen
+                    countOfFittingCards = 1;
+                    gutshotCase = 0;
+                }
+            }
+            else if (countOfFittingCards == 3) {
+                if (currentPlayingCard.value == valueOfLastPlayingCard + 1) {
+                    //fall 2 vollständig!
+                    countOfFittingCards += 1;
+                }
+                else if (currentPlayingCard.value == valueOfLastPlayingCard + 2) {
+                    //switch zu fall (1)
+                    gutshotCase = 1;
+                    countOfFittingCards = 2;
+                }
+                else {
+                    countOfFittingCards = 1;
+                    gutshotCase = 0;
+                }
+            }
+        }
+        else {
+            if (currentPlayingCard.value == valueOfLastPlayingCard + 2) {
+                countOfFittingCards += 1;
+            }
+            else {
+                gutshotCase = 0;
+                countOfFittingCards = 1;
+            }
+        }
+        // falls keiner der Fälle zutrifft, werden nur die folgenden Zeilen ausgeführt:
+        lastPlayingCard = currentPlayingCard;
+        valueOfLastPlayingCard = lastPlayingCard.value;
+        
+    }
+    return YES;
+}
 
-- (BOOL) expectDoubleGutshot{}
+- (BOOL) expectDoubleGutshot
+{
+    //Idee: die Methode expectGutshot findet immer den 1. möglichen gutshot.
+    //falls es mehrere gibt, so haben diese mit Sicherheit mit den vorderen Karten (vor der Lücke) des 1. Gutshots nichts zu tun, diese können also entfernt werden und danach kann einfach nochmals überprüft werden, ob ein gutshot da war:
+    
+    //Kopiere also zunächst den code der Funktion gutshot
+    
+    NSMutableArray* allCards = [[NSMutableArray alloc] initWithArray:pokerGame.cardsOnTable.allCards];
+    [allCards addObjectsFromArray:self.hand.cardsOnHand];
+    
+    
+    //zum testen: 
+//    NSMutableArray* allCards = [[NSMutableArray alloc] init];
+//    PlayingCard* card1 = [[PlayingCard alloc] init];
+//    card1.value = 2;
+//    PlayingCard* card2 = [[PlayingCard alloc] init];
+//    card2.value = 3;
+//    PlayingCard* card3 = [[PlayingCard alloc] init];
+//    card3.value = 4;
+//    PlayingCard* card4 = [[PlayingCard alloc] init];
+//    card4.value = 6;    
+//    PlayingCard* card5 = [[PlayingCard alloc] init];
+//    card5.value = 7;
+//    PlayingCard* card6 = [[PlayingCard alloc] init];
+//    card6.value = 8;
+//        
+//    [allCards addObject:card1];
+//    [allCards addObject:card2];
+//    [allCards addObject:card3];
+//    [allCards addObject:card4];
+//    [allCards addObject:card5];
+//    [allCards addObject:card6];
+    
+    //falls ein Ass enthalten ist: füge eine imaginäre Karte mit dem Wert1 hinzu:
+    for (PlayingCard* aPlayingCard in allCards) {
+        if (aPlayingCard.value == 14) {
+            PlayingCard* imaginaryPlayingCard = [[PlayingCard alloc] init];
+            imaginaryPlayingCard.value = 1;    
+            [allCards addObject:imaginaryPlayingCard];
+            break;
+        }
+    }
+    
+    //sortiere das Array
+    allCards = [self.hand.cardValuesEvaluator sortCards_Values:allCards];
+    
+    //Es gibt drei verschiedene Fälle für dieses Problem:
+    /* x: Loch, o: brauchbare Karte:
+     die drei Fälle sind dann: (1) o x o o o, (2) o o x o o, (3) o o o x o */
+    //beginne mit einem Vergleich der ersten beiden Karten im sortierten Array:
+    //Idee: speichere je in einer Variablen, welcher Fall gerade betrachtet wird und in einer wieviele passende Karten schon gefunden wurden: dies sollten idealerweise 4 sein:
+    int gutshotCase = 0; //0 bedeutet keiner der Fälle wird gerade besonders in Betracht gezogen
+    int countOfFittingCards = 1; // eine passende Karte hat man immer
+    
+    PlayingCard* lastPlayingCard = [allCards objectAtIndex:0];
+    int valueOfLastPlayingCard = lastPlayingCard.value;
+    
+    int index = 0;
+    while (countOfFittingCards < 4) {
+        //falls nicht mehr genug Karten übrig sind um einen Gutshotfall zu vervollständigen: NO
+        index++;
+        if ([allCards count] - index + countOfFittingCards < 4) {
+            return NO;
+        }
+        PlayingCard* currentPlayingCard = [allCards objectAtIndex:index];
+        if (currentPlayingCard.value == valueOfLastPlayingCard) {
+            lastPlayingCard = currentPlayingCard;
+            valueOfLastPlayingCard = lastPlayingCard.value;
+            continue;
+        }
+        // noch kein gutshotCase gewählt, d.h. countOfFittingCards == 1:
+        if (gutshotCase == 0) {
+            //Fall (2) oder Fall (3) ?
+            if (currentPlayingCard.value == valueOfLastPlayingCard + 1) {
+                gutshotCase = 2;
+                countOfFittingCards += 1;
+            }
+            // Fall (1) ?
+            else if (currentPlayingCard.value == valueOfLastPlayingCard + 2) {
+                gutshotCase = 1;
+                countOfFittingCards += 1;
+            }
+        }
+        else if (gutshotCase == 1) {
+            if (countOfFittingCards >= 2) {
+                if (currentPlayingCard.value == valueOfLastPlayingCard + 1) {
+                    //weitermachen:
+                    countOfFittingCards += 1;
+                }
+                else if (!(currentPlayingCard.value == valueOfLastPlayingCard + 2)) {
+                    //wieder von vorne anfangen
+                    countOfFittingCards = 1;
+                    gutshotCase = 0;
+                }
+            }
+        }
+        else if (gutshotCase == 2) {
+            if (countOfFittingCards == 2) {
+                if (currentPlayingCard.value == valueOfLastPlayingCard + 1) {
+                    //switch zu Fall (3)
+                    countOfFittingCards += 1;
+                    gutshotCase = 3;
+                }
+                else if (currentPlayingCard.value = valueOfLastPlayingCard + 2) {
+                    //weitermachen
+                    countOfFittingCards += 1;
+                }
+                else {
+                    //wieder von vorne anfangen
+                    countOfFittingCards = 1;
+                    gutshotCase = 0;
+                }
+            }
+            else if (countOfFittingCards == 3) {
+                if (currentPlayingCard.value == valueOfLastPlayingCard + 1) {
+                    //fall 2 vollständig!
+                    countOfFittingCards += 1;
+                }
+                else if (currentPlayingCard.value == valueOfLastPlayingCard + 2) {
+                    //switch zu fall (1)
+                    gutshotCase = 1;
+                    countOfFittingCards = 2;
+                }
+                else {
+                    countOfFittingCards = 1;
+                    gutshotCase = 0;
+                }
+            }
+        }
+        else {
+            if (currentPlayingCard.value == valueOfLastPlayingCard + 2) {
+                countOfFittingCards += 1;
+            }
+            else {
+                gutshotCase = 0;
+                countOfFittingCards = 1;
+            }
+        }
+        // falls keiner der Fälle zutrifft, werden nur die folgenden Zeilen ausgeführt:
+        lastPlayingCard = currentPlayingCard;
+        valueOfLastPlayingCard = lastPlayingCard.value;
+        
+    }
+    
+    //wenn die Methode hier ankommt wurde ein gutshot gefunden:
+    
+    //welcher der drei Fälle war es?
+    if (gutshotCase == 1) {
+        //Fall 1: lösche die erste Karte der vier gutshot-Karten (sowie falls sie doppelt vorhanden ist auch die anderen gleich Werts), sowie alle Karten die kleiner sind:
+        while (true) {
+            PlayingCard* aPlayingCard = [allCards objectAtIndex:0];
+            if (aPlayingCard.value > valueOfLastPlayingCard - 3) {
+                break;
+            }
+            else {
+                [allCards removeObjectAtIndex:0];
+            }
+        }
+    }
+    else if (gutshotCase == 2) {
+        //Fall 2: analog zu oben, jetzt werden die ersten beiden Karten aus dem gutshot gelöscht
+        while (true) {
+            PlayingCard* aPlayingCard = [allCards objectAtIndex:0];
+            if (aPlayingCard.value > valueOfLastPlayingCard - 2) {
+                break;
+            }
+            else {
+                [allCards removeObjectAtIndex:0];
+            }
+        }
+    }
+    else {
+        //Fall 3: hier müssten 3 Karten gelöscht werden, dann sind aber noch maximal 3 Karten übrig, also kein gutshot mehr möglich:
+        return NO;
+    }
+    
+    //unnötige Karten für den zweiten gutShot wurden entfernt: jetzt kann der ganze Algorithmus von oben einfach noch einmal durchgeführt werden:
+    
+    // einfach nochmal hineinkopiert:
+    gutshotCase = 0; //0 bedeutet keiner der Fälle wird gerade besonders in Betracht gezogen
+    countOfFittingCards = 1; // eine passende Karte hat man immer
+    
+    lastPlayingCard = [allCards objectAtIndex:0];
+    valueOfLastPlayingCard = lastPlayingCard.value;
+    
+    index = 0;
+    while (countOfFittingCards < 4) {
+        //falls nicht mehr genug Karten übrig sind um einen Gutshotfall zu vervollständigen: NO
+        index++;
+        if ([allCards count] - index + countOfFittingCards < 4) {
+            return NO;
+        }
+        PlayingCard* currentPlayingCard = [allCards objectAtIndex:index];
+        if (currentPlayingCard.value == valueOfLastPlayingCard) {
+            lastPlayingCard = currentPlayingCard;
+            valueOfLastPlayingCard = lastPlayingCard.value;
+            continue;
+        }
+        // noch kein gutshotCase gewählt, d.h. countOfFittingCards == 1:
+        if (gutshotCase == 0) {
+            //Fall (2) oder Fall (3) ?
+            if (currentPlayingCard.value == valueOfLastPlayingCard + 1) {
+                gutshotCase = 2;
+                countOfFittingCards += 1;
+            }
+            // Fall (1) ?
+            else if (currentPlayingCard.value == valueOfLastPlayingCard + 2) {
+                gutshotCase = 1;
+                countOfFittingCards += 1;
+            }
+        }
+        else if (gutshotCase == 1) {
+            if (countOfFittingCards >= 2) {
+                if (currentPlayingCard.value == valueOfLastPlayingCard + 1) {
+                    //weitermachen:
+                    countOfFittingCards += 1;
+                }
+                else if (!(currentPlayingCard.value == valueOfLastPlayingCard + 2)) {
+                    //wieder von vorne anfangen
+                    countOfFittingCards = 1;
+                    gutshotCase = 0;
+                }
+            }
+        }
+        else if (gutshotCase == 2) {
+            if (countOfFittingCards == 2) {
+                if (currentPlayingCard.value == valueOfLastPlayingCard + 1) {
+                    //switch zu Fall (3)
+                    countOfFittingCards += 1;
+                    gutshotCase = 3;
+                }
+                else if (currentPlayingCard.value = valueOfLastPlayingCard + 2) {
+                    //weitermachen
+                    countOfFittingCards += 1;
+                }
+                else {
+                    //wieder von vorne anfangen
+                    countOfFittingCards = 1;
+                    gutshotCase = 0;
+                }
+            }
+            else if (countOfFittingCards == 3) {
+                if (currentPlayingCard.value == valueOfLastPlayingCard + 1) {
+                    //fall 2 vollständig!
+                    countOfFittingCards += 1;
+                }
+                else if (currentPlayingCard.value == valueOfLastPlayingCard + 2) {
+                    //switch zu fall (1)
+                    gutshotCase = 1;
+                    countOfFittingCards = 2;
+                }
+                else {
+                    countOfFittingCards = 1;
+                    gutshotCase = 0;
+                }
+            }
+        }
+        else {
+            if (currentPlayingCard.value == valueOfLastPlayingCard + 2) {
+                countOfFittingCards += 1;
+            }
+            else {
+                gutshotCase = 0;
+                countOfFittingCards = 1;
+            }
+        }
+        // falls keiner der Fälle zutrifft, werden nur die folgenden Zeilen ausgeführt:
+        lastPlayingCard = currentPlayingCard;
+        valueOfLastPlayingCard = lastPlayingCard.value;
+        
+    }
+    //wenn die Methode hier ankommt, liegt tatsächlich ein doubleGutshot vor:
+    return YES;
+    
+}
 
-- (BOOL) expectFlushAndGutshot{}
+- (BOOL) expectFlushAndGutshot
+{
+    return ([self expectGutshot] && [self expectFlush]);
+}
 
-- (BOOL) expectFlushAndOpenStraight{}
+- (BOOL) expectFlushAndOpenStraight
+{
+    return ([self expectFlush] && [self expectOpenStraight]);
+}
 
 
 

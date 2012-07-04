@@ -38,6 +38,7 @@
 @synthesize blindsCountdown;
 @synthesize exactlyTwoPlayersAllIn;
 @synthesize yourNumber;
+@synthesize you;
 
 - (void) dealOut
 {

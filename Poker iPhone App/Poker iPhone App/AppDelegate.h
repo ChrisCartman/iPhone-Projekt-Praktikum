@@ -10,6 +10,7 @@
 #import "Enum_CardValues.h"
 #import "PlayingCard.h"
 #import "PlayerProfile.h"
+#import "Player.h"
 
 @class GameViewController;
 

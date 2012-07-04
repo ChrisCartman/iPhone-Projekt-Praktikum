@@ -1530,22 +1530,14 @@
     
     
     player2ChipsLabel = [[UILabel alloc] initWithFrame:CGRectMake(22, 147, 40, 20)];
+    player2ChipsLabel = [NSString stringWithFormat:@"i$", pokerGame.gameSettings.startChips];
     player2ChipsLabel.font = [UIFont fontWithName:@"System" size:13.0];
     player2ChipsLabel.textColor = [UIColor whiteColor];
     
     player2ChipsLabel.backgroundColor = [UIColor clearColor];
     [self.view addSubview:player2ChipsLabel];
     player2ChipsLabel.font = [UIFont boldSystemFontOfSize:11];
-<<<<<<< HEAD
 
-
-
-    player2AlreadyBetChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(65, 147, 40, 20)];
-    player2AlreadyBetChipsLabel.text = @"Text";
-=======
-    player2ChipsLabel.text = [NSString stringWithFormat:@"%i$",pokerGame.gameSettings.startChips];
-    
->>>>>>> 04d0632281f5e4f6ba48c2cd59e035d3f4ef0fc2
     player2AlreadyBetChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(64, 144, 55, 20)];
     player2AlreadyBetChipsLabel.textAlignment = UITextAlignmentLeft;
     [self.view addSubview:player2AlreadyBetChipsLabel];
