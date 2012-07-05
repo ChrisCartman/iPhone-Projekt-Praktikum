@@ -68,6 +68,8 @@
 
 @property (nonatomic, assign) int yourNumber;
 
+@property (nonatomic, retain) NSMutableArray* gameStatistics;
+
 
 
 /* Erklärungen zu den Begriffen:

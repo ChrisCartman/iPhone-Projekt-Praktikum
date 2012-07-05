@@ -39,6 +39,7 @@
 @synthesize exactlyTwoPlayersAllIn;
 @synthesize yourNumber;
 @synthesize you;
+@synthesize gameStatistics;
 
 - (void) dealOut
 {
@@ -323,6 +324,12 @@
 
     }
     
+    //Spiel-Statistiken initialisieren (hier wird im wesentlichen gespeichert, welcher Spieler wie oft gewinnt)
+    self.gameStatistics = [[NSMutableArray alloc] initWithCapacity:self.gameSettings.anzahlKI+1];
+    for (int i=1; i<=self.gameSettings.anzahlKI+1; i++) {
+        NSNumber* number = [NSNumber numberWithInt:0];
+        [self.gameStatistics addObject:number];
+    }
     
     //Vorbereitungen für die erste Runde:
     for (Player* aPlayer in allPlayers) {
@@ -583,6 +590,28 @@
                     break;
                 }
             }
+        }
+    }
+    for (Player* aPlayer in temporaryArray) {
+        if ([aPlayer.identification isEqualToString:@"player1"]) {
+            NSNumber* newWinCount = [NSNumber numberWithFloat:[[self.gameStatistics objectAtIndex:0] floatValue]+1.0/[temporaryArray count]];
+            [self.gameStatistics replaceObjectAtIndex:0 withObject:newWinCount];
+        }
+        else if ([aPlayer.identification isEqualToString:@"player2"]) {
+            NSNumber* newWinCount = [NSNumber numberWithFloat:[[self.gameStatistics objectAtIndex:1] floatValue]+1.0/[temporaryArray count]];
+            [self.gameStatistics replaceObjectAtIndex:1 withObject:newWinCount];
+        }
+        else if ([aPlayer.identification isEqualToString:@"player3"]) {
+            NSNumber* newWinCount = [NSNumber numberWithFloat:[[self.gameStatistics objectAtIndex:2] floatValue]+1.0/[temporaryArray count]];
+            [self.gameStatistics replaceObjectAtIndex:2 withObject:newWinCount];
+        }
+        else if ([aPlayer.identification isEqualToString:@"player4"]) {
+            NSNumber* newWinCount = [NSNumber numberWithFloat:[[self.gameStatistics objectAtIndex:3] floatValue]+1.0/[temporaryArray count]];
+            [self.gameStatistics replaceObjectAtIndex:3 withObject:newWinCount];
+        }
+        else if ([aPlayer.identification isEqualToString:@"player5"]) {
+            NSNumber* newWinCount = [NSNumber numberWithFloat:[[self.gameStatistics objectAtIndex:4] floatValue]+1.0/[temporaryArray count]];
+            [self.gameStatistics replaceObjectAtIndex:4 withObject:newWinCount];
         }
     }
     return temporaryArray;

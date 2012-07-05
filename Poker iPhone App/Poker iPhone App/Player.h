@@ -105,6 +105,7 @@
 @property (nonatomic, retain) NSDictionary *preFlopDict;
 @property (nonatomic, assign) int cardPairSuit;
 @property (nonatomic,retain) NSString *cardPairKey;
+@property (nonatomic, assign) BOOL hasAlreadyBluffed;
 
 
 
@@ -126,6 +127,8 @@
 - (void) resetPlayerForNewRound;
 - (void) changePlayerState: (NSNumber* ) playerStateAsObject;
 
+- (void) makeBetDecision: (int) maxBet betProbabilityParameter: (int) betParameter foldProbabilityParamter: (int) foldParameter callEverything: (BOOL) callsEverything;
+
 //Methoden KI
 - (void) preparePreFlop;
 - (void) handStrength;
@@ -144,5 +147,10 @@
 - (void) calculatePotOdds;
 - (void) compareOdds;
 - (void) makeBet;
+
+- (void) makeBluffDecision: (float) potChips;
+
+- (float) playerHasWonMoreThanAverage: (Player* ) aPlayer;
+
 
 @end

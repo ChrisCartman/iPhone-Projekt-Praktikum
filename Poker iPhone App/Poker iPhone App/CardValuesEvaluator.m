@@ -210,7 +210,7 @@
             }
         }
     }
-    for (int i=0; i<[allCardsSortedValues count] - 5; i++) {
+    while ([allCardsSortedValues count] > 5) {
         [allCardsSortedValues removeObjectAtIndex:0];
     }
     return allCardsSortedValues;  //Straight nach Größe der karten sortiert.
@@ -254,7 +254,7 @@
                     }
                     // danach ist die höchste Karte im sortierten Array der Kicker:
                     allCardsSortedValues = [self sortCards_Values:allCardsSortedValues];
-                    [temporaryArray addObject:[allCardsSortedValues objectAtIndex:2]];
+                    [temporaryArray addObject:[allCardsSortedValues objectAtIndex:[allCardsSortedValues count]-1]];
                     four_of_a_kind = YES;
                     return temporaryArray; //fertiges Array zurückgeben.
                 }

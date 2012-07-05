@@ -56,6 +56,8 @@
 @synthesize cardPairSuit;
 @synthesize cardPairKey;
 
+@synthesize hasAlreadyBluffed;
+
 
 
 - (id)init
@@ -75,6 +77,7 @@
         self.throwsCardsAway = NO;
         self.mayShowCards = NO;
         self.doesNotWinAnything = NO;
+        self.hasAlreadyBluffed = NO;
     }
     return self;
 }
@@ -95,6 +98,7 @@
     self.mayShowCards = NO;
     self.doesNotWinAnything = NO;
     self.throwsCardsAway = NO;
+    self.hasAlreadyBluffed = NO;
 }
 
 - (void) check
@@ -207,7 +211,12 @@
     [self setCounter:(counter -1)];
     if (isYou == NO) {
         if (self.counter == 19) {
-            [self makeBet];
+            if ([pokerGame.gameSettings.difficulty isEqualToString:@"schwer"]) {
+                [self makeBet];
+            }
+            else {
+                [self makeRandomBet];
+            }
         }
     }
     
@@ -1099,7 +1108,11 @@
 
 
 - (void) calculatePotOdds{
-    potOdds = pokerGame.highestBet/pot.chipsInPot;
+    int potChips = pokerGame.mainPot.chipsInPot;
+    for (Player* aPlayer in pokerGame.allPlayers) {
+        potChips += aPlayer.alreadyBetChips;
+    }
+    potOdds = pokerGame.highestBet/potChips;
 }
 
 
@@ -1109,6 +1122,159 @@
     if (cardOddsRiver >= potOdds){cardOddsRiverIsHigher =YES;};
    
     
+}
+
+- (void) makeBetDecision:(int)maxBet betProbabilityParameter:(int)betParameter foldProbabilityParamter:(int)foldParameter callEverything:(BOOL)callsEverything
+{
+    int sum = betParameter + foldParameter;
+    int randomNumber = arc4random() % sum;
+    int potChips = pokerGame.mainPot.chipsInPot;
+    for (Player* aPlayer in pokerGame.allPlayers) {
+        potChips += aPlayer.alreadyBetChips;
+    }
+    
+    // dieser Fall ist genau betParameter / sum
+    if (randomNumber < betParameter) {
+        if (pokerGame.highestBet >= maxBet) {
+            if (callsEverything) {
+                [self call];
+            }
+            else {
+                [self makeBluffDecision:potChips];
+            }
+        }
+        else {
+            int betAmount;
+            if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
+                betAmount = pokerGame.highestBet + pokerGame.smallBlind*2 + (arc4random() % (int)(maxBet - 2*pokerGame.smallBlind - pokerGame.highestBet));
+            }
+            else {
+                betAmount = 2*pokerGame.smallBlind;
+            }
+            if (pokerGame.highestBet > betAmount) {
+                if (callsEverything) {
+                    [self call];
+                }
+                else {
+                    [self makeBluffDecision:potChips];
+                }
+            }
+            else {
+                [self bet:betAmount asBlind:NO];
+            }
+        }
+    }
+    else {
+        [self makeBluffDecision:potChips];
+    }    
+}
+
+- (void) makeBluffDecision: (float) potChips
+{
+    /* Überlegungen zur Bluff-Entscheidung:
+     - die Bluff-Entscheidung soll von verschiedenen Parametern abhängen:
+        => 1. Zufall (für die Unberechenbarkeit)
+        => 2. Anzahl Spieler aus ihm, die noch in der Runde sind
+        => 3. Chips der Spieler, die noch mit ihm in der Runde sind
+        => 4. Gewinnrate der Spieler, die noch mit ihm in der Runde sind (eine größere Win-Rate als 1/maxPlayers bedeutet, dass dieser Spieler evtl. dazu neight zu bluffen)
+        => 5. eigene Chips
+        => bereits gesetztes Geld
+        => wurde bereits in der BetRound vorher geblufft? => weiterbluffen?
+     
+        Idee: fuere einen Wahrscheinlichkeitsparameter ein, der bei günstigen oder ungünstigen Bedingungen, die Entscheidung für oder gegen einen Bluff beeinflussen
+     */
+    float probabilityToBluff;
+    int minBet;
+    int maxBet;
+    //beginne mit der GrundeinStellung 1/Anzahl Spieler:
+    probabilityToBluff = 1.0 / [pokerGame.remainingPlayersInRound count];
+    
+    //Verhältnis der eigenen Chips zu den Chips der Gegner:
+    NSMutableArray* remainingPlayersSorted = [NSMutableArray arrayWithArray:pokerGame.remainingPlayersInRound];
+    [remainingPlayersSorted sortedArrayUsingComparator:^(Player* player1, Player* player2) {
+        if (player1.chips < player2.chips) return NSOrderedAscending;
+        else if (player1.chips > player2.chips) return NSOrderedDescending;
+        else {
+            return NSOrderedSame;
+        }
+    }];
+    if ([remainingPlayersSorted indexOfObject:self] >= [remainingPlayersSorted count] / 2.0) {
+        probabilityToBluff *= 1.5;
+    }
+    else {
+        probabilityToBluff *= 2.0/3.0;
+    }
+    
+    //Gewinnraten der Spieler, die noch dabei sind (neigen sie zum bluffen?)
+    for (Player* aPlayer in remainingPlayersSorted) {
+        float quotient = [self playerHasWonMoreThanAverage:aPlayer];
+        if (quotient == 5.0) {
+            probabilityToBluff *= (1+4.0*pokerGame.roundsPlayed/10.0);
+        }
+        else if (quotient >= 4.0) {
+            probabilityToBluff *= (1+3.0*pokerGame.roundsPlayed/10.0);
+        }
+        else if (quotient >= 3.0) {
+            probabilityToBluff *= (1+2.0*pokerGame.roundsPlayed/10.0);
+        }
+        else if (quotient >= 2.0) {
+            probabilityToBluff *= (1+pokerGame.roundsPlayed/10.0);
+        }
+        else if (quotient >= 1.5) {
+            probabilityToBluff *= (1+0.3*pokerGame.roundsPlayed/10.0);
+        }
+    }
+    
+    //wurde bereits in der Runde vorher geblufft?
+    if (hasAlreadyBluffed) {
+        probabilityToBluff *= 2.0;
+    }
+    
+    float estimatedBetChips = potChips / (([pokerGame.allPlayers count] + [remainingPlayersSorted count]) / 2.0);
+    
+    if (estimatedBetChips / self.chips >= 1) {
+        probabilityToBluff *= 1.5;
+    }
+    else if (estimatedBetChips / self.chips >= 0.75) {
+        probabilityToBluff *= 1.3;
+    }
+    else if (estimatedBetChips /  self.chips >= 0.5) {
+        probabilityToBluff *= 1.1;
+    }
+    else {
+        probabilityToBluff *= (0.5 + (estimatedBetChips / self.chips));
+    }
+    
+    if (probabilityToBluff >= 1) {
+        minBet = (1+probabilityToBluff*pokerGame.smallBlind*2);
+    }
+    else {
+        minBet = pokerGame.smallBlind*2;
+    }
+    maxBet = self.chips / 5.0;
+    
+    if (probabilityToBluff >= 1) probabilityToBluff = 1;
+    
+    int probTimesHundred = probabilityToBluff * 100;
+    int randomNumber = arc4random() % 100;
+    int betAmount;
+    if (randomNumber < probTimesHundred) {
+        betAmount = minBet + arc4random() % (maxBet - minBet);
+        if (betAmount > pokerGame.highestBet) {
+            [self bet:betAmount asBlind:NO];
+        }
+        else {
+            [self call];
+        }
+    }
+    else {
+        if (self.alreadyBetChips - pokerGame.highestBet == 0) {
+            [self check];
+        }
+        else {
+            [self fold];
+        }
+    }
 }
 
 - (void) makeBet
@@ -1124,230 +1290,37 @@
         int bucket = [bucketString intValue];
         if (bucket == 1) {
             int maxBet = self.chips / 8;
-            if (pokerGame.highestBet >= maxBet) {
-                [self call];
-            }
-            else {
-                int betAmount;
-                if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
-                    betAmount = pokerGame.highestBet + smallBlind*2 + (arc4random() % (maxBet - 2*smallBlind - (int) pokerGame.highestBet));
-                }
-                else {
-                    betAmount = pokerGame.highestBet + 2*smallBlind;
-                }
-                if (pokerGame.highestBet > betAmount) {
-                    [self call];
-                }
-                else {
-                    [self bet:betAmount asBlind:NO];
-                }
-            }
+            [self makeBetDecision:maxBet betProbabilityParameter:1 foldProbabilityParamter:0 callEverything:YES];
         }
         else if (bucket == 2) {
             int maxBet = self.chips / 12;
-            if (pokerGame.highestBet >= maxBet) {
-                [self call];
-            }
-            else {
-                int betAmount;
-                if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
-                    betAmount = pokerGame.highestBet + smallBlind*2 + (arc4random() % (maxBet - 2*smallBlind - (int) pokerGame.highestBet));
-                }
-                else {
-                    betAmount = 2*smallBlind;
-                }
-                if (pokerGame.highestBet > betAmount) {
-                    [self call];
-                }
-                else {
-                    [self bet:betAmount asBlind:NO];
-                }
-            }     
+            [self makeBetDecision:maxBet betProbabilityParameter:1 foldProbabilityParamter:0 callEverything:YES];   
         }
-else if (bucket == 3) {
-    int maxBet = self.chips / 15;
-    if (pokerGame.highestBet >= maxBet) {
-        [self call];
-    }
-    else {
-        int betAmount;
-        if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
-            betAmount = pokerGame.highestBet + smallBlind*2 + (arc4random() % (maxBet - 2*smallBlind - (int) pokerGame.highestBet));
+        else if (bucket == 3) {
+            int maxBet = self.chips / 15;
+            [self makeBetDecision:maxBet betProbabilityParameter:1 foldProbabilityParamter:0 callEverything:YES];
+        }
+        else if (bucket == 4) {
+            int maxBet = self.chips / 15;
+            [self makeBetDecision:maxBet betProbabilityParameter:4 foldProbabilityParamter:1 callEverything:YES];
+        }
+        else if (bucket == 5) {
+            int maxBet = self.chips / 20;
+            [self makeBetDecision:maxBet betProbabilityParameter:3 foldProbabilityParamter:1 callEverything:NO];
+        }
+        else if (bucket == 6) {
+            int maxBet = self.chips / 25;
+            [self makeBetDecision:maxBet betProbabilityParameter:2 foldProbabilityParamter:1 callEverything:NO];
+        }
+        else if (bucket == 7) {
+            int maxBet = self.chips / 30;
+            [self makeBetDecision:maxBet betProbabilityParameter:1 foldProbabilityParamter:1 callEverything:NO];
         }
         else {
-            betAmount = 2*smallBlind;
-        }
-        if (pokerGame.highestBet > betAmount) {
-            [self call];
-        }
-        else {
-            [self bet:betAmount asBlind:NO];
+            int maxBet = self.chips / 40;
+            [self makeBetDecision:maxBet betProbabilityParameter:3 foldProbabilityParamter:5 callEverything:NO];
         }
     }
-}
-else if (bucket == 4) {
-    int randomNumber = (arc4random() % 5);
-    int maxBet = self.chips / 15;
-    if (randomNumber <= 3) {
-        if (pokerGame.highestBet >= maxBet) {
-            [self call];
-        }
-        else {
-            int betAmount;
-            if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
-                betAmount = pokerGame.highestBet + smallBlind*2 + (arc4random() % (maxBet - 2*smallBlind - (int) pokerGame.highestBet));
-            }
-            else {
-                betAmount = 2*smallBlind;
-            }
-            if (pokerGame.highestBet > betAmount) {
-                [self call];
-            }
-            else {
-                [self bet:betAmount asBlind:NO];
-            }
-        }
-    }
-    else {
-        if (pokerGame.highestBet >= maxBet) {
-            [self fold];
-        }
-        else {
-            [self call];
-        }
-    }
-}
-else if (bucket == 5) {
-    int randomNumber = (arc4random() % 4);
-    int maxBet = self.chips / 20;
-    if (randomNumber <= 2) {
-        if (pokerGame.highestBet >= maxBet) {
-            [self call];
-        }
-        else {
-            int betAmount;
-            if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
-                betAmount = pokerGame.highestBet + pokerGame.smallBlind*2 + (arc4random() % (int) (maxBet - 2*pokerGame.smallBlind - pokerGame.highestBet));
-            }
-            else {
-                betAmount = 2*pokerGame.smallBlind;
-            }
-            if (pokerGame.highestBet > betAmount) {
-                [self call];
-            }
-            else {
-                [self bet:betAmount asBlind:NO];
-            }
-        }
-    }
-    else {
-        if (pokerGame.highestBet >= maxBet) {
-            [self fold];
-        }
-        else {
-            [self call];
-        }
-    }
-}
-else if (bucket == 6) {
-    int randomNumber = (arc4random() % 3);
-    int maxBet = self.chips / 25;
-    if (randomNumber <= 1) {
-        if (pokerGame.highestBet >= maxBet) {
-            [self call];
-        }
-        else {
-            int betAmount;
-            if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
-                betAmount = pokerGame.highestBet + pokerGame.smallBlind*2 + (arc4random() % (int) (maxBet - 2*pokerGame.smallBlind - pokerGame.highestBet));
-            }
-            else {
-                betAmount = 2*pokerGame.smallBlind;
-            }
-            if (pokerGame.highestBet > betAmount) {
-                [self call];
-            }
-            else {
-                [self bet:betAmount asBlind:NO];
-            }
-        }
-    }
-    else {
-        if (pokerGame.highestBet >= maxBet) {
-            [self fold];
-        }
-        else {
-            [self call];
-        }
-    }
-}
-else if (bucket == 7) {
-    int randomNumber = (arc4random() % 2);
-    int maxBet = self.chips / 30;
-    if (randomNumber == 1) {
-        if (pokerGame.highestBet >= maxBet) {
-            [self call];
-        }
-        else {
-            int betAmount;
-            if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
-                betAmount = pokerGame.highestBet + pokerGame.smallBlind*2 + (arc4random() % (int)(maxBet - 2*pokerGame.smallBlind - pokerGame.highestBet));
-            }
-            else {
-                betAmount = 2*pokerGame.smallBlind;
-            }
-            if (pokerGame.highestBet > betAmount) {
-                [self call];
-            }
-            else {
-                [self bet:betAmount asBlind:NO];
-            }
-        }
-    }
-    else {
-        if (pokerGame.highestBet >= maxBet) {
-            [self fold];
-        }
-        else {
-            [self call];
-        }
-    }    
-}
-else {
-    int randomNumber = (arc4random() % 3);
-    int maxBet = self.chips / 40;
-    if (randomNumber == 0) {
-        if (pokerGame.highestBet >= maxBet) {
-            [self call];
-        }
-        else {
-            int betAmount;
-            if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
-                betAmount = pokerGame.highestBet + pokerGame.smallBlind*2 + (arc4random() % (int)(maxBet - 2*pokerGame.smallBlind - pokerGame.highestBet));
-            }
-            else {
-                betAmount = 2*pokerGame.smallBlind;
-            }
-            if (pokerGame.highestBet > betAmount) {
-                [self call];
-            }
-            else {
-                [self bet:betAmount asBlind:NO];
-            }
-        }
-    }
-    else {
-        if (pokerGame.highestBet >= maxBet) {
-            [self fold];
-        }
-        else {
-            [self call];
-        }
-    }    
-}
-
-    }
-    
     else {
         CardValuesEvaluator* cardValuesEvaluatorForTableCards = [[CardValuesEvaluator alloc] init];
         [cardValuesEvaluatorForTableCards defineValueOfFiveBestCards:pokerGame.cardsOnTable.allCards];
@@ -1370,212 +1343,48 @@ else {
             switch (cardValues) {
                 case TWO_PAIRS: {
                     int maxBet = self.chips / 10;
-                    if (pokerGame.highestBet >= maxBet) {
-                        [self call];
-                    }
-                    else {
-                        int betAmount;
-                        if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
-                            betAmount = pokerGame.highestBet + pokerGame.smallBlind*2 + (arc4random() % (int)(maxBet - 2*pokerGame.smallBlind - pokerGame.highestBet));
-                        }
-                        else {
-                            betAmount = 2*pokerGame.smallBlind;
-                        }
-                        if (pokerGame.highestBet > betAmount) {
-                            [self call];
-                        }
-                        else {
-                            [self bet:betAmount asBlind:NO];
-                        }
-                    }
+                    [self makeBetDecision:maxBet betProbabilityParameter:1 foldProbabilityParamter:0 callEverything:NO];
                 }
                     break;
                 case THREE_OF_A_KIND: {
                     int maxBet = self.chips / 6;
-                    if (pokerGame.highestBet >= maxBet) {
-                        [self call];
-                    }
-                    else {
-                        int betAmount;
-                        if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
-                            betAmount = pokerGame.highestBet + pokerGame.smallBlind*2 + (arc4random() % (int)(maxBet - 2*pokerGame.smallBlind - pokerGame.highestBet));
-                        }
-                        else {
-                            betAmount = 2*pokerGame.smallBlind;
-                        }
-                        if (pokerGame.highestBet > betAmount) {
-                            [self call];
-                        }
-                        else {
-                            [self bet:betAmount asBlind:NO];
-                        }
-                    }
+                    [self makeBetDecision:maxBet betProbabilityParameter:1 foldProbabilityParamter:0 callEverything:YES];
                 }
                     break;
                 case FLUSH: {
                     int maxBet = self.chips / 4;
-                    if (pokerGame.highestBet >= maxBet) {
-                        [self call];
-                    }
-                    else {
-                        int betAmount;
-                        if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
-                            betAmount = pokerGame.highestBet + pokerGame.smallBlind*2 + (arc4random() % (int)(maxBet - 2*pokerGame.smallBlind - pokerGame.highestBet));
-                        }
-                        else {
-                            betAmount = 2*pokerGame.smallBlind;
-                        }
-                        if (pokerGame.highestBet > betAmount) {
-                            [self call];
-                        }
-                        else {
-                            [self bet:betAmount asBlind:NO];
-                        }
-                    }
+                    [self makeBetDecision:maxBet betProbabilityParameter:1 foldProbabilityParamter:0 callEverything:YES];
                 }
                     break;
                 case STRAIGHT: {
                     int maxBet = self.chips / 5;
-                    if (pokerGame.highestBet >= maxBet) {
-                        [self call];
-                    }
-                    else {
-                        int betAmount;
-                        if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
-                            betAmount = pokerGame.highestBet + pokerGame.smallBlind*2 + (arc4random() % (int)(maxBet - 2*pokerGame.smallBlind - pokerGame.highestBet));
-                        }
-                        else {
-                            betAmount = 2*pokerGame.smallBlind;
-                        }
-                        if (pokerGame.highestBet > betAmount) {
-                            [self call];
-                        }
-                        else {
-                            [self bet:betAmount asBlind:NO];
-                        }
-                    }
+                    [self makeBetDecision:maxBet betProbabilityParameter:1 foldProbabilityParamter:0 callEverything:YES];
                 }
                     break;
                 case FULL_HOUSE: {
                     int maxBet = self.chips / 2;
-                    if (pokerGame.highestBet >= maxBet) {
-                        [self call];
-                    }
-                    else {
-                        int betAmount;
-                        if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
-                            betAmount = pokerGame.highestBet + pokerGame.smallBlind*2 + (arc4random() % (int)(maxBet - 2*pokerGame.smallBlind - pokerGame.highestBet));
-                        }
-                        else {
-                            betAmount = 2*pokerGame.smallBlind;
-                        }
-                        if (pokerGame.highestBet > betAmount) {
-                            [self call];
-                        }
-                        else {
-                            [self bet:betAmount asBlind:NO];
-                        }
-                    }
+                    [self makeBetDecision:maxBet betProbabilityParameter:1 foldProbabilityParamter:0 callEverything:YES];
                 }
                     break;
                 case FOUR_OF_A_KIND: {
                     int maxBet = self.chips;
-                    if (pokerGame.highestBet >= maxBet) {
-                        [self call];
-                    }
-                    else {
-                        int betAmount;
-                        if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
-                            betAmount = pokerGame.highestBet + pokerGame.smallBlind*2 + (arc4random() % (int)(maxBet - 2*pokerGame.smallBlind - pokerGame.highestBet));
-                        }
-                        else {
-                            betAmount = 2*pokerGame.smallBlind;
-                        }
-                        if (pokerGame.highestBet > betAmount) {
-                            [self call];
-                        }
-                        else {
-                            [self bet:betAmount asBlind:NO];
-                        }
-                    }
+                    [self makeBetDecision:maxBet betProbabilityParameter:1 foldProbabilityParamter:0 callEverything:YES];
                 }
                     break;
                 case STRAIGHT_FLUSH: {
                     int maxBet = self.chips;
-                    if (pokerGame.highestBet >= maxBet) {
-                        [self call];
-                    }
-                    else {
-                        int betAmount;
-                        if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
-                            betAmount = pokerGame.highestBet + pokerGame.smallBlind*2 + (arc4random() % (int)(maxBet - 2*pokerGame.smallBlind - pokerGame.highestBet));
-                        }
-                        else {
-                            betAmount = 2*pokerGame.smallBlind;
-                        }
-                        if (pokerGame.highestBet > betAmount) {
-                            [self call];
-                        }
-                        else {
-                            [self bet:betAmount asBlind:NO];
-                        }
-                    }
+                    [self makeBetDecision:maxBet betProbabilityParameter:1 foldProbabilityParamter:0 callEverything:YES];
                 }
                     break;
                 case ROYAL_FLUSH: {
                     int maxBet = self.chips;
-                    if (pokerGame.highestBet >= maxBet) {
-                        [self call];
-                    }
-                    else {
-                        int betAmount;
-                        if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
-                            betAmount = pokerGame.highestBet + pokerGame.smallBlind*2 + (arc4random() % (int)(maxBet - 2*pokerGame.smallBlind - pokerGame.highestBet));
-                        }
-                        else {
-                            betAmount = 2*pokerGame.smallBlind;
-                        }
-                        if (pokerGame.highestBet > betAmount) {
-                            [self call];
-                        }
-                        else {
-                            [self bet:betAmount asBlind:NO];
-                        }
-                    }
+                    [self makeBetDecision:maxBet betProbabilityParameter:1 foldProbabilityParamter:0 callEverything:YES];
                 }
                     break;
                 case ONE_PAIR: {
                     //Wert der höchsten Karte berechnen:
-                    int randomNumber = 2 + (arc4random() % 13);
                     int maxBet = self.chips / 40;
-                    if (randomNumber <= self.valueOfHighestPair) {
-                        if (pokerGame.highestBet >= maxBet) {
-                            [self call];
-                        }
-                        else {
-                            int betAmount;
-                            if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
-                                betAmount = pokerGame.highestBet + pokerGame.smallBlind*2 + (arc4random() % (int)(maxBet - 2*pokerGame.smallBlind - pokerGame.highestBet));
-                            }
-                            else {
-                                betAmount = 2*pokerGame.smallBlind;
-                            }
-                            if (pokerGame.highestBet > betAmount) {
-                                [self call];
-                            }
-                            else {
-                                [self bet:betAmount asBlind:NO];
-                            }
-                        }
-                    }
-                    else {
-                        if (pokerGame.highestBet >= maxBet) {
-                            [self fold];
-                        }
-                        else {
-                            [self call];
-                        }
-                    }    
+                    [self makeBetDecision:maxBet betProbabilityParameter:self.valueOfHighestPair foldProbabilityParamter:14 - self.valueOfHighestPair callEverything:NO];   
                 }
                     break;
                 default: {
@@ -1600,7 +1409,26 @@ else {
 }
 
 
-
+- (float) playerHasWonMoreThanAverage:(Player *)aPlayer
+{
+    float wins;
+    if ([aPlayer.identification isEqualToString:@"player1"]) {
+        wins = [(NSNumber* ) [pokerGame.gameStatistics objectAtIndex:0] floatValue];
+    }
+    else if ([aPlayer.identification isEqualToString:@"player2"]) {
+        wins = [(NSNumber* ) [pokerGame.gameStatistics objectAtIndex:1] floatValue];
+    }
+    else if ([aPlayer.identification isEqualToString:@"player3"]) {
+        wins = [(NSNumber* ) [pokerGame.gameStatistics objectAtIndex:2] floatValue];
+    }    
+    else if ([aPlayer.identification isEqualToString:@"player4"]) {
+        wins = [(NSNumber* ) [pokerGame.gameStatistics objectAtIndex:3] floatValue];
+    }
+    else if ([aPlayer.identification isEqualToString:@"player5"]) {
+        wins = [(NSNumber* ) [pokerGame.gameStatistics objectAtIndex:4] floatValue];
+    }
+    return ((wins / pokerGame.roundsPlayed) / (1.0 / pokerGame.maxPlayers));
+}
 
 
 @end
