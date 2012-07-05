@@ -118,7 +118,7 @@
 - (void) startMove;
 - (void) startCountdown;
 - (void) stopCountdown: (NSTimer* ) timer;
-//- (void) makeRandomBet; //Testmethode (später löschen!)
+- (void) makeRandomBet; //Testmethode (später löschen!)
 - (BOOL) hasBetterCardsThan: (Player* ) aPlayer;
 - (BOOL) hasEqualCardsAs: (Player* ) aPlayer;
 - (void) showCards: (BOOL) required;

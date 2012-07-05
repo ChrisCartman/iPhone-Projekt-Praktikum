@@ -153,19 +153,19 @@
                 betSlider.frame = CGRectMake(158, 262, 203, 23);
             }
                              completion:^(BOOL finished) {
-            if (finished) {
-                if (betSlider.currentChips - betSlider.dollars >= 1.0) {
-                    betSlider.maximumValue = 1.0;
-                }
-                else {
-                    betSlider.maximumValue = betSlider.currentChips - betSlider.dollars;
-                }
-                betSlider.minimumValue = 0.0;
-                betSlider.value = betSlider.cents;
-                sliderSensibilityButton.frame = CGRectMake(128, 257, 30, 30);
-                [sliderSensibilityButton setTitle:@"<<" forState:UIControlStateNormal];
-                sliderSensibilityButton.hidden = NO;
-            }
+                                 if (finished) {
+                                     if (betSlider.currentChips - betSlider.dollars >= 1.0) {
+                                         betSlider.maximumValue = 1.0;
+                                     }
+                                     else {
+                                         betSlider.maximumValue = betSlider.currentChips - betSlider.dollars;
+                                     }
+                                     betSlider.minimumValue = 0.0;
+                                     betSlider.value = betSlider.cents;
+                                     sliderSensibilityButton.frame = CGRectMake(128, 257, 30, 30);
+                                     [sliderSensibilityButton setTitle:@"<<" forState:UIControlStateNormal];
+                                     sliderSensibilityButton.hidden = NO;
+                                 }
                              }];
         }
     }
@@ -186,7 +186,7 @@
                                  betSlider.maximumValue = betSlider.currentChips;
                                  betSlider.value = betSlider.dollars;
                                  sliderSensibilityButton.frame = CGRectMake(337,257,30,30);
-                                [sliderSensibilityButton setTitle:@">>" forState:UIControlStateNormal];
+                                 [sliderSensibilityButton setTitle:@">>" forState:UIControlStateNormal];
                                  sliderSensibilityButton.hidden = NO;
                              }
                          }];
@@ -387,8 +387,8 @@
         card2 = player5CardTwo;
     }
     /*if (!([pokerGame.remainingPlayersInRound count] == 2 && (pokerGame.firstInRound.isAllIn || pokerGame.firstInRound.nextPlayerInRound.isAllIn))) {
-        [self showAnimationWhenPlayer:aPlayer showsCard:card1 andCard:card2];
-    }*/
+     [self showAnimationWhenPlayer:aPlayer showsCard:card1 andCard:card2];
+     }*/
     if (pokerGame.exactlyTwoPlayersAllIn && animated) {
         [self showAnimationForFiveBestCardsOfPlayer:aPlayer withCard:card1 andCard:card2];
     }
@@ -482,9 +482,9 @@
                 }
             }
             else {
-                player2CardOne.image = [[aPlayer.hand.cardsOnHand objectAtIndex:0] playingCardImage];
+                player2CardOne.image = [UIImage imageNamed:@"back.png"];
                 if ([aPlayer.hand.cardsOnHand count] > 1) {
-                    player2CardTwo.image = [[aPlayer.hand.cardsOnHand objectAtIndex:1] playingCardImage];
+                    player2CardTwo.image = [UIImage imageNamed:@"back.png"];
                 }
             }
         }
@@ -502,9 +502,9 @@
                 }
             }
             else {
-                player3CardOne.image = [[aPlayer.hand.cardsOnHand objectAtIndex:0] playingCardImage];
+                player3CardOne.image = [UIImage imageNamed:@"back.png"];
                 if ([aPlayer.hand.cardsOnHand count] > 1) {
-                    player3CardTwo.image = [[aPlayer.hand.cardsOnHand objectAtIndex:1] playingCardImage];
+                    player3CardTwo.image = [UIImage imageNamed:@"back.png"];
                 }
             }
         }
@@ -513,7 +513,7 @@
         if (aPlayer.playerState == FOLDED || aPlayer.playerState == SET_UP || aPlayer.playerState == LOST) {
             player4CardOne.image = nil;
             player4CardTwo.image = nil;
-
+            
         }
         else {
             if (aPlayer.isYou) {
@@ -523,9 +523,9 @@
                 }
             }
             else {
-                player4CardOne.image = [[aPlayer.hand.cardsOnHand objectAtIndex:0] playingCardImage];
+                player4CardOne.image = [UIImage imageNamed:@"back.png"];
                 if ([aPlayer.hand.cardsOnHand count] > 1) {
-                    player4CardTwo.image = [[aPlayer.hand.cardsOnHand objectAtIndex:1] playingCardImage];
+                    player4CardTwo.image = [UIImage imageNamed:@"back.png"];
                 }
             }
         }
@@ -543,9 +543,9 @@
                 }
             }
             else {
-                player5CardOne.image = [[aPlayer.hand.cardsOnHand objectAtIndex:0] playingCardImage];
+                player5CardOne.image = [UIImage imageNamed:@"back.png"];                
                 if ([aPlayer.hand.cardsOnHand count] > 1) {
-                    player5CardTwo.image = [[aPlayer.hand.cardsOnHand objectAtIndex:1] playingCardImage];
+                    player5CardTwo.image = [UIImage imageNamed:@"back.png"];
                 }
             }
         }
@@ -674,13 +674,13 @@
 - (void) resetAnimatedOutlets
 {
     player2CardOne.frame = CGRectMake(66, 84, 24, 33);
-    player2CardTwo.frame = CGRectMake(82, 84, 24, 33);
+    player2CardTwo.frame = CGRectMake(72, 84, 24, 33);
     player3CardOne.frame = CGRectMake(171, 62, 24, 33);
-    player3CardTwo.frame = CGRectMake(187, 62, 24, 33);
+    player3CardTwo.frame = CGRectMake(177, 62, 24, 33);
     player4CardOne.frame = CGRectMake(263, 62, 24, 33);
-    player4CardTwo.frame = CGRectMake(279, 62, 24, 33);
+    player4CardTwo.frame = CGRectMake(269, 62, 24, 33);
     player5CardOne.frame = CGRectMake(377, 84, 24, 33);
-    player5CardTwo.frame = CGRectMake(393, 84, 24, 33);
+    player5CardTwo.frame = CGRectMake(383, 84, 24, 33);
     player1CardOne.frame = CGRectMake(270, 205, 32, 44);
     player1CardTwo.frame = CGRectMake(310, 205, 32, 44);
     player1FoldFadeLabel.alpha = 0.0;
@@ -760,7 +760,7 @@
         effectLabel.text = @"Check!";
         effectLabel.textColor = [UIColor colorWithRed:33.0/255.0 green:164.0/255.0 blue:40.0/255.0 alpha:1.0];
         soundFilePath = [[NSBundle mainBundle] pathForResource:@"check" ofType:@"wav"];
-
+        
     }
     else if (aPlayer.playerState == CALLED) {
         effectLabel.text = @"Call!";
@@ -792,8 +792,7 @@
     moneySoundPlayer.delegate = self;
     moneySoundPlayer.volume = 0.2;
     [moneySoundPlayer prepareToPlay];
-    BOOL ok = [moneySoundPlayer play];
-    NSLog(@"ok: %@", ok ? @"Y" : @"N");
+    [moneySoundPlayer play];
     
     [effectLabel bringSubviewToFront:self.view];
     effectLabel.alpha = 1.0;
@@ -848,7 +847,7 @@
         destinationFrame1_1 = CGRectMake(card1.frame.origin.x, card1.frame.origin.y - 15, 32, 44);
         destinationFrame2_1 = CGRectMake(card2.frame.origin.x, card2.frame.origin.y - 15, 32, 44);
     }
-
+    
     //Sound abspielen:
     NSString* soundFilePath = [[NSBundle mainBundle] pathForResource:@"cards1" ofType:@"wav"];
     cardSoundPlayer = [[AVAudioPlayer alloc] initWithContentsOfURL:[NSURL fileURLWithPath:soundFilePath] error:nil];
@@ -861,29 +860,29 @@
         card1.frame = destinationFrame1_1;
         card2.frame = destinationFrame2_1;
     }
-    completion:^(BOOL finished) {
-            if (finished) {
-                if (!aPlayer.isYou) {
-                    card1.image = [[aPlayer.hand.cardsOnHand objectAtIndex:0] playingCardImage];
-                    card2.image = [[aPlayer.hand.cardsOnHand objectAtIndex:1] playingCardImage];
-                    [UIView animateWithDuration:0.15 animations:^{
-                        card1.frame = destinationFrame1_2;
-                        card2.frame = destinationFrame2_2;
-                    }  completion:^(BOOL finished) {
-                        if (finished) {
-                            if (animated) {
-                                [self showAnimationForFiveBestCardsOfPlayer:aPlayer withCard:card1 andCard:card2];
-                            }
-                        }
-                    }];
-                }
-                else {
-                    if (animated) {
-                        [self showAnimationForFiveBestCardsOfPlayer:aPlayer withCard:card1 andCard:card2];
-                    }
-                }
-            }
-        }];
+                     completion:^(BOOL finished) {
+                         if (finished) {
+                             if (!aPlayer.isYou) {
+                                 card1.image = [[aPlayer.hand.cardsOnHand objectAtIndex:0] playingCardImage];
+                                 card2.image = [[aPlayer.hand.cardsOnHand objectAtIndex:1] playingCardImage];
+                                 [UIView animateWithDuration:0.15 animations:^{
+                                     card1.frame = destinationFrame1_2;
+                                     card2.frame = destinationFrame2_2;
+                                 }  completion:^(BOOL finished) {
+                                     if (finished) {
+                                         if (animated) {
+                                             [self showAnimationForFiveBestCardsOfPlayer:aPlayer withCard:card1 andCard:card2];
+                                         }
+                                     }
+                                 }];
+                             }
+                             else {
+                                 if (animated) {
+                                     [self showAnimationForFiveBestCardsOfPlayer:aPlayer withCard:card1 andCard:card2];
+                                 }
+                             }
+                         }
+                     }];
 }
 
 - (void) showAnimationForFiveBestCardsOfPlayer:(Player *)aPlayer withCard:(UIImageView *)card1 andCard:(UIImageView *)card2
@@ -916,7 +915,7 @@
         else {
             [badCards addObject:flopCardOneImage];
         }
-    
+        
         currentPlayingCard = [pokerGame.cardsOnTable.flop objectAtIndex:1];
         if ([aPlayer.hand.fiveBestCards.arrayOfFiveBestCards containsObject:currentPlayingCard]) {
             [goodCards addObject:flopCardTwoImage];
@@ -924,7 +923,7 @@
         else {
             [badCards addObject:flopCardTwoImage];
         } 
-    
+        
         currentPlayingCard = [pokerGame.cardsOnTable.flop objectAtIndex:2];
         if ([aPlayer.hand.fiveBestCards.arrayOfFiveBestCards containsObject:currentPlayingCard]) {
             [goodCards addObject:flopCardThreeImage];
@@ -970,8 +969,8 @@
             label.alpha = 0.7;
         }
     }
-        completion:nil
-    ];
+                     completion:nil
+     ];
 }
 
 - (void) resetTemporaryOutletsAndBadCards
@@ -999,33 +998,33 @@
         [self.view addSubview:pauseLabel];
         [self.view bringSubviewToFront:pauseLabel];
         [self.view bringSubviewToFront:pauseTableView];
-
+        
         [UIView animateWithDuration:1.0 animations:^{
             pauseLabel.alpha = 0.8;
             pauseTableView.alpha = 1.0;
             //self.view.backgroundColor = [UIColor lightGrayColor];
         }
-        completion:nil];
+                         completion:nil];
     }
     else {
         [UIView animateWithDuration:1.0 animations:^{
             pauseLabel.alpha = 0.0;
             pauseTableView.alpha = 0.0;
         }
-    completion:^(BOOL finished) {
-        if (finished) {
-            self.pauseTableView.hidden = YES;
-            pauseLabel.hidden = YES;
-            
-            //Outlets enablen:
-            betSlider.userInteractionEnabled = YES;
-            betButton.userInteractionEnabled = YES;
-            foldButton.userInteractionEnabled = YES;
-            showCardsButton.userInteractionEnabled = YES;
-            throwCardsAwayButton.userInteractionEnabled = YES;
-            pauseButton.userInteractionEnabled = YES;
-        }
-    } ];
+                         completion:^(BOOL finished) {
+                             if (finished) {
+                                 self.pauseTableView.hidden = YES;
+                                 pauseLabel.hidden = YES;
+                                 
+                                 //Outlets enablen:
+                                 betSlider.userInteractionEnabled = YES;
+                                 betButton.userInteractionEnabled = YES;
+                                 foldButton.userInteractionEnabled = YES;
+                                 showCardsButton.userInteractionEnabled = YES;
+                                 throwCardsAwayButton.userInteractionEnabled = YES;
+                                 pauseButton.userInteractionEnabled = YES;
+                             }
+                         } ];
     }
     
 }
@@ -1530,14 +1529,14 @@
     
     
     player2ChipsLabel = [[UILabel alloc] initWithFrame:CGRectMake(22, 147, 40, 20)];
-    player2ChipsLabel = [NSString stringWithFormat:@"i$", pokerGame.gameSettings.startChips];
+    player2ChipsLabel.text = [NSString stringWithFormat:@"%i$", pokerGame.gameSettings.startChips];
     player2ChipsLabel.font = [UIFont fontWithName:@"System" size:13.0];
     player2ChipsLabel.textColor = [UIColor whiteColor];
     
     player2ChipsLabel.backgroundColor = [UIColor clearColor];
     [self.view addSubview:player2ChipsLabel];
     player2ChipsLabel.font = [UIFont boldSystemFontOfSize:11];
-
+    
     player2AlreadyBetChipsLabel = [[UILabel alloc]initWithFrame:CGRectMake(64, 144, 55, 20)];
     player2AlreadyBetChipsLabel.textAlignment = UITextAlignmentLeft;
     [self.view addSubview:player2AlreadyBetChipsLabel];
@@ -1545,10 +1544,10 @@
     player2AlreadyBetChipsLabel.font = [UIFont fontWithName:@"System" size: 13.0];
     player2AlreadyBetChipsLabel.textColor = [UIColor whiteColor];
     player2AlreadyBetChipsLabel.font = [UIFont boldSystemFontOfSize:11];
-
-
-
-
+    
+    
+    
+    
     sidePotLabel2 = [[UILabel alloc]initWithFrame:player2AlreadyBetChipsLabel.frame];
     sidePotLabel2.text = @"";
     [self.view addSubview:sidePotLabel2];
@@ -1778,7 +1777,7 @@
     [self setUpPlayers];
     [self setUpGame];
     [self setUpGraphics];
-
+    
 }
 
 - (NSInteger) numberOfSectionsInTableView:(UITableView *)tableView
@@ -1842,8 +1841,8 @@
 - (void) viewDidAppear:(BOOL)animated
 {
     /*winnersCup.hidden = NO;
-    winnersCup.image = [UIImage imageNamed:@"Pokal.png"];
-    [self showAnimationWhenPlayerWonGame];*/
+     winnersCup.image = [UIImage imageNamed:@"Pokal.png"];
+     [self showAnimationWhenPlayerWonGame];*/
     
     //[self setUpPlayers];
     //Spiel vorbereiten (prepareGame ordnet Spieler und allokiert wichtige Objekte) und KVO aktivieren
@@ -1880,8 +1879,8 @@
     cardSoundPlayer.delegate = self;
     cardSoundPlayer.volume = 0.1;
     [cardSoundPlayer prepareToPlay];
-    BOOL ok = [cardSoundPlayer play];
-    NSLog(@"ok: %@", ok ? @"Y" : @"N");
+    [cardSoundPlayer play];
+
     
     
     
@@ -1891,9 +1890,9 @@
     [UIView animateWithDuration:secs animations:^{
         temporaryImageView.frame = destinationFrame;
     }
-    completion:^(BOOL finished) {
-        [self removeTemporaryOutlet:temporaryImageView];
-    }];
+                     completion:^(BOOL finished) {
+                         [self removeTemporaryOutlet:temporaryImageView];
+                     }];
 }
 
 - (void) removeTemporaryOutlet:(UIImageView* )outlet
@@ -2071,8 +2070,7 @@
         countdownSoundPlayer.delegate = self;
         countdownSoundPlayer.volume = 0.2;
         [countdownSoundPlayer prepareToPlay];
-        BOOL ok = [countdownSoundPlayer play];
-        NSLog(@"ok: %@", ok ? @"Y" : @"N");
+        [countdownSoundPlayer play];
     }
     if (aPlayer.counter >= 0) {
         self.playerCountdownLabel.text = [NSString stringWithFormat:@"%i", aPlayer.counter];
@@ -2082,27 +2080,27 @@
 - (void) changePlayerOutlets_lost:(Player *)aPlayer
 {
     if ([aPlayer.identification isEqualToString:@"player1"]) {
-       // player1NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player1NameLabel.text, @"Lost!"];
+        // player1NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player1NameLabel.text, @"Lost!"];
         player1ChipsLabel.textColor = [UIColor redColor];
         player1NameLabel.textColor = [UIColor redColor];
     }
     else if ([aPlayer.identification isEqualToString:@"player2"]) {
-     //   player2NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player2NameLabel.text, @"Lost!"];
+        //   player2NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player2NameLabel.text, @"Lost!"];
         player2ChipsLabel.textColor = [UIColor redColor];
         player2NameLabel.textColor = [UIColor redColor];
     }
     else if ([aPlayer.identification isEqualToString:@"player3"]) {
-       // player3NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player3NameLabel.text, @"Lost!"];
+        // player3NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player3NameLabel.text, @"Lost!"];
         player3ChipsLabel.textColor = [UIColor redColor];
         player3NameLabel.textColor = [UIColor redColor];
     }    
     else if ([aPlayer.identification isEqualToString:@"player4"]) {
-       // player4NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player4NameLabel.text, @"Lost!"];
+        // player4NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player4NameLabel.text, @"Lost!"];
         player4ChipsLabel.textColor = [UIColor redColor];
         player4NameLabel.textColor = [UIColor redColor];
     }    
     else if ([aPlayer.identification isEqualToString:@"player5"]) {
-       // player5NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player5NameLabel.text, @"Lost!"];
+        // player5NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player5NameLabel.text, @"Lost!"];
         player5ChipsLabel.textColor = [UIColor redColor];
         player5NameLabel.textColor = [UIColor redColor];
     }
@@ -2112,31 +2110,31 @@
 {
     CGRect position;
     if ([aPlayer.identification isEqualToString:@"player1"]) {
-    //    player1NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player1NameLabel.text, @"Won!"];
+        //    player1NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player1NameLabel.text, @"Won!"];
         player1ChipsLabel.textColor = [UIColor greenColor];
         player1NameLabel.textColor = [UIColor greenColor];
         position = CGRectMake(player1ProfilePictureImage.frame.origin.x, player1ProfilePictureImage.frame.origin.y - 20, 40, 40);
     }
     else if ([aPlayer.identification isEqualToString:@"player2"]) {
-    //    player2NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player2NameLabel.text, @"Won!"];
+        //    player2NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player2NameLabel.text, @"Won!"];
         player2ChipsLabel.textColor = [UIColor greenColor];
         player2NameLabel.textColor = [UIColor greenColor];
         position = CGRectMake(player2ProfilePictureImage.frame.origin.x, player2ProfilePictureImage.frame.origin.y - 20, 40, 40);
     }
     else if ([aPlayer.identification isEqualToString:@"player3"]) {
-    //    player3NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player3NameLabel.text, @"Won!"];
+        //    player3NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player3NameLabel.text, @"Won!"];
         player3ChipsLabel.textColor = [UIColor greenColor];
         player3NameLabel.textColor = [UIColor greenColor];
         position = CGRectMake(player3ProfilePictureImage.frame.origin.x, player3ProfilePictureImage.frame.origin.y - 20, 40, 40);
     }    
     else if ([aPlayer.identification isEqualToString:@"player4"]) {
-    //    player4NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player4NameLabel.text, @"Won!"];
+        //    player4NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player4NameLabel.text, @"Won!"];
         player4ChipsLabel.textColor = [UIColor greenColor];
         player4NameLabel.textColor = [UIColor greenColor];
         position = CGRectMake(player4ProfilePictureImage.frame.origin.x, player4ProfilePictureImage.frame.origin.y - 20, 40, 40);
     }    
     else if ([aPlayer.identification isEqualToString:@"player5"]) {
-    //    player5NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player5NameLabel.text, @"Won!"];
+        //    player5NameLabel.text = [NSString stringWithFormat:@"%@ (%@)", player5NameLabel.text, @"Won!"];
         player5ChipsLabel.textColor = [UIColor greenColor];
         player5NameLabel.textColor = [UIColor greenColor];
         position = CGRectMake(player5ProfilePictureImage.frame.origin.x, player5ProfilePictureImage.frame.origin.y - 20, 40, 40);
@@ -2146,8 +2144,7 @@
     winnerSoundPlayer.delegate = self;
     winnerSoundPlayer.volume = 0.2;
     [winnerSoundPlayer prepareToPlay];
-    BOOL ok = [winnerSoundPlayer play];
-    NSLog(@"ok: %@", ok ? @"Y" : @"N");
+    [winnerSoundPlayer play];
     
     winnersCrown.frame = CGRectMake(240,150,1,1);
     winnersCrown.hidden = NO;
@@ -2171,23 +2168,23 @@
                      }];
     
     /*
-    float destinationX = winnersCrown.frame.origin.x + 43;
-    float destinationY = winnersCrown.frame.origin.y;
-    float destinationWidth = 10.0;
-    float destinationHeight = 96;
-    CGRect startFrame = winnersCrown.frame;
-    CGRect destinationFrame = CGRectMake(destinationX, destinationY, destinationWidth, destinationHeight);
-    [UIView animateWithDuration:1.5 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
-        winnersCrown.frame = destinationFrame;
-    }
-                     completion:^(BOOL finished) {
-                         [UIView animateWithDuration:1.5 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
-                             winnersCrown.frame = startFrame;
-                         }
-                                          completion:^(BOOL finished) {
-                                              [self showAnimationWhenPlayerWonGame];
-                                          }];
-                          }];
+     float destinationX = winnersCrown.frame.origin.x + 43;
+     float destinationY = winnersCrown.frame.origin.y;
+     float destinationWidth = 10.0;
+     float destinationHeight = 96;
+     CGRect startFrame = winnersCrown.frame;
+     CGRect destinationFrame = CGRectMake(destinationX, destinationY, destinationWidth, destinationHeight);
+     [UIView animateWithDuration:1.5 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+     winnersCrown.frame = destinationFrame;
+     }
+     completion:^(BOOL finished) {
+     [UIView animateWithDuration:1.5 delay:0.0 options:UIViewAnimationOptionCurveLinear animations:^{
+     winnersCrown.frame = startFrame;
+     }
+     completion:^(BOOL finished) {
+     [self showAnimationWhenPlayerWonGame];
+     }];
+     }];
      */
 }
 

@@ -106,12 +106,17 @@
 
 - (void) call
 {
-    [self stopCountdown:countdownTimer];
-    if (self.chips + self.alreadyBetChips > pokerGame.highestBet) {
-        [pokerGame takeCallFromPlayer:self];
+    if (pokerGame.highestBet - self.alreadyBetChips == 0) {
+        [self check];
     }
     else {
-        [pokerGame takeAllInFromPlayer:self asBlind:NO];
+        [self stopCountdown:countdownTimer];
+        if (self.chips + self.alreadyBetChips > pokerGame.highestBet) {
+            [pokerGame takeCallFromPlayer:self];
+        }
+        else {
+            [pokerGame takeAllInFromPlayer:self asBlind:NO];
+        }
     }
 }
 
@@ -133,10 +138,18 @@
 
 - (void) bet: (float) amount asBlind:(BOOL)isBlind
 {
-    if (!isBlind) {
-        [self stopCountdown:countdownTimer];
+    if (amount == 0) {
+        [self check];
     }
-    [pokerGame takeBetAmount:amount fromPlayer:self asBlind:isBlind];
+    else if (amount == pokerGame.highestBet) {
+        [self call];
+    }
+    else {
+        if (!isBlind) {
+            [self stopCountdown:countdownTimer];
+        }
+        [pokerGame takeBetAmount:amount fromPlayer:self asBlind:isBlind];
+    }
     /*
     self.chips -= (amount - alreadyBetChips);
     pokerGame.chipsInPot += (amount - alreadyBetChips);
@@ -206,17 +219,19 @@
 
 - (void) stopCountdown:(NSTimer *)timer
 {
+    if ([currentlyRunningTimersWithCreationTimes containsObject:timer]) {
+        int index = [currentlyRunningTimersWithCreationTimes indexOfObject:timer];
+        for (int i=1;i<=2;i++) {
+            [self.currentlyRunningTimersWithCreationTimes removeObjectAtIndex:index];
+        }
+    }
     [timer invalidate];
-    int index = [currentlyRunningTimersWithCreationTimes indexOfObject:timer];
-    for (int i=1;i<=2;i++) {
-        [self.currentlyRunningTimersWithCreationTimes removeObjectAtIndex:index];
-     }
     timer = nil;
 }
 
 // Test-Funktionen: (später löschen)
 
-/*- (void) makeRandomBet
+- (void) makeRandomBet
 {
     int n = (arc4random() % 10);
     if (n==11) { //(n==9 || n==8) {
@@ -243,7 +258,7 @@
             [self check];
         }
     }
-}*/
+}
 
 - (BOOL) hasBetterCardsThan:(Player *)aPlayer
 {
@@ -599,16 +614,433 @@
 
 
 
-- (BOOL) expectGutshot{}
-
-- (BOOL) expectDoubleGutshot{}
-
-- (BOOL) expectFlushAndGutshot{}
-
-- (BOOL) expectFlushAndOpenStraight{
+- (BOOL) expectGutshot
+{
+    NSMutableArray* allCards = [[NSMutableArray alloc] initWithArray:pokerGame.cardsOnTable.allCards];
+    [allCards addObjectsFromArray:self.hand.cardsOnHand];
     
     
+    //zum testen: 
+    //    NSMutableArray* allCards = [[NSMutableArray alloc] init];
+    //    PlayingCard* card1 = [[PlayingCard alloc] init];
+    //    card1.value = 2;
+    //    PlayingCard* card2 = [[PlayingCard alloc] init];
+    //    card2.value = 5;
+    //    PlayingCard* card3 = [[PlayingCard alloc] init];
+    //    card3.value = 13;
+    //    PlayingCard* card4 = [[PlayingCard alloc] init];
+    //    card4.value = 11;    
+    //    PlayingCard* card5 = [[PlayingCard alloc] init];
+    //    card5.value = 5;
+    //    PlayingCard* card6 = [[PlayingCard alloc] init];
+    //    card6.value = 6;
+    //    
+    //    [allCards addObject:card1];
+    //    [allCards addObject:card2];
+    //    [allCards addObject:card3];
+    //    [allCards addObject:card4];
+    //    [allCards addObject:card5];
+    //    [allCards addObject:card6];
+    
+    //falls ein Ass enthalten ist: füge eine imaginäre Karte mit dem Wert1 hinzu:
+    for (PlayingCard* aPlayingCard in allCards) {
+        if (aPlayingCard.value == 14) {
+            PlayingCard* imaginaryPlayingCard = [[PlayingCard alloc] init];
+            imaginaryPlayingCard.value = 1;    
+            [allCards addObject:imaginaryPlayingCard];
+            break;
+        }
+    }
+    
+    //sortiere das Array
+    allCards = [self.hand.cardValuesEvaluator sortCards_Values:allCards];
+    
+    //Es gibt drei verschiedene Fälle für dieses Problem:
+    /* x: Loch, o: brauchbare Karte:
+     die drei Fälle sind dann: (1) o x o o o, (2) o o x o o, (3) o o o x o */
+    //beginne mit einem Vergleich der ersten beiden Karten im sortierten Array:
+    //Idee: speichere je in einer Variablen, welcher Fall gerade betrachtet wird und in einer wieviele passende Karten schon gefunden wurden: dies sollten idealerweise 4 sein:
+    int gutshotCase = 0; //0 bedeutet keiner der Fälle wird gerade besonders in Betracht gezogen
+    int countOfFittingCards = 1; // eine passende Karte hat man immer
+    
+    PlayingCard* lastPlayingCard = [allCards objectAtIndex:0];
+    int valueOfLastPlayingCard = lastPlayingCard.value;
+    
+    
+    int index = 0;
+    while (countOfFittingCards < 4) {
+        //falls nicht mehr genug Karten übrig sind um einen Gutshotfall zu vervollständigen: NO
+        index++;
+        if ([allCards count] - index + countOfFittingCards < 4) {
+            return NO;
+        }
+        PlayingCard* currentPlayingCard = [allCards objectAtIndex:index];
+        if (currentPlayingCard.value == valueOfLastPlayingCard) {
+            lastPlayingCard = currentPlayingCard;
+            valueOfLastPlayingCard = lastPlayingCard.value;
+            continue;
+        }
+        // noch kein gutshotCase gewählt, d.h. countOfFittingCards == 1:
+        if (gutshotCase == 0) {
+            //Fall (2) oder Fall (3) ?
+            if (currentPlayingCard.value == valueOfLastPlayingCard + 1) {
+                gutshotCase = 2;
+                countOfFittingCards += 1;
+            }
+            // Fall (1) ?
+            else if (currentPlayingCard.value == valueOfLastPlayingCard + 2) {
+                gutshotCase = 1;
+                countOfFittingCards += 1;
+            }
+        }
+        else if (gutshotCase == 1) {
+            if (countOfFittingCards >= 2) {
+                if (currentPlayingCard.value == valueOfLastPlayingCard + 1) {
+                    //weitermachen:
+                    countOfFittingCards += 1;
+                }
+                else if (!(currentPlayingCard.value == valueOfLastPlayingCard + 2)) {
+                    //wieder von vorne anfangen
+                    countOfFittingCards = 1;
+                    gutshotCase = 0;
+                }
+            }
+        }
+        else if (gutshotCase == 2) {
+            if (countOfFittingCards == 2) {
+                if (currentPlayingCard.value == valueOfLastPlayingCard + 1) {
+                    //switch zu Fall (3)
+                    countOfFittingCards += 1;
+                    gutshotCase = 3;
+                }
+                else if (currentPlayingCard.value = valueOfLastPlayingCard + 2) {
+                    //weitermachen
+                    countOfFittingCards += 1;
+                }
+                else {
+                    //wieder von vorne anfangen
+                    countOfFittingCards = 1;
+                    gutshotCase = 0;
+                }
+            }
+            else if (countOfFittingCards == 3) {
+                if (currentPlayingCard.value == valueOfLastPlayingCard + 1) {
+                    //fall 2 vollständig!
+                    countOfFittingCards += 1;
+                }
+                else if (currentPlayingCard.value == valueOfLastPlayingCard + 2) {
+                    //switch zu fall (1)
+                    gutshotCase = 1;
+                    countOfFittingCards = 2;
+                }
+                else {
+                    countOfFittingCards = 1;
+                    gutshotCase = 0;
+                }
+            }
+        }
+        else {
+            if (currentPlayingCard.value == valueOfLastPlayingCard + 2) {
+                countOfFittingCards += 1;
+            }
+            else {
+                gutshotCase = 0;
+                countOfFittingCards = 1;
+            }
+        }
+        // falls keiner der Fälle zutrifft, werden nur die folgenden Zeilen ausgeführt:
+        lastPlayingCard = currentPlayingCard;
+        valueOfLastPlayingCard = lastPlayingCard.value;
+        
+    }
+    return YES;
+}
 
+- (BOOL) expectDoubleGutshot
+{
+    //Idee: die Methode expectGutshot findet immer den 1. möglichen gutshot.
+    //falls es mehrere gibt, so haben diese mit Sicherheit mit den vorderen Karten (vor der Lücke) des 1. Gutshots nichts zu tun, diese können also entfernt werden und danach kann einfach nochmals überprüft werden, ob ein gutshot da war:
+    
+    //Kopiere also zunächst den code der Funktion gutshot
+    
+    NSMutableArray* allCards = [[NSMutableArray alloc] initWithArray:pokerGame.cardsOnTable.allCards];
+    [allCards addObjectsFromArray:self.hand.cardsOnHand];
+    
+    
+    //zum testen: 
+    //    NSMutableArray* allCards = [[NSMutableArray alloc] init];
+    //    PlayingCard* card1 = [[PlayingCard alloc] init];
+    //    card1.value = 2;
+    //    PlayingCard* card2 = [[PlayingCard alloc] init];
+    //    card2.value = 3;
+    //    PlayingCard* card3 = [[PlayingCard alloc] init];
+    //    card3.value = 4;
+    //    PlayingCard* card4 = [[PlayingCard alloc] init];
+    //    card4.value = 6;    
+    //    PlayingCard* card5 = [[PlayingCard alloc] init];
+    //    card5.value = 7;
+    //    PlayingCard* card6 = [[PlayingCard alloc] init];
+    //    card6.value = 8;
+    //        
+    //    [allCards addObject:card1];
+    //    [allCards addObject:card2];
+    //    [allCards addObject:card3];
+    //    [allCards addObject:card4];
+    //    [allCards addObject:card5];
+    //    [allCards addObject:card6];
+    
+    //falls ein Ass enthalten ist: füge eine imaginäre Karte mit dem Wert1 hinzu:
+    for (PlayingCard* aPlayingCard in allCards) {
+        if (aPlayingCard.value == 14) {
+            PlayingCard* imaginaryPlayingCard = [[PlayingCard alloc] init];
+            imaginaryPlayingCard.value = 1;    
+            [allCards addObject:imaginaryPlayingCard];
+            break;
+        }
+    }
+    
+    //sortiere das Array
+    allCards = [self.hand.cardValuesEvaluator sortCards_Values:allCards];
+    
+    //Es gibt drei verschiedene Fälle für dieses Problem:
+    /* x: Loch, o: brauchbare Karte:
+     die drei Fälle sind dann: (1) o x o o o, (2) o o x o o, (3) o o o x o */
+    //beginne mit einem Vergleich der ersten beiden Karten im sortierten Array:
+    //Idee: speichere je in einer Variablen, welcher Fall gerade betrachtet wird und in einer wieviele passende Karten schon gefunden wurden: dies sollten idealerweise 4 sein:
+    int gutshotCase = 0; //0 bedeutet keiner der Fälle wird gerade besonders in Betracht gezogen
+    int countOfFittingCards = 1; // eine passende Karte hat man immer
+    
+    PlayingCard* lastPlayingCard = [allCards objectAtIndex:0];
+    int valueOfLastPlayingCard = lastPlayingCard.value;
+    
+    int index = 0;
+    while (countOfFittingCards < 4) {
+        //falls nicht mehr genug Karten übrig sind um einen Gutshotfall zu vervollständigen: NO
+        index++;
+        if ([allCards count] - index + countOfFittingCards < 4) {
+            return NO;
+        }
+        PlayingCard* currentPlayingCard = [allCards objectAtIndex:index];
+        if (currentPlayingCard.value == valueOfLastPlayingCard) {
+            lastPlayingCard = currentPlayingCard;
+            valueOfLastPlayingCard = lastPlayingCard.value;
+            continue;
+        }
+        // noch kein gutshotCase gewählt, d.h. countOfFittingCards == 1:
+        if (gutshotCase == 0) {
+            //Fall (2) oder Fall (3) ?
+            if (currentPlayingCard.value == valueOfLastPlayingCard + 1) {
+                gutshotCase = 2;
+                countOfFittingCards += 1;
+            }
+            // Fall (1) ?
+            else if (currentPlayingCard.value == valueOfLastPlayingCard + 2) {
+                gutshotCase = 1;
+                countOfFittingCards += 1;
+            }
+        }
+        else if (gutshotCase == 1) {
+            if (countOfFittingCards >= 2) {
+                if (currentPlayingCard.value == valueOfLastPlayingCard + 1) {
+                    //weitermachen:
+                    countOfFittingCards += 1;
+                }
+                else if (!(currentPlayingCard.value == valueOfLastPlayingCard + 2)) {
+                    //wieder von vorne anfangen
+                    countOfFittingCards = 1;
+                    gutshotCase = 0;
+                }
+            }
+        }
+        else if (gutshotCase == 2) {
+            if (countOfFittingCards == 2) {
+                if (currentPlayingCard.value == valueOfLastPlayingCard + 1) {
+                    //switch zu Fall (3)
+                    countOfFittingCards += 1;
+                    gutshotCase = 3;
+                }
+                else if (currentPlayingCard.value = valueOfLastPlayingCard + 2) {
+                    //weitermachen
+                    countOfFittingCards += 1;
+                }
+                else {
+                    //wieder von vorne anfangen
+                    countOfFittingCards = 1;
+                    gutshotCase = 0;
+                }
+            }
+            else if (countOfFittingCards == 3) {
+                if (currentPlayingCard.value == valueOfLastPlayingCard + 1) {
+                    //fall 2 vollständig!
+                    countOfFittingCards += 1;
+                }
+                else if (currentPlayingCard.value == valueOfLastPlayingCard + 2) {
+                    //switch zu fall (1)
+                    gutshotCase = 1;
+                    countOfFittingCards = 2;
+                }
+                else {
+                    countOfFittingCards = 1;
+                    gutshotCase = 0;
+                }
+            }
+        }
+        else {
+            if (currentPlayingCard.value == valueOfLastPlayingCard + 2) {
+                countOfFittingCards += 1;
+            }
+            else {
+                gutshotCase = 0;
+                countOfFittingCards = 1;
+            }
+        }
+        // falls keiner der Fälle zutrifft, werden nur die folgenden Zeilen ausgeführt:
+        lastPlayingCard = currentPlayingCard;
+        valueOfLastPlayingCard = lastPlayingCard.value;
+        
+    }
+    
+    //wenn die Methode hier ankommt wurde ein gutshot gefunden:
+    
+    //welcher der drei Fälle war es?
+    if (gutshotCase == 1) {
+        //Fall 1: lösche die erste Karte der vier gutshot-Karten (sowie falls sie doppelt vorhanden ist auch die anderen gleich Werts), sowie alle Karten die kleiner sind:
+        while (true) {
+            PlayingCard* aPlayingCard = [allCards objectAtIndex:0];
+            if (aPlayingCard.value > valueOfLastPlayingCard - 3) {
+                break;
+            }
+            else {
+                [allCards removeObjectAtIndex:0];
+            }
+        }
+    }
+    else if (gutshotCase == 2) {
+        //Fall 2: analog zu oben, jetzt werden die ersten beiden Karten aus dem gutshot gelöscht
+        while (true) {
+            PlayingCard* aPlayingCard = [allCards objectAtIndex:0];
+            if (aPlayingCard.value > valueOfLastPlayingCard - 2) {
+                break;
+            }
+            else {
+                [allCards removeObjectAtIndex:0];
+            }
+        }
+    }
+    else {
+        //Fall 3: hier müssten 3 Karten gelöscht werden, dann sind aber noch maximal 3 Karten übrig, also kein gutshot mehr möglich:
+        return NO;
+    }
+    
+    //unnötige Karten für den zweiten gutShot wurden entfernt: jetzt kann der ganze Algorithmus von oben einfach noch einmal durchgeführt werden:
+    
+    // einfach nochmal hineinkopiert:
+    gutshotCase = 0; //0 bedeutet keiner der Fälle wird gerade besonders in Betracht gezogen
+    countOfFittingCards = 1; // eine passende Karte hat man immer
+    
+    lastPlayingCard = [allCards objectAtIndex:0];
+    valueOfLastPlayingCard = lastPlayingCard.value;
+    
+    index = 0;
+    while (countOfFittingCards < 4) {
+        //falls nicht mehr genug Karten übrig sind um einen Gutshotfall zu vervollständigen: NO
+        index++;
+        if ([allCards count] - index + countOfFittingCards < 4) {
+            return NO;
+        }
+        PlayingCard* currentPlayingCard = [allCards objectAtIndex:index];
+        if (currentPlayingCard.value == valueOfLastPlayingCard) {
+            lastPlayingCard = currentPlayingCard;
+            valueOfLastPlayingCard = lastPlayingCard.value;
+            continue;
+        }
+        // noch kein gutshotCase gewählt, d.h. countOfFittingCards == 1:
+        if (gutshotCase == 0) {
+            //Fall (2) oder Fall (3) ?
+            if (currentPlayingCard.value == valueOfLastPlayingCard + 1) {
+                gutshotCase = 2;
+                countOfFittingCards += 1;
+            }
+            // Fall (1) ?
+            else if (currentPlayingCard.value == valueOfLastPlayingCard + 2) {
+                gutshotCase = 1;
+                countOfFittingCards += 1;
+            }
+        }
+        else if (gutshotCase == 1) {
+            if (countOfFittingCards >= 2) {
+                if (currentPlayingCard.value == valueOfLastPlayingCard + 1) {
+                    //weitermachen:
+                    countOfFittingCards += 1;
+                }
+                else if (!(currentPlayingCard.value == valueOfLastPlayingCard + 2)) {
+                    //wieder von vorne anfangen
+                    countOfFittingCards = 1;
+                    gutshotCase = 0;
+                }
+            }
+        }
+        else if (gutshotCase == 2) {
+            if (countOfFittingCards == 2) {
+                if (currentPlayingCard.value == valueOfLastPlayingCard + 1) {
+                    //switch zu Fall (3)
+                    countOfFittingCards += 1;
+                    gutshotCase = 3;
+                }
+                else if (currentPlayingCard.value = valueOfLastPlayingCard + 2) {
+                    //weitermachen
+                    countOfFittingCards += 1;
+                }
+                else {
+                    //wieder von vorne anfangen
+                    countOfFittingCards = 1;
+                    gutshotCase = 0;
+                }
+            }
+            else if (countOfFittingCards == 3) {
+                if (currentPlayingCard.value == valueOfLastPlayingCard + 1) {
+                    //fall 2 vollständig!
+                    countOfFittingCards += 1;
+                }
+                else if (currentPlayingCard.value == valueOfLastPlayingCard + 2) {
+                    //switch zu fall (1)
+                    gutshotCase = 1;
+                    countOfFittingCards = 2;
+                }
+                else {
+                    countOfFittingCards = 1;
+                    gutshotCase = 0;
+                }
+            }
+        }
+        else {
+            if (currentPlayingCard.value == valueOfLastPlayingCard + 2) {
+                countOfFittingCards += 1;
+            }
+            else {
+                gutshotCase = 0;
+                countOfFittingCards = 1;
+            }
+        }
+        // falls keiner der Fälle zutrifft, werden nur die folgenden Zeilen ausgeführt:
+        lastPlayingCard = currentPlayingCard;
+        valueOfLastPlayingCard = lastPlayingCard.value;
+        
+    }
+    //wenn die Methode hier ankommt, liegt tatsächlich ein doubleGutshot vor:
+    return YES;
+    
+}
+
+
+- (BOOL) expectFlushAndGutshot
+{
+    return ([self expectGutshot] && [self expectFlush]);
+}
+
+- (BOOL) expectFlushAndOpenStraight
+{
+    return ([self expectOpenStraight] && [self expectFlush]);
 }
 
 
@@ -679,7 +1111,8 @@
     
 }
 
-- (void) makeBet{
+- (void) makeBet
+{
     [self preparePreFlop];
     [self calculateCardOdds];
     [self calculatePotOdds];
@@ -689,59 +1122,483 @@
     if (pokerGame.gameState == PRE_FLOP){
         NSString *bucketString = [preFlopDict objectForKey:cardPairKey];
         int bucket = [bucketString intValue];
-        if (bucket <=3){
-            
-            [self bet:pokerGame.highestBet +10 asBlind:NO];
-        } 
-        else if (bucket >3 && bucket<=7){
-            [self call];
-        }
-    
-        else if (bucket >7){
-            if (self.alreadyBetChips == pokerGame.highestBet) {
-                [self check];
+        if (bucket == 1) {
+            int maxBet = self.chips / 8;
+            if (pokerGame.highestBet >= maxBet) {
+                [self call];
             }
             else {
-                [self fold];
+                int betAmount;
+                if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
+                    betAmount = pokerGame.highestBet + smallBlind*2 + (arc4random() % (maxBet - 2*smallBlind - (int) pokerGame.highestBet));
+                }
+                else {
+                    betAmount = pokerGame.highestBet + 2*smallBlind;
+                }
+                if (pokerGame.highestBet > betAmount) {
+                    [self call];
+                }
+                else {
+                    [self bet:betAmount asBlind:NO];
+                }
+            }
+        }
+        else if (bucket == 2) {
+            int maxBet = self.chips / 12;
+            if (pokerGame.highestBet >= maxBet) {
+                [self call];
+            }
+            else {
+                int betAmount;
+                if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
+                    betAmount = pokerGame.highestBet + smallBlind*2 + (arc4random() % (maxBet - 2*smallBlind - (int) pokerGame.highestBet));
+                }
+                else {
+                    betAmount = 2*smallBlind;
+                }
+                if (pokerGame.highestBet > betAmount) {
+                    [self call];
+                }
+                else {
+                    [self bet:betAmount asBlind:NO];
+                }
+            }     
+        }
+else if (bucket == 3) {
+    int maxBet = self.chips / 15;
+    if (pokerGame.highestBet >= maxBet) {
+        [self call];
+    }
+    else {
+        int betAmount;
+        if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
+            betAmount = pokerGame.highestBet + smallBlind*2 + (arc4random() % (maxBet - 2*smallBlind - (int) pokerGame.highestBet));
+        }
+        else {
+            betAmount = 2*smallBlind;
+        }
+        if (pokerGame.highestBet > betAmount) {
+            [self call];
+        }
+        else {
+            [self bet:betAmount asBlind:NO];
+        }
+    }
+}
+else if (bucket == 4) {
+    int randomNumber = (arc4random() % 5);
+    int maxBet = self.chips / 15;
+    if (randomNumber <= 3) {
+        if (pokerGame.highestBet >= maxBet) {
+            [self call];
+        }
+        else {
+            int betAmount;
+            if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
+                betAmount = pokerGame.highestBet + smallBlind*2 + (arc4random() % (maxBet - 2*smallBlind - (int) pokerGame.highestBet));
+            }
+            else {
+                betAmount = 2*smallBlind;
+            }
+            if (pokerGame.highestBet > betAmount) {
+                [self call];
+            }
+            else {
+                [self bet:betAmount asBlind:NO];
             }
         }
     }
+    else {
+        if (pokerGame.highestBet >= maxBet) {
+            [self fold];
+        }
+        else {
+            [self call];
+        }
+    }
+}
+else if (bucket == 5) {
+    int randomNumber = (arc4random() % 4);
+    int maxBet = self.chips / 20;
+    if (randomNumber <= 2) {
+        if (pokerGame.highestBet >= maxBet) {
+            [self call];
+        }
+        else {
+            int betAmount;
+            if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
+                betAmount = pokerGame.highestBet + pokerGame.smallBlind*2 + (arc4random() % (int) (maxBet - 2*pokerGame.smallBlind - pokerGame.highestBet));
+            }
+            else {
+                betAmount = 2*pokerGame.smallBlind;
+            }
+            if (pokerGame.highestBet > betAmount) {
+                [self call];
+            }
+            else {
+                [self bet:betAmount asBlind:NO];
+            }
+        }
+    }
+    else {
+        if (pokerGame.highestBet >= maxBet) {
+            [self fold];
+        }
+        else {
+            [self call];
+        }
+    }
+}
+else if (bucket == 6) {
+    int randomNumber = (arc4random() % 3);
+    int maxBet = self.chips / 25;
+    if (randomNumber <= 1) {
+        if (pokerGame.highestBet >= maxBet) {
+            [self call];
+        }
+        else {
+            int betAmount;
+            if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
+                betAmount = pokerGame.highestBet + pokerGame.smallBlind*2 + (arc4random() % (int) (maxBet - 2*pokerGame.smallBlind - pokerGame.highestBet));
+            }
+            else {
+                betAmount = 2*pokerGame.smallBlind;
+            }
+            if (pokerGame.highestBet > betAmount) {
+                [self call];
+            }
+            else {
+                [self bet:betAmount asBlind:NO];
+            }
+        }
+    }
+    else {
+        if (pokerGame.highestBet >= maxBet) {
+            [self fold];
+        }
+        else {
+            [self call];
+        }
+    }
+}
+else if (bucket == 7) {
+    int randomNumber = (arc4random() % 2);
+    int maxBet = self.chips / 30;
+    if (randomNumber == 1) {
+        if (pokerGame.highestBet >= maxBet) {
+            [self call];
+        }
+        else {
+            int betAmount;
+            if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
+                betAmount = pokerGame.highestBet + pokerGame.smallBlind*2 + (arc4random() % (int)(maxBet - 2*pokerGame.smallBlind - pokerGame.highestBet));
+            }
+            else {
+                betAmount = 2*pokerGame.smallBlind;
+            }
+            if (pokerGame.highestBet > betAmount) {
+                [self call];
+            }
+            else {
+                [self bet:betAmount asBlind:NO];
+            }
+        }
+    }
+    else {
+        if (pokerGame.highestBet >= maxBet) {
+            [self fold];
+        }
+        else {
+            [self call];
+        }
+    }    
+}
+else {
+    int randomNumber = (arc4random() % 3);
+    int maxBet = self.chips / 40;
+    if (randomNumber == 0) {
+        if (pokerGame.highestBet >= maxBet) {
+            [self call];
+        }
+        else {
+            int betAmount;
+            if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
+                betAmount = pokerGame.highestBet + pokerGame.smallBlind*2 + (arc4random() % (int)(maxBet - 2*pokerGame.smallBlind - pokerGame.highestBet));
+            }
+            else {
+                betAmount = 2*pokerGame.smallBlind;
+            }
+            if (pokerGame.highestBet > betAmount) {
+                [self call];
+            }
+            else {
+                [self bet:betAmount asBlind:NO];
+            }
+        }
+    }
+    else {
+        if (pokerGame.highestBet >= maxBet) {
+            [self fold];
+        }
+        else {
+            [self call];
+        }
+    }    
+}
+
+    }
     
     else {
-    switch (cardValues) {
-        case TWO_PAIRS:
-            [self call];
-            break;
-        case THREE_OF_A_KIND:
-            [self call];
-            break;
-        case FLUSH:
-            [self call];
-            break;
-        case STRAIGHT:
-            [self call];
-            break;
-        case FULL_HOUSE:
-            [self call];
-            break;
-        case FOUR_OF_A_KIND:
-            [self call];
-            break;
-        default:
+        CardValuesEvaluator* cardValuesEvaluatorForTableCards = [[CardValuesEvaluator alloc] init];
+        [cardValuesEvaluatorForTableCards defineValueOfFiveBestCards:pokerGame.cardsOnTable.allCards];
+        if (cardValues == cardValuesEvaluatorForTableCards.fiveBestCards.valueOfFiveBestCards) {
+            //berechne Outs
             //if (cardValues==ONE_PAIR && self.valueOfHighestPair>=10){[self call];}else 
             if (pokerGame.gameState == FLOP &&  cardOddsTurnIsHigher ==YES){[self call];}
             else if (pokerGame.gameState == TURN &&  cardOddsRiverIsHigher == YES){[self call];}
             else if (pokerGame.gameState == RIVER && cardOddsRiverIsHigher == YES){[self call];}
-            else {[self fold];};
-            break;
+            else {
+                if (pokerGame.highestBet == 0) {
+                    [self check];
+                }
+                else {
+                    [self fold];
+                }
+            }
+        }
+        else {
+            switch (cardValues) {
+                case TWO_PAIRS: {
+                    int maxBet = self.chips / 10;
+                    if (pokerGame.highestBet >= maxBet) {
+                        [self call];
+                    }
+                    else {
+                        int betAmount;
+                        if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
+                            betAmount = pokerGame.highestBet + pokerGame.smallBlind*2 + (arc4random() % (int)(maxBet - 2*pokerGame.smallBlind - pokerGame.highestBet));
+                        }
+                        else {
+                            betAmount = 2*pokerGame.smallBlind;
+                        }
+                        if (pokerGame.highestBet > betAmount) {
+                            [self call];
+                        }
+                        else {
+                            [self bet:betAmount asBlind:NO];
+                        }
+                    }
+                }
+                    break;
+                case THREE_OF_A_KIND: {
+                    int maxBet = self.chips / 6;
+                    if (pokerGame.highestBet >= maxBet) {
+                        [self call];
+                    }
+                    else {
+                        int betAmount;
+                        if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
+                            betAmount = pokerGame.highestBet + pokerGame.smallBlind*2 + (arc4random() % (int)(maxBet - 2*pokerGame.smallBlind - pokerGame.highestBet));
+                        }
+                        else {
+                            betAmount = 2*pokerGame.smallBlind;
+                        }
+                        if (pokerGame.highestBet > betAmount) {
+                            [self call];
+                        }
+                        else {
+                            [self bet:betAmount asBlind:NO];
+                        }
+                    }
+                }
+                    break;
+                case FLUSH: {
+                    int maxBet = self.chips / 4;
+                    if (pokerGame.highestBet >= maxBet) {
+                        [self call];
+                    }
+                    else {
+                        int betAmount;
+                        if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
+                            betAmount = pokerGame.highestBet + pokerGame.smallBlind*2 + (arc4random() % (int)(maxBet - 2*pokerGame.smallBlind - pokerGame.highestBet));
+                        }
+                        else {
+                            betAmount = 2*pokerGame.smallBlind;
+                        }
+                        if (pokerGame.highestBet > betAmount) {
+                            [self call];
+                        }
+                        else {
+                            [self bet:betAmount asBlind:NO];
+                        }
+                    }
+                }
+                    break;
+                case STRAIGHT: {
+                    int maxBet = self.chips / 5;
+                    if (pokerGame.highestBet >= maxBet) {
+                        [self call];
+                    }
+                    else {
+                        int betAmount;
+                        if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
+                            betAmount = pokerGame.highestBet + pokerGame.smallBlind*2 + (arc4random() % (int)(maxBet - 2*pokerGame.smallBlind - pokerGame.highestBet));
+                        }
+                        else {
+                            betAmount = 2*pokerGame.smallBlind;
+                        }
+                        if (pokerGame.highestBet > betAmount) {
+                            [self call];
+                        }
+                        else {
+                            [self bet:betAmount asBlind:NO];
+                        }
+                    }
+                }
+                    break;
+                case FULL_HOUSE: {
+                    int maxBet = self.chips / 2;
+                    if (pokerGame.highestBet >= maxBet) {
+                        [self call];
+                    }
+                    else {
+                        int betAmount;
+                        if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
+                            betAmount = pokerGame.highestBet + pokerGame.smallBlind*2 + (arc4random() % (int)(maxBet - 2*pokerGame.smallBlind - pokerGame.highestBet));
+                        }
+                        else {
+                            betAmount = 2*pokerGame.smallBlind;
+                        }
+                        if (pokerGame.highestBet > betAmount) {
+                            [self call];
+                        }
+                        else {
+                            [self bet:betAmount asBlind:NO];
+                        }
+                    }
+                }
+                    break;
+                case FOUR_OF_A_KIND: {
+                    int maxBet = self.chips;
+                    if (pokerGame.highestBet >= maxBet) {
+                        [self call];
+                    }
+                    else {
+                        int betAmount;
+                        if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
+                            betAmount = pokerGame.highestBet + pokerGame.smallBlind*2 + (arc4random() % (int)(maxBet - 2*pokerGame.smallBlind - pokerGame.highestBet));
+                        }
+                        else {
+                            betAmount = 2*pokerGame.smallBlind;
+                        }
+                        if (pokerGame.highestBet > betAmount) {
+                            [self call];
+                        }
+                        else {
+                            [self bet:betAmount asBlind:NO];
+                        }
+                    }
+                }
+                    break;
+                case STRAIGHT_FLUSH: {
+                    int maxBet = self.chips;
+                    if (pokerGame.highestBet >= maxBet) {
+                        [self call];
+                    }
+                    else {
+                        int betAmount;
+                        if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
+                            betAmount = pokerGame.highestBet + pokerGame.smallBlind*2 + (arc4random() % (int)(maxBet - 2*pokerGame.smallBlind - pokerGame.highestBet));
+                        }
+                        else {
+                            betAmount = 2*pokerGame.smallBlind;
+                        }
+                        if (pokerGame.highestBet > betAmount) {
+                            [self call];
+                        }
+                        else {
+                            [self bet:betAmount asBlind:NO];
+                        }
+                    }
+                }
+                    break;
+                case ROYAL_FLUSH: {
+                    int maxBet = self.chips;
+                    if (pokerGame.highestBet >= maxBet) {
+                        [self call];
+                    }
+                    else {
+                        int betAmount;
+                        if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
+                            betAmount = pokerGame.highestBet + pokerGame.smallBlind*2 + (arc4random() % (int)(maxBet - 2*pokerGame.smallBlind - pokerGame.highestBet));
+                        }
+                        else {
+                            betAmount = 2*pokerGame.smallBlind;
+                        }
+                        if (pokerGame.highestBet > betAmount) {
+                            [self call];
+                        }
+                        else {
+                            [self bet:betAmount asBlind:NO];
+                        }
+                    }
+                }
+                    break;
+                case ONE_PAIR: {
+                    //Wert der höchsten Karte berechnen:
+                    int randomNumber = 2 + (arc4random() % 13);
+                    int maxBet = self.chips / 40;
+                    if (randomNumber <= self.valueOfHighestPair) {
+                        if (pokerGame.highestBet >= maxBet) {
+                            [self call];
+                        }
+                        else {
+                            int betAmount;
+                            if (pokerGame.highestBet + pokerGame.smallBlind*2 < maxBet) {
+                                betAmount = pokerGame.highestBet + pokerGame.smallBlind*2 + (arc4random() % (int)(maxBet - 2*pokerGame.smallBlind - pokerGame.highestBet));
+                            }
+                            else {
+                                betAmount = 2*pokerGame.smallBlind;
+                            }
+                            if (pokerGame.highestBet > betAmount) {
+                                [self call];
+                            }
+                            else {
+                                [self bet:betAmount asBlind:NO];
+                            }
+                        }
+                    }
+                    else {
+                        if (pokerGame.highestBet >= maxBet) {
+                            [self fold];
+                        }
+                        else {
+                            [self call];
+                        }
+                    }    
+                }
+                    break;
+                default: {
+                    //if (cardValues==ONE_PAIR && self.valueOfHighestPair>=10){[self call];}else 
+                    if (pokerGame.gameState == FLOP &&  cardOddsTurnIsHigher ==YES){[self call];}
+                    else if (pokerGame.gameState == TURN &&  cardOddsRiverIsHigher == YES){[self call];}
+                    else if (pokerGame.gameState == RIVER && cardOddsRiverIsHigher == YES){[self call];}
+                    else {
+                        if (pokerGame.highestBet == 0) {
+                            [self check];
+                        }
+                        else {
+                            [self fold];
+                        }
+                    }
+                }
+                    break;
+            }
+        }
+    
     }
-    
-    
-    }
-    
-    
-    
 }
+
 
 
 

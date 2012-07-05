@@ -490,8 +490,12 @@
         }
         possiblyBestFiveCards = [self sortCards_Values:possiblyBestFiveCards];
         [highestPair addObject:[possiblyBestFiveCards objectAtIndex:([possiblyBestFiveCards count] - 1)]];
-        [highestPair addObject:[possiblyBestFiveCards objectAtIndex:([possiblyBestFiveCards count] - 2)]];
-        [highestPair addObject:[possiblyBestFiveCards objectAtIndex:([possiblyBestFiveCards count] - 3)]];
+        if ([possiblyBestFiveCards count] > 3) {
+            [highestPair addObject:[possiblyBestFiveCards objectAtIndex:([possiblyBestFiveCards count] - 2)]];
+        }
+        if ([possiblyBestFiveCards count] > 4) {
+            [highestPair addObject:[possiblyBestFiveCards objectAtIndex:([possiblyBestFiveCards count] - 3)]];
+        }
         self.fiveBestCards.arrayOfFiveBestCards = highestPair;
         self.fiveBestCards.valueOfFiveBestCards = ONE_PAIR;
         self.fiveBestCards.cardValuesAsString = @"One Pair";

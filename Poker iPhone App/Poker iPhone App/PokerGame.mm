@@ -90,7 +90,6 @@
         }
         //vielleicht sind einige Spieler schon nicht mehr im Spiel?
         while (![currentPlayer.identification isEqualToString:[NSString stringWithFormat:@"player%i",correctNumber]]) {
-            NSLog(@"%@",currentPlayer.identification);
             if (correctNumber==5) {
                 correctNumber = 1;
             }
@@ -120,6 +119,10 @@
         currentPlayer.playerState = DEAL_OUT;
     }
     else {
+        PlayingCard *card1 = [currentPlayer.hand.cardsOnHand objectAtIndex:0];
+        NSLog(@"%@: card1: %i_%i", currentPlayer.identification, card1.value, card1.suitType);
+        PlayingCard *card2 = [currentPlayer.hand.cardsOnHand objectAtIndex:1];
+        NSLog(@"%@: card2: %i_%i", currentPlayer.identification, card2.value, card2.suitType);
         currentPlayer.playerState = INACTIVE;
     }
     int index = [self.currentlyRunningTimersWithCreationTimes indexOfObject:aTimer];
@@ -276,12 +279,7 @@
         }
         Player* temporaryPlayer = (Player* ) [allPlayers objectAtIndex:position];
         temporaryPlayer.identification = [NSString stringWithFormat:@"player%i",position+1];
-        if (position != 0) {
-            temporaryPlayer.chips = gameSettings.startChips;
-        }
-        else {
-            temporaryPlayer.chips = 700;
-        }
+        temporaryPlayer.chips = gameSettings.startChips;
         if (position==0) {
             temporaryPlayer.playerOnRightSide = (Player* ) [allPlayers objectAtIndex:(maxPlayers - 1)];
             temporaryPlayer.playerOnLeftSide = (Player* ) [allPlayers objectAtIndex:1];
@@ -592,7 +590,6 @@
 
 - (void) endMoveOfPlayer:(Player *)aPlayer
 {
-    NSLog(@"%@",playerWhoBetMost.identification);
     if (aPlayer.playerState != FOLDED) {
         aPlayer.playerState = INACTIVE;
     }
@@ -653,9 +650,6 @@
 - (NSMutableArray* ) sharePotAmongWinners:(NSMutableArray *)winners
 {
     float divider = [winners count];
-    for (Player* winner in winners) {
-        NSLog(@"%@", winner.identification);
-    }
     NSMutableArray* winnersCopy = [NSMutableArray arrayWithArray:winners];
     NSMutableArray* playersWhoAreAllInCopy = [NSMutableArray arrayWithArray:playersWhoAreAllIn];
     /* Vorgehensweise:
@@ -799,10 +793,6 @@
     if ([playersWhoAreAllIn count] != 0) {
         //SidePots der Größe nach sortieren:
         [self sortPlayersWhoAreAllIn];
-        for (int i=0; i<[playersWhoAreAllIn count]; i++) {
-            Player* aPlayer = [playersWhoAreAllIn objectAtIndex:i];
-            NSLog(@"%f",aPlayer.sidePot.chipsAmountNeededFromEachPlayerToBeFilled);
-        }
         Player* playerWithNextSmallerSidePot = nil;
         for (int i=0; i<[playersWhoAreAllIn count]; i++) {
             Player* aPlayer = (Player* ) [playersWhoAreAllIn objectAtIndex:i];
@@ -816,7 +806,6 @@
             if (playerWithNextSmallerSidePot != nil) {
                 aPlayer.sidePot.chipsAmountNeededFromEachPlayerToBeFilled -= playerWithNextSmallerSidePot.sidePot.chipsAmountNeededFromEachPlayerToBeFilled;
             }
-            NSLog(@"%f",aPlayer.sidePot.chipsAmountNeededFromEachPlayerToBeFilled);
             for (Player* anyPlayer in allPlayers) {
                 if (anyPlayer.alreadyBetChips >= aPlayer.sidePot.chipsAmountNeededFromEachPlayerToBeFilled) {
                     aPlayer.sidePot.chipsInPot += aPlayer.sidePot.chipsAmountNeededFromEachPlayerToBeFilled;
@@ -869,7 +858,6 @@
 {
     //Chips verteilen:
     while (self.mainPot.allChipsInAllPots != 0) {
-        NSLog(@"%f", self.mainPot.allChipsInAllPots);
         NSMutableArray* winners = [[NSMutableArray alloc] initWithArray:(NSMutableArray* )[self defineWinnersOfRound]];
         NSMutableArray* alreadyPaidWinners = [self sharePotAmongWinners:winners];
         for (Player* alreadyPaidWinner in alreadyPaidWinners) {
