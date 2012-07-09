@@ -53,6 +53,7 @@
 - (void) resetCardDeckForNewRound
 {
     [cardsInCardDeck addObjectsFromArray:cardsDrawnFromCardDeck];
+    [cardsDrawnFromCardDeck removeAllObjects];
 }
 
 

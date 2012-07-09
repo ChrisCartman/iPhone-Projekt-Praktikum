@@ -57,20 +57,20 @@
             self.cents = self.internValue - self.dollars;
         }
     }
-    else if (currentValue < currentBigBlind) {
-        if (currentValue >= (currentBigBlind + self.minimumValue) / 2.0) {
-            self.internValue = self.currentBigBlind;
-            self.dollars = (int) self.internValue;
-            self.cents = self.internValue - self.dollars;
-        }
-        else {
-            self.internValue = self.minimumValue;
-            self.dollars = (int) self.internValue;
-            self.cents = self.internValue - self.dollars;
-        }
-    }
+//    else if (currentValue < currentBigBlind) {
+//        if (currentValue >= (currentBigBlind + self.minimumValue) / 2.0) {
+//            self.internValue = self.currentBigBlind;
+//            self.dollars = (int) self.internValue;
+//            self.cents = self.internValue - self.dollars;
+//        }
+//        else {
+//            self.internValue = self.minimumValue;
+//            self.dollars = (int) self.internValue;
+//            self.cents = self.internValue - self.dollars;
+//        }
+//    }
     else if (currentValue < self.minimumValue + currentBigBlind / 2.0) {
-        self.dollars = self.currentBigBlind;
+        self.dollars = self.minimumValue;
         if (self.lastCentValue != self.cents) {
             self.cents = self.lastCentValue;
         }

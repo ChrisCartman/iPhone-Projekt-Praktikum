@@ -61,6 +61,7 @@
     if (gameSettings.startBlinds == 0) {gameSettings.startBlinds = 5;};
     if (gameSettings.increaseBlindsAfter == 0) {gameSettings.increaseBlindsAfter = 5;};
 
+
        
         
         

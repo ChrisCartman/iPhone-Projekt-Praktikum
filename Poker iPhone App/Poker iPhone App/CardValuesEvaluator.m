@@ -189,9 +189,8 @@
                     straightFound = YES;
                     straight = YES;
                     //restliche aus Array löschen:
-                    int counter = [allCardsSortedValues count];
-                    for (int k=0; k<counter-5; k++) {
-                        [allCardsSortedValues removeObjectAtIndex:5];
+                    while ([allCardsSortedValues count] > 5) {
+                        [allCardsSortedValues removeObjectAtIndex:4];
                     }
                 }
                 else {
@@ -216,6 +215,7 @@
     return allCardsSortedValues;  //Straight nach Größe der karten sortiert.
 }
 
+//ueberpruefe, ob es sich um einen Vierling handelt:
 - (NSMutableArray* ) isFourOfAKind:(NSMutableArray *)allCards
 {
     if ([allCards count] < 4) return allCards;
@@ -269,6 +269,7 @@
     return allCards;
 }
 
+//ueberpruefe, ob es sich um einen Drilling handelt
 - (NSMutableArray* ) isThreeOfAKind:(NSMutableArray *)allCards
 {
     if ([allCards count] < 3) return allCards;
@@ -315,6 +316,7 @@
     return allCards;
 }
 
+//ueberpruefe, ob es sich um ein Paar handelt:
 - (NSMutableArray* ) isOnePair:(NSMutableArray *)allCards
 {
     one_pair = NO;

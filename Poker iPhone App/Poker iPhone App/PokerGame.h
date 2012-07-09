@@ -99,7 +99,6 @@
 - (void) takeCheckFromPlayer: (Player* ) aPlayer;
 - (void) takeAllInFromPlayer: (Player* ) aPlayer asBlind:(BOOL) isBlind;
 - (void) evaluateCardValues;
-- (void) takeBackCardsFromPlayer:(Player* ) aPlayer;
 - (void) distributeChipsOnPots;
 - (void) sortPlayersWhoAreAllIn;
 - (void) startShowDown;

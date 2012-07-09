@@ -51,6 +51,12 @@
     // in einem temporaeren Array werden sowohl die Handkarten als auch die Tischkarten abgelegt:
     NSMutableArray* temporaryArray = [NSMutableArray arrayWithArray:currentCardsOnTable.allCards];
     [temporaryArray addObjectsFromArray:cardsOnHand];
+    if ([temporaryArray count] == 7) {
+        NSLog(@"true");
+    }
+    else {
+        NSLog(@"false, %i", [temporaryArray count]);
+    }
     NSMutableArray* allCards = [NSMutableArray arrayWithArray:temporaryArray];
     [self.cardValuesEvaluator defineValueOfFiveBestCards:allCards];
     self.fiveBestCards = self.cardValuesEvaluator.fiveBestCards;

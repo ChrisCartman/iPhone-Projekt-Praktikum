@@ -1052,6 +1052,60 @@
     return ([self expectOpenStraight] && [self expectFlush]);
 }
 
+- (CardValues) bla
+{
+    if (true) {
+        
+        return FLUSH;
+        
+    }
+    else if (true) {
+        
+        return STRAIGHT_FLUSH;
+        
+    }
+    else if (true) {
+        
+        return STRAIGHT;
+        
+    }
+    else if (true) {
+        
+        return THREE_OF_A_KIND;
+        
+    }
+    else if (true) {
+        
+        return HIGH_CARD;
+        
+    }
+    else if (true) {
+        
+        return ONE_PAIR;
+        
+    }
+    else if (true) {
+        
+        return TWO_PAIRS;
+        
+    }
+    else if (true) {
+        
+        return ROYAL_FLUSH;
+        
+    }
+    else if (true) {
+        
+        return FULL_HOUSE;
+        
+    }
+    else if (true) {
+        
+        return FOUR_OF_A_KIND;
+        
+    }
+    
+}
 
 
 - (void) handStrength
@@ -1132,10 +1186,18 @@
     for (Player* aPlayer in pokerGame.allPlayers) {
         potChips += aPlayer.alreadyBetChips;
     }
+    // falls es gute Karten sind: checke zu einer Wahrscheinlichkeit von 1/3:
+    if (foldParameter == 0 && pokerGame.highestBet == 0) {
+        int randomNumberForCheck = arc4random() % 3;
+        if (randomNumberForCheck == 0) {
+            [self check];
+            return;
+        }
+    }
     
     // dieser Fall ist genau betParameter / sum
     if (randomNumber < betParameter) {
-        if (pokerGame.highestBet >= maxBet) {
+        if (pokerGame.highestBet - self.alreadyBetChips >= maxBet) {
             if (callsEverything) {
                 [self call];
             }
@@ -1151,7 +1213,7 @@
             else {
                 betAmount = 2*pokerGame.smallBlind;
             }
-            if (pokerGame.highestBet > betAmount) {
+            if (pokerGame.highestBet - self.alreadyBetChips > betAmount) {
                 if (callsEverything) {
                     [self call];
                 }
@@ -1260,7 +1322,7 @@
     int betAmount;
     if (randomNumber < probTimesHundred) {
         betAmount = minBet + arc4random() % (maxBet - minBet);
-        if (betAmount > pokerGame.highestBet) {
+        if (betAmount >= pokerGame.highestBet + 2*pokerGame.smallBlind) {
             [self bet:betAmount asBlind:NO];
         }
         else {
@@ -1329,13 +1391,16 @@
             //if (cardValues==ONE_PAIR && self.valueOfHighestPair>=10){[self call];}else 
             if (pokerGame.gameState == FLOP &&  cardOddsTurnIsHigher ==YES){[self call];}
             else if (pokerGame.gameState == TURN &&  cardOddsRiverIsHigher == YES){[self call];}
-            else if (pokerGame.gameState == RIVER && cardOddsRiverIsHigher == YES){[self call];}
             else {
                 if (pokerGame.highestBet == 0) {
                     [self check];
                 }
                 else {
-                    [self fold];
+                    int potChips = pokerGame.mainPot.chipsInPot;
+                    for (Player* aPlayer in pokerGame.allPlayers) {
+                        potChips += aPlayer.alreadyBetChips;
+                    }
+                    [self makeBluffDecision:potChips];
                 }
             }
         }
@@ -1391,13 +1456,16 @@
                     //if (cardValues==ONE_PAIR && self.valueOfHighestPair>=10){[self call];}else 
                     if (pokerGame.gameState == FLOP &&  cardOddsTurnIsHigher ==YES){[self call];}
                     else if (pokerGame.gameState == TURN &&  cardOddsRiverIsHigher == YES){[self call];}
-                    else if (pokerGame.gameState == RIVER && cardOddsRiverIsHigher == YES){[self call];}
                     else {
                         if (pokerGame.highestBet == 0) {
                             [self check];
                         }
                         else {
-                            [self fold];
+                            int potChips = pokerGame.mainPot.chipsInPot;
+                            for (Player* aPlayer in pokerGame.allPlayers) {
+                                potChips += aPlayer.alreadyBetChips;
+                            }
+                            [self makeBluffDecision:potChips];
                         }
                     }
                 }

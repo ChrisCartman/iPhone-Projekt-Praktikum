@@ -126,7 +126,7 @@
         [betSlider getBetAmountStrongSensibility];
     }
     betLabel.text = [[[NSNumber numberWithFloat:[betSlider getSliderValue]] stringValue] stringByAppendingString:@"$"];
-    if (betSlider.value == 0) {
+    if ([betLabel.text isEqualToString:@"0$"]) {
         // betButton.titleLabel.text = @"Check";
         [betButton setTitle:@"Check" forSegmentAtIndex:0];    }
     else if (betSlider.value == betSlider.minimumValue && betSlider.value != 0) {

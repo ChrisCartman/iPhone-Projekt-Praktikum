@@ -169,6 +169,7 @@
     PlayingCard* newPlayingCard = [cardDeck popFor:popsFor];
     [cardsOnTable.flop addObject:newPlayingCard];
     [cardsOnTable.allCards addObject:newPlayingCard];
+    NSLog(@"flop: %i_%i", newPlayingCard.value, newPlayingCard.suitType);
     [self performSelector:@selector(changeGameState) withObject:nil afterDelay:0.2];
     
     int index = [self.currentlyRunningTimersWithCreationTimes indexOfObject:aTimer];
@@ -193,6 +194,7 @@
     PlayingCard* newPlayingCard = [cardDeck popFor:aTimer.userInfo];
     cardsOnTable.turn = newPlayingCard;
     [cardsOnTable.allCards addObject:newPlayingCard];
+    NSLog(@"turn: %i_%i", newPlayingCard.value, newPlayingCard.suitType);
     [self performSelector:@selector(changeGameState) withObject:nil afterDelay:0.2];
 
     int index = [self.currentlyRunningTimersWithCreationTimes indexOfObject:aTimer];
@@ -217,6 +219,7 @@
     PlayingCard* newPlayingCard = [cardDeck popFor:aTimer.userInfo];
     cardsOnTable.river = newPlayingCard;
     [cardsOnTable.allCards addObject:newPlayingCard];
+    NSLog(@"river: %i_%i", newPlayingCard.value, newPlayingCard.suitType);
     [self performSelector:@selector(changeGameState) withObject:nil afterDelay:0.2];
     
     int index = [self.currentlyRunningTimersWithCreationTimes indexOfObject:aTimer];
@@ -362,11 +365,6 @@
     
     //Blinds setzen:
     smallBlind = gameSettings.startBlinds;
-}
-
-- (void) takeBackCardsFromPlayer:(Player *)aPlayer
-{
-    [aPlayer.hand.cardsOnHand removeAllObjects];
 }
 
 - (void) prepareNewRound
@@ -521,7 +519,7 @@
     aPlayer.previousPlayerInRound.nextPlayerInRound = aPlayer.nextPlayerInRound;
     aPlayer.nextPlayerInRound.previousPlayerInRound = aPlayer.previousPlayerInRound;
     [remainingPlayersInRound removeObject:aPlayer];
-    [aPlayer.hand.cardsOnHand removeAllObjects];
+    //[aPlayer.hand.cardsOnHand removeAllObjects];
     PlayerState newPlayerState = FOLDED;
     NSNumber* playerStateAsObject = [NSNumber numberWithInt:newPlayerState];
     [aPlayer performSelector:@selector(changePlayerState:) withObject:playerStateAsObject afterDelay:0.2];
@@ -1108,12 +1106,12 @@
     }
     else if (counterForTimer == 0) {
         Player* player1 = [remainingPlayersInRound objectAtIndex:0];
-        [player1.hand defineValueOfCardsWithTableCards:cardsOnTable];
+        [player1.hand defineValueOfCardsWithTableCards:self.cardsOnTable];
         [player1 showCards:YES]; //Karten wurden zwar schon gezeigt, so kommt aber noch die Animation hinzu
     }
     else if (counterForTimer == -1) {
         Player* player2 = [remainingPlayersInRound objectAtIndex:1];
-        [player2.hand defineValueOfCardsWithTableCards:cardsOnTable];
+        [player2.hand defineValueOfCardsWithTableCards:self.cardsOnTable];
         [player2 showCards:YES]; 
         [aTimer invalidate];
         int index = [self.currentlyRunningTimersWithCreationTimes indexOfObject:aTimer];

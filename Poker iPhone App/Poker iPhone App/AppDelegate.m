@@ -72,7 +72,36 @@
         playerProfile = [[PlayerProfile alloc] initWithPlayerName:@"Nathan" playerImage:[UIImage imageNamed:@"Nathan.PNG"]];
     }
     
-  
+    Player* player = [[Player alloc] init];
+    PlayingCard* card1 = [[PlayingCard alloc] init];
+    PlayingCard* card2 = [[PlayingCard alloc] init];
+    PlayingCard* card3 = [[PlayingCard alloc] init];
+    PlayingCard* card4 = [[PlayingCard alloc] init];
+    PlayingCard* card5 = [[PlayingCard alloc] init];
+    PlayingCard* card6 = [[PlayingCard alloc] init];
+    PlayingCard* card7 = [[PlayingCard alloc] init];
+    
+    card1.value = 11;
+    card2.value = 10;
+    card3.value = 14;
+    card4.value = 13;
+    card5.value = 12;
+    card6.value = 12;
+    card7.value = 10;
+    card1.suitType = 1;
+    card2.suitType = 1;
+    card3.suitType = 0;
+    card4.suitType = 0;
+    card5.suitType = 3;
+    card6.suitType = 1;
+    card7.suitType = 2;
+    
+    NSMutableArray* allCards = [NSMutableArray arrayWithObjects:card1,card2, card3, card4, card5, card6, card7, nil];
+    [player.hand.cardValuesEvaluator defineValueOfFiveBestCards:allCards];
+    for (PlayingCard* aPlayingCard in player.hand.cardValuesEvaluator.fiveBestCards.arrayOfFiveBestCards) {
+        NSLog(@"%i_%i", aPlayingCard.value, aPlayingCard.suitType);
+        NSLog(@"%@", player.hand.cardValuesEvaluator.fiveBestCards.cardValuesAsString);
+    }
 
     
 

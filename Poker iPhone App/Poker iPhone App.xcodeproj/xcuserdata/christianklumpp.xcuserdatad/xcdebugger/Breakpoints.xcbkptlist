@@ -7,26 +7,26 @@
          shouldBeEnabled = "Yes"
          ignoreCount = "0"
          continueAfterRunningActions = "No"
-         filePath = "Poker iPhone App/Player.m"
-         timestampString = "363191551.377597"
+         filePath = "Poker iPhone App/PokerGame.mm"
+         timestampString = "363532051.498453"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "1262"
-         endingLineNumber = "1262"
-         landmarkName = "-makeBluffDecision:"
+         startingLineNumber = "462"
+         endingLineNumber = "462"
+         landmarkName = "-takeAllInFromPlayer:asBlind:"
          landmarkType = "5">
       </FileBreakpoint>
       <FileBreakpoint
-         shouldBeEnabled = "Yes"
+         shouldBeEnabled = "No"
          ignoreCount = "0"
          continueAfterRunningActions = "No"
-         filePath = "Poker iPhone App/Player.m"
-         timestampString = "363191933.421275"
+         filePath = "Poker iPhone App/PokerGame.mm"
+         timestampString = "363532980.833386"
          startingColumnNumber = "9223372036854775807"
          endingColumnNumber = "9223372036854775807"
-         startingLineNumber = "1391"
-         endingLineNumber = "1391"
-         landmarkName = "-makeBet"
+         startingLineNumber = "429"
+         endingLineNumber = "429"
+         landmarkName = "-takeBetAmount:fromPlayer:asBlind:"
          landmarkType = "5">
       </FileBreakpoint>
    </FileBreakpoints>
