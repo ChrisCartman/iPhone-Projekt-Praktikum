@@ -427,7 +427,8 @@
                         seven, seven, eight, eight, eight, eight, eight, eight, eight, six, four, three, two, one,nil];
                         
             
-    preFlopDict = [NSDictionary dictionaryWithObjects: bucketsArray forKeys: cardPairsArray];
+    preFlopDict = [NSDictionary dictionaryWithObjects: bucketsArray 
+                                              forKeys: cardPairsArray];
     
     
      //Der aktuellen Hand soll der Key zugewiesen werden
@@ -461,70 +462,37 @@
 
 - (BOOL) expectFlush{
     
-    //Karten Tisch+Hand
+    // Karten Tisch+Hand
     NSMutableArray* allCards = [[NSMutableArray alloc] initWithArray:self.pokerGame.cardsOnTable.allCards];
     [allCards addObjectsFromArray:self.hand.cardsOnHand];
     
+    // Die Karten werden mithilfe einer Sortierfunktion nach Farbe sortiert
     allCards = [self.hand.cardValuesEvaluator sortCards_Suits:allCards];
     
-    //zum Testen:
-//    NSMutableArray *allCards = [[NSMutableArray alloc]init];
-//    PlayingCard *card1 = [[PlayingCard alloc]init];
-//    PlayingCard *card2 = [[PlayingCard alloc]init];
-//    PlayingCard *card3 = [[PlayingCard alloc]init];
-//    PlayingCard *card4 = [[PlayingCard alloc]init];
-//    PlayingCard *card5 = [[PlayingCard alloc]init];
-//    
-//    card1.value = 2;
-//    card1.suitType = DIAMONDS;
-//    card2.value = 5;
-//    card1.suitType = HEARTS;
-//    card3.value = 6;
-//    card3.suitType = HEARTS;
-//    card4.value = 7;
-//    card4.suitType = HEARTS;
-//    card5.value = 8;
-//    card5.suitType = HEARTS;
-//    
-//    [allCards addObject: card1];
-//    [allCards addObject: card2];
-//    [allCards addObject: card3];
-//    [allCards addObject: card4];
-//    [allCards addObject: card5];
+    //erste Karte und ihre Farbe werden zugewiesen
+    PlayingCard* currentPlayingCard = (PlayingCard* ) [allCards objectAtIndex:0];
+    SuitType suitTypeCurrentPlayingCard = currentPlayingCard.suitType;
+    
+    int countOfThisSuitType = 1;
+        
+        
+    for (int i=1; i<[allCards count]; i++) {
+        if (countOfThisSuitType==4) {
+            return YES;
+        }
 
-        //erste Karte
-        PlayingCard* currentPlayingCard = (PlayingCard* ) [allCards objectAtIndex:0];
-        SuitType suitTypeCurrentPlayingCard = currentPlayingCard.suitType;
-        int countOfThisSuitType = 1;
-        
-        
-        
-        for (int i=1; i<[allCards count]; i++) {
-            if (countOfThisSuitType==4) {
-                return YES;
-            }
-            int j = [allCards count] - i; // Anzahl noch nicht gepruefter Elemente
-            
-            if (countOfThisSuitType + j < 4) {
-                return NO;}
-            else {
-                //jeweils nächste Karte
+        else {
+                //nächste Karte erhält Zuweisung
                 PlayingCard* nextPlayingCard = (PlayingCard* ) [allCards objectAtIndex:i];
                 SuitType suitTypeOfNextPlayingCard = nextPlayingCard.suitType;
-                
-                //wenn die Karten gleiche Farbe haben, erhöhe Zähler
+                //wenn die Karten gleiche Farbe haben, wird der Zähler erhöht
                 if (suitTypeOfNextPlayingCard == suitTypeCurrentPlayingCard) {
                     countOfThisSuitType += 1;}
-            }       
+        }       
         
-        };    
-            
-        
-        
-        return NO;
-                    
+    };  
                 
-        
+    return NO;
         
 }
 
@@ -614,17 +582,8 @@
     
 }    
     
-       
-
-
-
-
-
-
-
-
-- (BOOL) expectGutshot
-{
+    
+- (BOOL) expectGutshot{
     NSMutableArray* allCards = [[NSMutableArray alloc] initWithArray:pokerGame.cardsOnTable.allCards];
     [allCards addObjectsFromArray:self.hand.cardsOnHand];
     
@@ -765,8 +724,8 @@
     return YES;
 }
 
-- (BOOL) expectDoubleGutshot
-{
+
+- (BOOL) expectDoubleGutshot{
     //Idee: die Methode expectGutshot findet immer den 1. möglichen gutshot.
     //falls es mehrere gibt, so haben diese mit Sicherheit mit den vorderen Karten (vor der Lücke) des 1. Gutshots nichts zu tun, diese können also entfernt werden und danach kann einfach nochmals überprüft werden, ob ein gutshot da war:
     
@@ -1042,15 +1001,15 @@
 }
 
 
-- (BOOL) expectFlushAndGutshot
-{
+- (BOOL) expectFlushAndGutshot{
     return ([self expectGutshot] && [self expectFlush]);
 }
 
-- (BOOL) expectFlushAndOpenStraight
-{
+
+- (BOOL) expectFlushAndOpenStraight{
     return ([self expectOpenStraight] && [self expectFlush]);
 }
+
 
 - (CardValues) bla
 {
@@ -1136,12 +1095,11 @@
         else if([self expectPair]){return 6;}
         else if([self expectGutshot]){return 4;}
         else if([self expectThreeOfAKind]){return 2;}
-        
-    return 0;
-    
-    
+        else return 0;
     
 }
+
+
 
 - (void) calculateCardOdds{
     
@@ -1350,14 +1308,16 @@
     if (pokerGame.gameState == PRE_FLOP){
         NSString *bucketString = [preFlopDict objectForKey:cardPairKey];
         int bucket = [bucketString intValue];
+        
         if (bucket == 1) {
             int maxBet = self.chips / 8;
             [self makeBetDecision:maxBet betProbabilityParameter:1 foldProbabilityParamter:0 callEverything:YES];
         }
-        else if (bucket == 2) {
+        else if (bucket == 2) {  
             int maxBet = self.chips / 12;
-            [self makeBetDecision:maxBet betProbabilityParameter:1 foldProbabilityParamter:0 callEverything:YES];   
+            [self makeBetDecision:maxBet betProbabilityParameter:1 foldProbabilityParamter:0 callEverything:YES];
         }
+        
         else if (bucket == 3) {
             int maxBet = self.chips / 15;
             [self makeBetDecision:maxBet betProbabilityParameter:1 foldProbabilityParamter:0 callEverything:YES];

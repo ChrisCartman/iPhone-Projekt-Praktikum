@@ -13,6 +13,7 @@
 		CE7C20D7156D739A00AEAE67 /* DifficultyViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CE7C20D6156D739A00AEAE67 /* DifficultyViewController.m */; };
 		CEBB847C157D618200841279 /* Table.png in Resources */ = {isa = PBXBuildFile; fileRef = CEBB847B157D618200841279 /* Table.png */; };
 		CEBB847F157D672A00841279 /* 2-herz.png in Resources */ = {isa = PBXBuildFile; fileRef = CEBB847E157D672A00841279 /* 2-herz.png */; };
+		CEE062B315B8A8F2009F8AFC /* texas-holdem-poker-iphone-5-wallpaper.jpg in Resources */ = {isa = PBXBuildFile; fileRef = CEE062B215B8A8F2009F8AFC /* texas-holdem-poker-iphone-5-wallpaper.jpg */; };
 		CEE23232157EA5FD00018491 /* GameViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = CEE23231157EA5FD00018491 /* GameViewController.mm */; };
 		CEE481F3159C7ECC00E2E258 /* boxblack.png in Resources */ = {isa = PBXBuildFile; fileRef = CEE481F2159C7ECC00E2E258 /* boxblack.png */; };
 		CEEBF57215601A9F007313F1 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CEEBF57115601A9F007313F1 /* UIKit.framework */; };
@@ -123,6 +124,7 @@
 		CE7C20D6156D739A00AEAE67 /* DifficultyViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DifficultyViewController.m; sourceTree = "<group>"; };
 		CEBB847B157D618200841279 /* Table.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Table.png; sourceTree = "<group>"; };
 		CEBB847E157D672A00841279 /* 2-herz.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "2-herz.png"; sourceTree = "<group>"; };
+		CEE062B215B8A8F2009F8AFC /* texas-holdem-poker-iphone-5-wallpaper.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "texas-holdem-poker-iphone-5-wallpaper.jpg"; sourceTree = "<group>"; };
 		CEE23230157EA5FD00018491 /* GameViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameViewController.h; sourceTree = "<group>"; };
 		CEE23231157EA5FD00018491 /* GameViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = GameViewController.mm; sourceTree = "<group>"; };
 		CEE481F2159C7ECC00E2E258 /* boxblack.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = boxblack.png; sourceTree = "<group>"; };
@@ -413,6 +415,7 @@
 			isa = PBXGroup;
 			children = (
 				D092D08C15A1F3C500507C4B /* icon.png */,
+				CEE062B215B8A8F2009F8AFC /* texas-holdem-poker-iphone-5-wallpaper.jpg */,
 				D0FD428A159CBF590005BD6F /* startbild.jpeg */,
 				D00EB420159B1A92009BCC7C /* Pokal.png */,
 				CEE481F2159C7ECC00E2E258 /* boxblack.png */,
@@ -627,6 +630,7 @@
 				D0FFCFFB15A1CFC600D49C07 /* crown.png in Resources */,
 				D0FFCFFD15A1D8FE00D49C07 /* winnersound.mp3 in Resources */,
 				D092D08D15A1F3C500507C4B /* icon.png in Resources */,
+				CEE062B315B8A8F2009F8AFC /* texas-holdem-poker-iphone-5-wallpaper.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

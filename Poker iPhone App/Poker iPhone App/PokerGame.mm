@@ -926,10 +926,18 @@
 }
 
 - (void) startShowDown
-{
+{   
     //zunächst jeweils die Kartenstärke ermitteln:
     for (Player* remainingPlayer in remainingPlayersInRound) {
+        assert([remainingPlayer.hand.cardsOnHand count] == 2);
+        PlayingCard* card1 = [remainingPlayer.hand.cardsOnHand objectAtIndex:0];
+        PlayingCard* card2 = [remainingPlayer.hand.cardsOnHand objectAtIndex:1];
+        NSLog(@"%i_%i,%i_%i",card1.value, card1.suitType, card2.value, card2.suitType);
         [remainingPlayer.hand defineValueOfCardsWithTableCards:self.cardsOnTable];
+        NSLog(@"%@", remainingPlayer.hand.fiveBestCards.cardValuesAsString);
+    }
+    for (PlayingCard* ab in self.cardsOnTable.allCards) {
+        NSLog(@"%i_%i",ab.value, ab.suitType);
     }
     activePlayer = playerWhoBetMost;
     [self showDownForPlayer:activePlayer];

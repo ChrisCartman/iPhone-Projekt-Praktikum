@@ -8,6 +8,12 @@
 
 #import "ViewController.h"
 
-@interface StartViewController : ViewController
+@interface StartViewController : ViewController{}
+
+@property (nonatomic, retain) UISegmentedControl *singlePlayerButton;
+@property (nonatomic, retain) UISegmentedControl *profilButton;
+
+- (void)singlePlayerButtonPressed;
+- (void)viewDidLoad;
 
 @end
